@@ -1,0 +1,81 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    <form name="editForm" role="form" novalidate (ngSubmit)="save()" [formGroup]="editForm">
+      <h2 id="jhi-user-name-heading" data-cy="UserNameCreateUpdateHeading">Create or edit a User Name</h2>
+
+      <div>
+        <jhi-alert-error></jhi-alert-error>
+
+        <div class="row mb-3" [hidden]="editForm.get('id')!.value == null">
+          <label class="form-label" for="field_id">ID</label>
+          <input type="number" class="form-control" name="id" id="field_id" data-cy="id" formControlName="id" [readonly]="true" />
+        </div>
+
+        <div class="row mb-3">
+          <label class="form-label" for="field_user_name">User Name</label>
+          <input type="text" class="form-control" name="user_name" id="field_user_name" data-cy="user_name" formControlName="user_name" />
+          <div *ngIf="editForm.get('user_name')!.invalid && (editForm.get('user_name')!.dirty || editForm.get('user_name')!.touched)">
+            <small class="form-text text-danger" *ngIf="editForm.get('user_name')?.errors?.required"> This field is required. </small>
+            <small class="form-text text-danger" *ngIf="editForm.get('user_name')?.errors?.minlength">
+              This field is required to be at least 10 characters.
+            </small>
+            <small class="form-text text-danger" *ngIf="editForm.get('user_name')?.errors?.maxlength">
+              This field cannot be longer than 50 characters.
+            </small>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <label class="form-label" for="field_password">Password</label>
+          <input type="text" class="form-control" name="password" id="field_password" data-cy="password" formControlName="password" />
+          <div *ngIf="editForm.get('password')!.invalid && (editForm.get('password')!.dirty || editForm.get('password')!.touched)">
+            <small class="form-text text-danger" *ngIf="editForm.get('password')?.errors?.required"> This field is required. </small>
+            <small class="form-text text-danger" *ngIf="editForm.get('password')?.errors?.minlength">
+              This field is required to be at least 8 characters.
+            </small>
+            <small class="form-text text-danger" *ngIf="editForm.get('password')?.errors?.maxlength">
+              This field cannot be longer than 16 characters.
+            </small>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <label class="form-label" for="field_token">Token</label>
+          <input type="text" class="form-control" name="token" id="field_token" data-cy="token" formControlName="token" />
+        </div>
+
+        <div class="row mb-3">
+          <label class="form-label" for="field_userData">User Data</label>
+          <select class="form-control" id="field_userData" data-cy="userData" name="userData" formControlName="userData">
+            <option *ngIf="editForm.get(['userData'])!.value == null" [ngValue]="null" selected></option>
+            <option
+              [ngValue]="userDataOption.id === editForm.get('userData')!.value?.id ? editForm.get('userData')!.value : userDataOption"
+              *ngFor="let userDataOption of userDataCollection; trackBy: trackUserDataById"
+            >
+              {{ userDataOption.id }}
+            </option>
+          </select>
+        </div>
+        <div *ngIf="editForm.get(['userData'])!.invalid && (editForm.get(['userData'])!.dirty || editForm.get(['userData'])!.touched)">
+          <small class="form-text text-danger" *ngIf="editForm.get(['userData'])?.errors?.required"> This field is required. </small>
+        </div>
+      </div>
+
+      <div>
+        <button type="button" id="cancel-save" data-cy="entityCreateCancelButton" class="btn btn-secondary" (click)="previousState()">
+          <fa-icon icon="ban"></fa-icon>&nbsp;<span>Cancel</span>
+        </button>
+
+        <button
+          type="submit"
+          id="save-entity"
+          data-cy="entityCreateSaveButton"
+          [disabled]="editForm.invalid || isSaving"
+          class="btn btn-primary"
+        >
+          <fa-icon icon="save"></fa-icon>&nbsp;<span>Save</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
