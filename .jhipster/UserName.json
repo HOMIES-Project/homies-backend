@@ -1,0 +1,52 @@
+{
+  "changelogDate": "20220121133436",
+  "clientRootFolder": "PruebaMicroservicio",
+  "databaseType": "sql",
+  "dto": "no",
+  "fields": [
+    {
+      "fieldName": "user_name",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "minlength", "maxlength"],
+      "fieldValidateRulesMaxlength": "50",
+      "fieldValidateRulesMinlength": "10"
+    },
+    {
+      "fieldName": "password",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "minlength", "maxlength"],
+      "fieldValidateRulesMaxlength": "16",
+      "fieldValidateRulesMinlength": "8"
+    },
+    {
+      "fieldName": "token",
+      "fieldType": "String",
+      "fieldValidateRules": []
+    }
+  ],
+  "jpaMetamodelFiltering": true,
+  "microserviceName": "PruebaMicroservicio",
+  "name": "UserName",
+  "pagination": "pagination",
+  "readOnly": false,
+  "relationships": [
+    {
+      "id": true,
+      "otherEntityField": "id",
+      "otherEntityName": "userData",
+      "otherEntityRelationshipName": "userName",
+      "ownerSide": true,
+      "relationshipName": "userData",
+      "relationshipType": "one-to-one",
+      "relationshipValidateRules": ["required"]
+    },
+    {
+      "otherEntityName": "group",
+      "otherEntityRelationshipName": "userName",
+      "ownerSide": false,
+      "relationshipName": "group",
+      "relationshipType": "many-to-many"
+    }
+  ],
+  "service": "serviceImpl"
+}
