@@ -1,0 +1,55 @@
+{
+  "changelogDate": "20220308114221",
+  "clientRootFolder": "PruebaMicroservicio",
+  "databaseType": "sql",
+  "dto": "no",
+  "entityTableName": "jhi_group",
+  "fields": [
+    {
+      "fieldName": "groupKey",
+      "fieldType": "String",
+      "fieldValidateRules": ["unique", "minlength"],
+      "fieldValidateRulesMinlength": "10"
+    },
+    {
+      "fieldName": "groupName",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "unique", "minlength", "maxlength"],
+      "fieldValidateRulesMaxlength": "50",
+      "fieldValidateRulesMinlength": "3"
+    },
+    {
+      "fieldName": "groupRelationName",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "minlength", "maxlength"],
+      "fieldValidateRulesMaxlength": "100",
+      "fieldValidateRulesMinlength": "3"
+    },
+    {
+      "fieldName": "addGroupDate",
+      "fieldType": "LocalDate"
+    },
+    {
+      "fieldName": "idUserName",
+      "fieldType": "Long",
+      "fieldValidateRules": ["required"]
+    }
+  ],
+  "jpaMetamodelFiltering": true,
+  "microserviceName": "PruebaMicroservicio",
+  "name": "Group",
+  "pagination": "pagination",
+  "readOnly": false,
+  "relationships": [
+    {
+      "otherEntityField": "id",
+      "otherEntityName": "userName",
+      "otherEntityRelationshipName": "group",
+      "ownerSide": true,
+      "relationshipName": "userName",
+      "relationshipType": "many-to-many",
+      "relationshipValidateRules": []
+    }
+  ],
+  "service": "serviceImpl"
+}
