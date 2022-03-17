@@ -1,0 +1,65 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    <div *ngIf="spending">
+      <h2 data-cy="spendingDetailsHeading"><span>Spending</span></h2>
+
+      <hr />
+
+      <jhi-alert-error></jhi-alert-error>
+
+      <jhi-alert></jhi-alert>
+
+      <dl class="row-md jh-entity-details">
+        <dt><span>ID</span></dt>
+        <dd>
+          <span>{{ spending.id }}</span>
+        </dd>
+        <dt><span>Payer</span></dt>
+        <dd>
+          <span>{{ spending.payer }}</span>
+        </dd>
+        <dt><span>Name Cost</span></dt>
+        <dd>
+          <span>{{ spending.nameCost }}</span>
+        </dd>
+        <dt><span>Cost</span></dt>
+        <dd>
+          <span>{{ spending.cost }}</span>
+        </dd>
+        <dt><span>Photo</span></dt>
+        <dd>
+          <div *ngIf="spending.photo">
+            <a (click)="openFile(spending.photo, spending.photoContentType)">
+              <img [src]="'data:' + spending.photoContentType + ';base64,' + spending.photo" style="max-width: 100%" alt="spending image" />
+            </a>
+            {{ spending.photoContentType }}, {{ byteSize(spending.photo) }}
+          </div>
+        </dd>
+        <dt><span>Descripcion</span></dt>
+        <dd>
+          <span>{{ spending.descripcion }}</span>
+        </dd>
+        <dt><span>Paid</span></dt>
+        <dd>
+          <span>{{ spending.paid }}</span>
+        </dd>
+        <dt><span>Pending</span></dt>
+        <dd>
+          <span>{{ spending.pending }}</span>
+        </dd>
+        <dt><span>Finished</span></dt>
+        <dd>
+          <span>{{ spending.finished }}</span>
+        </dd>
+      </dl>
+
+      <button type="submit" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">
+        <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span>Back</span>
+      </button>
+
+      <button type="button" [routerLink]="['/spending', spending.id, 'edit']" class="btn btn-primary">
+        <fa-icon icon="pencil-alt"></fa-icon>&nbsp;<span>Edit</span>
+      </button>
+    </div>
+  </div>
+</div>

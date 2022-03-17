@@ -1,0 +1,149 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    <form name="editForm" role="form" novalidate (ngSubmit)="save()" [formGroup]="editForm">
+      <h2 id="jhi-task-heading" data-cy="TaskCreateUpdateHeading">Create or edit a Task</h2>
+
+      <div>
+        <jhi-alert-error></jhi-alert-error>
+
+        <div class="row mb-3" [hidden]="editForm.get('id')!.value == null">
+          <label class="form-label" for="field_id">ID</label>
+          <input type="number" class="form-control" name="id" id="field_id" data-cy="id" formControlName="id" [readonly]="true" />
+        </div>
+
+        <div class="row mb-3">
+          <label class="form-label" for="field_taskName">Task Name</label>
+          <input type="text" class="form-control" name="taskName" id="field_taskName" data-cy="taskName" formControlName="taskName" />
+          <div *ngIf="editForm.get('taskName')!.invalid && (editForm.get('taskName')!.dirty || editForm.get('taskName')!.touched)">
+            <small class="form-text text-danger" *ngIf="editForm.get('taskName')?.errors?.required"> This field is required. </small>
+            <small class="form-text text-danger" *ngIf="editForm.get('taskName')?.errors?.minlength">
+              This field is required to be at least 3 characters.
+            </small>
+            <small class="form-text text-danger" *ngIf="editForm.get('taskName')?.errors?.maxlength">
+              This field cannot be longer than 50 characters.
+            </small>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <label class="form-label" for="field_dataCreate">Data Create</label>
+          <div class="input-group">
+            <input
+              id="field_dataCreate"
+              data-cy="dataCreate"
+              type="text"
+              class="form-control"
+              name="dataCreate"
+              ngbDatepicker
+              #dataCreateDp="ngbDatepicker"
+              formControlName="dataCreate"
+            />
+            <button type="button" class="btn btn-secondary" (click)="dataCreateDp.toggle()"><fa-icon icon="calendar-alt"></fa-icon></button>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <label class="form-label" for="field_dataEnd">Data End</label>
+          <div class="input-group">
+            <input
+              id="field_dataEnd"
+              data-cy="dataEnd"
+              type="text"
+              class="form-control"
+              name="dataEnd"
+              ngbDatepicker
+              #dataEndDp="ngbDatepicker"
+              formControlName="dataEnd"
+            />
+            <button type="button" class="btn btn-secondary" (click)="dataEndDp.toggle()"><fa-icon icon="calendar-alt"></fa-icon></button>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <label class="form-label" for="field_description">Description</label>
+          <input
+            type="text"
+            class="form-control"
+            name="description"
+            id="field_description"
+            data-cy="description"
+            formControlName="description"
+          />
+          <div *ngIf="editForm.get('description')!.invalid && (editForm.get('description')!.dirty || editForm.get('description')!.touched)">
+            <small class="form-text text-danger" *ngIf="editForm.get('description')?.errors?.required"> This field is required. </small>
+            <small class="form-text text-danger" *ngIf="editForm.get('description')?.errors?.minlength">
+              This field is required to be at least 3 characters.
+            </small>
+            <small class="form-text text-danger" *ngIf="editForm.get('description')?.errors?.maxlength">
+              This field cannot be longer than 100 characters.
+            </small>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <label class="form-label" for="field_cancel">Cancel</label>
+          <input type="checkbox" class="form-check" name="cancel" id="field_cancel" data-cy="cancel" formControlName="cancel" />
+        </div>
+
+        <div class="row mb-3">
+          <label class="form-label" for="field_photo">Photo</label>
+          <div>
+            <img
+              [src]="'data:' + editForm.get('photoContentType')!.value + ';base64,' + editForm.get('photo')!.value"
+              style="max-height: 100px"
+              *ngIf="editForm.get('photo')!.value"
+              alt="task image"
+            />
+            <div *ngIf="editForm.get('photo')!.value" class="form-text text-danger clearfix">
+              <span class="pull-start">{{ editForm.get('photoContentType')!.value }}, {{ byteSize(editForm.get('photo')!.value) }}</span>
+              <button
+                type="button"
+                (click)="clearInputImage('photo', 'photoContentType', 'file_photo')"
+                class="btn btn-secondary btn-xs pull-end"
+              >
+                <fa-icon icon="times"></fa-icon>
+              </button>
+            </div>
+            <input type="file" id="file_photo" data-cy="photo" (change)="setFileData($event, 'photo', true)" accept="image/*" />
+          </div>
+          <input type="hidden" class="form-control" name="photo" id="field_photo" data-cy="photo" formControlName="photo" />
+          <input
+            type="hidden"
+            class="form-control"
+            name="photoContentType"
+            id="field_photoContentType"
+            formControlName="photoContentType"
+          />
+        </div>
+
+        <div class="row mb-3">
+          <label class="form-label" for="field_puntuacion">Puntuacion</label>
+          <input
+            type="text"
+            class="form-control"
+            name="puntuacion"
+            id="field_puntuacion"
+            data-cy="puntuacion"
+            formControlName="puntuacion"
+          />
+        </div>
+      </div>
+
+      <div>
+        <button type="button" id="cancel-save" data-cy="entityCreateCancelButton" class="btn btn-secondary" (click)="previousState()">
+          <fa-icon icon="ban"></fa-icon>&nbsp;<span>Cancel</span>
+        </button>
+
+        <button
+          type="submit"
+          id="save-entity"
+          data-cy="entityCreateSaveButton"
+          [disabled]="editForm.invalid || isSaving"
+          class="btn btn-primary"
+        >
+          <fa-icon icon="save"></fa-icon>&nbsp;<span>Save</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
