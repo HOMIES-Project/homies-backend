@@ -5,16 +5,6 @@ import { RouterModule } from '@angular/router';
   imports: [
     RouterModule.forChild([
       {
-        path: 'group',
-        data: { pageTitle: 'Groups' },
-        loadChildren: () => import('./Homies/group/group.module').then(m => m.HomiesGroupModule),
-      },
-      {
-        path: 'user-name',
-        data: { pageTitle: 'UserNames' },
-        loadChildren: () => import('./Homies/user-name/user-name.module').then(m => m.HomiesUserNameModule),
-      },
-      {
         path: 'products',
         data: { pageTitle: 'Products' },
         loadChildren: () => import('./products/products.module').then(m => m.ProductsModule),
@@ -48,6 +38,16 @@ import { RouterModule } from '@angular/router';
         path: 'spending-list',
         data: { pageTitle: 'SpendingLists' },
         loadChildren: () => import('./spending-list/spending-list.module').then(m => m.SpendingListModule),
+      },
+      {
+        path: 'user-data',
+        data: { pageTitle: 'UserData' },
+        loadChildren: () => import('./Homies/user-data/user-data.module').then(m => m.HomiesUserDataModule),
+      },
+      {
+        path: 'group',
+        data: { pageTitle: 'Groups' },
+        loadChildren: () => import('./Homies/group/group.module').then(m => m.HomiesGroupModule),
       },
       /* jhipster-needle-add-entity-route - JHipster will add entity modules routes here */
     ]),
