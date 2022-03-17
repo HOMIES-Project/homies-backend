@@ -1,0 +1,44 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    <div *ngIf="group">
+      <h2 data-cy="groupDetailsHeading"><span>Group</span></h2>
+
+      <hr />
+
+      <jhi-alert-error></jhi-alert-error>
+
+      <jhi-alert></jhi-alert>
+
+      <dl class="row-md jh-entity-details">
+        <dt><span>ID</span></dt>
+        <dd>
+          <span>{{ group.id }}</span>
+        </dd>
+        <dt><span>Group Key</span></dt>
+        <dd>
+          <span>{{ group.groupKey }}</span>
+        </dd>
+        <dt><span>Group Name</span></dt>
+        <dd>
+          <span>{{ group.groupName }}</span>
+        </dd>
+        <dt><span>Group Relation Name</span></dt>
+        <dd>
+          <span>{{ group.groupRelationName }}</span>
+        </dd>
+        <dt><span>Add Group Date</span></dt>
+        <dd>
+          <span>{{ group.addGroupDate | formatMediumDate }}</span>
+        </dd>
+      </dl>
+
+      <button type="submit" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">
+        <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span>Back</span>
+      </button>
+
+      <button type="button" [routerLink]="['/group', group.id, 'edit']" class="btn btn-primary">
+        <fa-icon icon="pencil-alt"></fa-icon>&nbsp;<span>Edit</span>
+      </button>
+    </div>
+  </div>
+</div>
