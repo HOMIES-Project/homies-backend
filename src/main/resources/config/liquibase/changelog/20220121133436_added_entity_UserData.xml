@@ -7,12 +7,30 @@
                         http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
     <!--
-        Added the entity UserName.
+        Added the entity UserData.
     -->
     <changeSet id="20220121133436-1" author="jhipster">
-        <createTable tableName="user_name">
+        <createTable tableName="user_data">
             <column name="id" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="photo" type="longblob">
+                <constraints nullable="true" />
+            </column>
+            <column name="photo_content_type" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+            <column name="phone" type="varchar(50)">
+                <constraints nullable="true" />
+            </column>
+            <column name="premium" type="boolean">
+                <constraints nullable="false" />
+            </column>
+            <column name="birth_date" type="date">
+                <constraints nullable="true" />
+            </column>
+            <column name="add_date" type="date">
+                <constraints nullable="true" />
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
@@ -30,11 +48,17 @@
     -->
     <changeSet id="20220121133436-1-data" author="jhipster" context="faker">
         <loadData
-                  file="config/liquibase/fake-data/user_name.csv"
+                  file="config/liquibase/fake-data/user_data.csv"
                   separator=";"
-                  tableName="user_name"
+                  tableName="user_data"
                   usePreparedStatements="true">
             <column name="id" type="numeric"/>
+            <column name="photo" type="blob"/>
+            <column name="photo_content_type" type="string"/>
+            <column name="phone" type="string"/>
+            <column name="premium" type="boolean"/>
+            <column name="birth_date" type="date"/>
+            <column name="add_date" type="date"/>
             <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here -->
         </loadData>
     </changeSet>
