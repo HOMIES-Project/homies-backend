@@ -19,6 +19,7 @@
     "enableHibernateCache": true,
     "enableSwaggerCodegen": false,
     "enableTranslation": false,
+    "entities": ["Products", "Task", "TaskList", "ShoppingList", "Spending", "UserPending", "SpendingList"],
     "entitySuffix": "",
     "jhiPrefix": "jhi",
     "jhipsterVersion": "7.7.0",

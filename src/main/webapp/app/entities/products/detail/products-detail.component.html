@@ -1,0 +1,73 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    <div *ngIf="products">
+      <h2 data-cy="productsDetailsHeading"><span>Products</span></h2>
+
+      <hr />
+
+      <jhi-alert-error></jhi-alert-error>
+
+      <jhi-alert></jhi-alert>
+
+      <dl class="row-md jh-entity-details">
+        <dt><span>ID</span></dt>
+        <dd>
+          <span>{{ products.id }}</span>
+        </dd>
+        <dt><span>Name</span></dt>
+        <dd>
+          <span>{{ products.name }}</span>
+        </dd>
+        <dt><span>Price</span></dt>
+        <dd>
+          <span>{{ products.price }}</span>
+        </dd>
+        <dt><span>Photo</span></dt>
+        <dd>
+          <div *ngIf="products.photo">
+            <a (click)="openFile(products.photo, products.photoContentType)">
+              <img [src]="'data:' + products.photoContentType + ';base64,' + products.photo" style="max-width: 100%" alt="products image" />
+            </a>
+            {{ products.photoContentType }}, {{ byteSize(products.photo) }}
+          </div>
+        </dd>
+        <dt><span>Units</span></dt>
+        <dd>
+          <span>{{ products.units }}</span>
+        </dd>
+        <dt><span>Type Unit</span></dt>
+        <dd>
+          <span>{{ products.typeUnit }}</span>
+        </dd>
+        <dt><span>Note</span></dt>
+        <dd>
+          <span>{{ products.note }}</span>
+        </dd>
+        <dt><span>Data Created</span></dt>
+        <dd>
+          <span>{{ products.dataCreated | formatMediumDate }}</span>
+        </dd>
+        <dt><span>Shopping Date</span></dt>
+        <dd>
+          <span>{{ products.shoppingDate | formatMediumDate }}</span>
+        </dd>
+        <dt><span>Purchased</span></dt>
+        <dd>
+          <span>{{ products.purchased }}</span>
+        </dd>
+        <dt><span>User Created</span></dt>
+        <dd>
+          <span>{{ products.userCreated }}</span>
+        </dd>
+      </dl>
+
+      <button type="submit" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">
+        <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span>Back</span>
+      </button>
+
+      <button type="button" [routerLink]="['/products', products.id, 'edit']" class="btn btn-primary">
+        <fa-icon icon="pencil-alt"></fa-icon>&nbsp;<span>Edit</span>
+      </button>
+    </div>
+  </div>
+</div>
