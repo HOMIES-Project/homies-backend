@@ -9,7 +9,6 @@ import tech.jhipster.service.filter.DoubleFilter;
 import tech.jhipster.service.filter.Filter;
 import tech.jhipster.service.filter.FloatFilter;
 import tech.jhipster.service.filter.IntegerFilter;
-import tech.jhipster.service.filter.LocalDateFilter;
 import tech.jhipster.service.filter.LongFilter;
 import tech.jhipster.service.filter.StringFilter;
 
@@ -29,30 +28,12 @@ public class UserNameCriteria implements Serializable, Criteria {
 
     private LongFilter id;
 
-    private StringFilter name;
-
-    private StringFilter surname;
-
-    private StringFilter phone;
-
-    private BooleanFilter premium;
-
-    private LocalDateFilter birthDate;
-
-    private LocalDateFilter addDate;
-
     private Boolean distinct;
 
     public UserNameCriteria() {}
 
     public UserNameCriteria(UserNameCriteria other) {
         this.id = other.id == null ? null : other.id.copy();
-        this.name = other.name == null ? null : other.name.copy();
-        this.surname = other.surname == null ? null : other.surname.copy();
-        this.phone = other.phone == null ? null : other.phone.copy();
-        this.premium = other.premium == null ? null : other.premium.copy();
-        this.birthDate = other.birthDate == null ? null : other.birthDate.copy();
-        this.addDate = other.addDate == null ? null : other.addDate.copy();
         this.distinct = other.distinct;
     }
 
@@ -76,96 +57,6 @@ public class UserNameCriteria implements Serializable, Criteria {
         this.id = id;
     }
 
-    public StringFilter getName() {
-        return name;
-    }
-
-    public StringFilter name() {
-        if (name == null) {
-            name = new StringFilter();
-        }
-        return name;
-    }
-
-    public void setName(StringFilter name) {
-        this.name = name;
-    }
-
-    public StringFilter getSurname() {
-        return surname;
-    }
-
-    public StringFilter surname() {
-        if (surname == null) {
-            surname = new StringFilter();
-        }
-        return surname;
-    }
-
-    public void setSurname(StringFilter surname) {
-        this.surname = surname;
-    }
-
-    public StringFilter getPhone() {
-        return phone;
-    }
-
-    public StringFilter phone() {
-        if (phone == null) {
-            phone = new StringFilter();
-        }
-        return phone;
-    }
-
-    public void setPhone(StringFilter phone) {
-        this.phone = phone;
-    }
-
-    public BooleanFilter getPremium() {
-        return premium;
-    }
-
-    public BooleanFilter premium() {
-        if (premium == null) {
-            premium = new BooleanFilter();
-        }
-        return premium;
-    }
-
-    public void setPremium(BooleanFilter premium) {
-        this.premium = premium;
-    }
-
-    public LocalDateFilter getBirthDate() {
-        return birthDate;
-    }
-
-    public LocalDateFilter birthDate() {
-        if (birthDate == null) {
-            birthDate = new LocalDateFilter();
-        }
-        return birthDate;
-    }
-
-    public void setBirthDate(LocalDateFilter birthDate) {
-        this.birthDate = birthDate;
-    }
-
-    public LocalDateFilter getAddDate() {
-        return addDate;
-    }
-
-    public LocalDateFilter addDate() {
-        if (addDate == null) {
-            addDate = new LocalDateFilter();
-        }
-        return addDate;
-    }
-
-    public void setAddDate(LocalDateFilter addDate) {
-        this.addDate = addDate;
-    }
-
     public Boolean getDistinct() {
         return distinct;
     }
@@ -183,21 +74,12 @@ public class UserNameCriteria implements Serializable, Criteria {
             return false;
         }
         final UserNameCriteria that = (UserNameCriteria) o;
-        return (
-            Objects.equals(id, that.id) &&
-            Objects.equals(name, that.name) &&
-            Objects.equals(surname, that.surname) &&
-            Objects.equals(phone, that.phone) &&
-            Objects.equals(premium, that.premium) &&
-            Objects.equals(birthDate, that.birthDate) &&
-            Objects.equals(addDate, that.addDate) &&
-            Objects.equals(distinct, that.distinct)
-        );
+        return Objects.equals(id, that.id) && Objects.equals(distinct, that.distinct);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, surname, phone, premium, birthDate, addDate, distinct);
+        return Objects.hash(id, distinct);
     }
 
     // prettier-ignore
@@ -205,12 +87,6 @@ public class UserNameCriteria implements Serializable, Criteria {
     public String toString() {
         return "UserNameCriteria{" +
             (id != null ? "id=" + id + ", " : "") +
-            (name != null ? "name=" + name + ", " : "") +
-            (surname != null ? "surname=" + surname + ", " : "") +
-            (phone != null ? "phone=" + phone + ", " : "") +
-            (premium != null ? "premium=" + premium + ", " : "") +
-            (birthDate != null ? "birthDate=" + birthDate + ", " : "") +
-            (addDate != null ? "addDate=" + addDate + ", " : "") +
             (distinct != null ? "distinct=" + distinct + ", " : "") +
             "}";
     }

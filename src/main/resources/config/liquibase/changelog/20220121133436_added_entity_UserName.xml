@@ -14,30 +14,6 @@
             <column name="id" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="name" type="varchar(50)">
-                <constraints nullable="false" />
-            </column>
-            <column name="surname" type="varchar(50)">
-                <constraints nullable="false" />
-            </column>
-            <column name="photo" type="longblob">
-                <constraints nullable="true" />
-            </column>
-            <column name="photo_content_type" type="varchar(255)">
-                <constraints nullable="true" />
-            </column>
-            <column name="phone" type="varchar(50)">
-                <constraints nullable="true" />
-            </column>
-            <column name="premium" type="boolean">
-                <constraints nullable="false" />
-            </column>
-            <column name="birth_date" type="date">
-                <constraints nullable="true" />
-            </column>
-            <column name="add_date" type="date">
-                <constraints nullable="true" />
-            </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
     </changeSet>
@@ -59,14 +35,6 @@
                   tableName="user_name"
                   usePreparedStatements="true">
             <column name="id" type="numeric"/>
-            <column name="name" type="string"/>
-            <column name="surname" type="string"/>
-            <column name="photo" type="blob"/>
-            <column name="photo_content_type" type="string"/>
-            <column name="phone" type="string"/>
-            <column name="premium" type="boolean"/>
-            <column name="birth_date" type="date"/>
-            <column name="add_date" type="date"/>
             <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here -->
         </loadData>
     </changeSet>
