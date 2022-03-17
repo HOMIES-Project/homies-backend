@@ -46,6 +46,30 @@
             <li>
               <a
                 class="dropdown-item"
+                routerLink="group"
+                routerLinkActive="active"
+                [routerLinkActiveOptions]="{ exact: true }"
+                (click)="collapseNavbar()"
+              >
+                <fa-icon icon="asterisk" [fixedWidth]="true"></fa-icon>
+                <span>Group</span>
+              </a>
+            </li>
+            <li>
+              <a
+                class="dropdown-item"
+                routerLink="user-name"
+                routerLinkActive="active"
+                [routerLinkActiveOptions]="{ exact: true }"
+                (click)="collapseNavbar()"
+              >
+                <fa-icon icon="asterisk" [fixedWidth]="true"></fa-icon>
+                <span>User Name</span>
+              </a>
+            </li>
+            <li>
+              <a
+                class="dropdown-item"
                 routerLink="products"
                 routerLinkActive="active"
                 [routerLinkActiveOptions]="{ exact: true }"

@@ -5,6 +5,16 @@ import { RouterModule } from '@angular/router';
   imports: [
     RouterModule.forChild([
       {
+        path: 'group',
+        data: { pageTitle: 'Groups' },
+        loadChildren: () => import('./Homies/group/group.module').then(m => m.HomiesGroupModule),
+      },
+      {
+        path: 'user-name',
+        data: { pageTitle: 'UserNames' },
+        loadChildren: () => import('./Homies/user-name/user-name.module').then(m => m.HomiesUserNameModule),
+      },
+      {
         path: 'products',
         data: { pageTitle: 'Products' },
         loadChildren: () => import('./products/products.module').then(m => m.ProductsModule),
