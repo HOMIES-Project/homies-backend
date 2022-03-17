@@ -1,0 +1,40 @@
+{
+  "changelogDate": "20220308114221",
+  "clientRootFolder": "Homies",
+  "databaseType": "sql",
+  "dto": "no",
+  "entityTableName": "jhi_group",
+  "fields": [
+    {
+      "fieldName": "groupKey",
+      "fieldType": "String",
+      "fieldValidateRules": ["unique", "minlength"],
+      "fieldValidateRulesMinlength": "10"
+    },
+    {
+      "fieldName": "groupName",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "unique", "minlength", "maxlength"],
+      "fieldValidateRulesMaxlength": "50",
+      "fieldValidateRulesMinlength": "3"
+    },
+    {
+      "fieldName": "groupRelationName",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "minlength", "maxlength"],
+      "fieldValidateRulesMaxlength": "100",
+      "fieldValidateRulesMinlength": "3"
+    },
+    {
+      "fieldName": "addGroupDate",
+      "fieldType": "LocalDate"
+    }
+  ],
+  "jpaMetamodelFiltering": true,
+  "microserviceName": "Homies",
+  "name": "Group",
+  "pagination": "pagination",
+  "readOnly": false,
+  "relationships": [],
+  "service": "serviceImpl"
+}
