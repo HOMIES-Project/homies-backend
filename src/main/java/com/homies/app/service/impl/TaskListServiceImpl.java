@@ -3,7 +3,10 @@ package com.homies.app.service.impl;
 import com.homies.app.domain.TaskList;
 import com.homies.app.repository.TaskListRepository;
 import com.homies.app.service.TaskListService;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -53,6 +56,19 @@ public class TaskListServiceImpl implements TaskListService {
     public Page<TaskList> findAll(Pageable pageable) {
         log.debug("Request to get all TaskLists");
         return taskListRepository.findAll(pageable);
+    }
+
+    /**
+     *  Get all the taskLists where Group is {@code null}.
+     *  @return the list of entities.
+     */
+    @Transactional(readOnly = true)
+    public List<TaskList> findAllWhereGroupIsNull() {
+        log.debug("Request to get all taskLists where Group is null");
+        return StreamSupport
+            .stream(taskListRepository.findAll().spliterator(), false)
+            .filter(taskList -> taskList.getGroup() == null)
+            .collect(Collectors.toList());
     }
 
     @Override

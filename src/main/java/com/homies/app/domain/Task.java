@@ -1,5 +1,6 @@
 package com.homies.app.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
 import java.time.LocalDate;
 import javax.persistence.*;
@@ -50,6 +51,10 @@ public class Task implements Serializable {
 
     @Column(name = "puntuacion")
     private String puntuacion;
+
+    @ManyToOne
+    @JsonIgnoreProperties(value = { "group", "tasks" }, allowSetters = true)
+    private TaskList taskList;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -168,6 +173,19 @@ public class Task implements Serializable {
 
     public void setPuntuacion(String puntuacion) {
         this.puntuacion = puntuacion;
+    }
+
+    public TaskList getTaskList() {
+        return this.taskList;
+    }
+
+    public void setTaskList(TaskList taskList) {
+        this.taskList = taskList;
+    }
+
+    public Task taskList(TaskList taskList) {
+        this.setTaskList(taskList);
+        return this;
     }
 
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here

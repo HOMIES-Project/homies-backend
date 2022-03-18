@@ -7,6 +7,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.homies.app.IntegrationTest;
 import com.homies.app.domain.Task;
+import com.homies.app.domain.TaskList;
 import com.homies.app.repository.TaskRepository;
 import com.homies.app.service.criteria.TaskCriteria;
 import java.time.LocalDate;
@@ -747,6 +748,32 @@ class TaskResourceIT {
 
         // Get all the taskList where puntuacion does not contain UPDATED_PUNTUACION
         defaultTaskShouldBeFound("puntuacion.doesNotContain=" + UPDATED_PUNTUACION);
+    }
+
+    @Test
+    @Transactional
+    void getAllTasksByTaskListIsEqualToSomething() throws Exception {
+        // Initialize the database
+        taskRepository.saveAndFlush(task);
+        TaskList taskList;
+        if (TestUtil.findAll(em, TaskList.class).isEmpty()) {
+            taskList = TaskListResourceIT.createEntity(em);
+            em.persist(taskList);
+            em.flush();
+        } else {
+            taskList = TestUtil.findAll(em, TaskList.class).get(0);
+        }
+        em.persist(taskList);
+        em.flush();
+        task.setTaskList(taskList);
+        taskRepository.saveAndFlush(task);
+        Long taskListId = taskList.getId();
+
+        // Get all the taskList where taskList equals to taskListId
+        defaultTaskShouldBeFound("taskListId.equals=" + taskListId);
+
+        // Get all the taskList where taskList equals to (taskListId + 1)
+        defaultTaskShouldNotBeFound("taskListId.equals=" + (taskListId + 1));
     }
 
     /**

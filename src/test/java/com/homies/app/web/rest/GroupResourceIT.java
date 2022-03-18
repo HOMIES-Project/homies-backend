@@ -188,7 +188,7 @@ class GroupResourceIT {
         em.detach(updatedGroup);
 
         // Update the TaskList with new association value
-        updatedGroup.setTaskList();
+        updatedGroup.setTaskList(group.getTaskList());
 
         // Update the entity
         restGroupMockMvc

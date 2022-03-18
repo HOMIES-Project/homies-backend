@@ -42,6 +42,13 @@
   "name": "Task",
   "pagination": "pagination",
   "readOnly": false,
-  "relationships": [],
+  "relationships": [
+    {
+      "otherEntityField": "nameList",
+      "otherEntityName": "taskList",
+      "relationshipName": "taskList",
+      "relationshipType": "many-to-one"
+    }
+  ],
   "service": "serviceImpl"
 }

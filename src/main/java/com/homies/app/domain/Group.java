@@ -55,6 +55,7 @@ public class Group implements Serializable {
     @JsonIgnoreProperties(value = { "groups", "user", "adminGroups" }, allowSetters = true)
     private UserData userAdmin;
 
+    @JsonIgnoreProperties(value = { "group", "tasks" }, allowSetters = true)
     @OneToOne
     @MapsId
     @JoinColumn(name = "id")

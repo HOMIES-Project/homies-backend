@@ -47,6 +47,12 @@
         <dd>
           <span>{{ task.puntuacion }}</span>
         </dd>
+        <dt><span>Task List</span></dt>
+        <dd>
+          <div *ngIf="task.taskList">
+            <a [routerLink]="['/task-list', task.taskList?.id, 'view']">{{ task.taskList?.nameList }}</a>
+          </div>
+        </dd>
       </dl>
 
       <button type="submit" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">

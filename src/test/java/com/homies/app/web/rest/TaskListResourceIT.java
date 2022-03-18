@@ -6,6 +6,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.homies.app.IntegrationTest;
+import com.homies.app.domain.Group;
+import com.homies.app.domain.Task;
 import com.homies.app.domain.TaskList;
 import com.homies.app.repository.TaskListRepository;
 import com.homies.app.service.criteria.TaskListCriteria;
@@ -235,6 +237,59 @@ class TaskListResourceIT {
 
         // Get all the taskListList where nameList does not contain UPDATED_NAME_LIST
         defaultTaskListShouldBeFound("nameList.doesNotContain=" + UPDATED_NAME_LIST);
+    }
+
+    @Test
+    @Transactional
+    void getAllTaskListsByGroupIsEqualToSomething() throws Exception {
+        // Initialize the database
+        taskListRepository.saveAndFlush(taskList);
+        Group group;
+        if (TestUtil.findAll(em, Group.class).isEmpty()) {
+            group = GroupResourceIT.createEntity(em);
+            em.persist(group);
+            em.flush();
+        } else {
+            group = TestUtil.findAll(em, Group.class).get(0);
+        }
+        em.persist(group);
+        em.flush();
+        taskList.setGroup(group);
+        group.setTaskList(taskList);
+        taskListRepository.saveAndFlush(taskList);
+        Long groupId = group.getId();
+
+        // Get all the taskListList where group equals to groupId
+        defaultTaskListShouldBeFound("groupId.equals=" + groupId);
+
+        // Get all the taskListList where group equals to (groupId + 1)
+        defaultTaskListShouldNotBeFound("groupId.equals=" + (groupId + 1));
+    }
+
+    @Test
+    @Transactional
+    void getAllTaskListsByTaskIsEqualToSomething() throws Exception {
+        // Initialize the database
+        taskListRepository.saveAndFlush(taskList);
+        Task task;
+        if (TestUtil.findAll(em, Task.class).isEmpty()) {
+            task = TaskResourceIT.createEntity(em);
+            em.persist(task);
+            em.flush();
+        } else {
+            task = TestUtil.findAll(em, Task.class).get(0);
+        }
+        em.persist(task);
+        em.flush();
+        taskList.addTask(task);
+        taskListRepository.saveAndFlush(taskList);
+        Long taskId = task.getId();
+
+        // Get all the taskListList where task equals to taskId
+        defaultTaskListShouldBeFound("taskId.equals=" + taskId);
+
+        // Get all the taskListList where task equals to (taskId + 1)
+        defaultTaskListShouldNotBeFound("taskId.equals=" + (taskId + 1));
     }
 
     /**

@@ -1,6 +1,7 @@
 package com.homies.app.service;
 
 import com.homies.app.domain.TaskList;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -32,6 +33,12 @@ public interface TaskListService {
      * @return the list of entities.
      */
     Page<TaskList> findAll(Pageable pageable);
+    /**
+     * Get all the TaskList where Group is {@code null}.
+     *
+     * @return the {@link List} of entities.
+     */
+    List<TaskList> findAllWhereGroupIsNull();
 
     /**
      * Get the "id" taskList.

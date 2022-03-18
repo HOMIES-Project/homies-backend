@@ -41,6 +41,8 @@ public class TaskCriteria implements Serializable, Criteria {
 
     private StringFilter puntuacion;
 
+    private LongFilter taskListId;
+
     private Boolean distinct;
 
     public TaskCriteria() {}
@@ -53,6 +55,7 @@ public class TaskCriteria implements Serializable, Criteria {
         this.description = other.description == null ? null : other.description.copy();
         this.cancel = other.cancel == null ? null : other.cancel.copy();
         this.puntuacion = other.puntuacion == null ? null : other.puntuacion.copy();
+        this.taskListId = other.taskListId == null ? null : other.taskListId.copy();
         this.distinct = other.distinct;
     }
 
@@ -166,6 +169,21 @@ public class TaskCriteria implements Serializable, Criteria {
         this.puntuacion = puntuacion;
     }
 
+    public LongFilter getTaskListId() {
+        return taskListId;
+    }
+
+    public LongFilter taskListId() {
+        if (taskListId == null) {
+            taskListId = new LongFilter();
+        }
+        return taskListId;
+    }
+
+    public void setTaskListId(LongFilter taskListId) {
+        this.taskListId = taskListId;
+    }
+
     public Boolean getDistinct() {
         return distinct;
     }
@@ -191,13 +209,14 @@ public class TaskCriteria implements Serializable, Criteria {
             Objects.equals(description, that.description) &&
             Objects.equals(cancel, that.cancel) &&
             Objects.equals(puntuacion, that.puntuacion) &&
+            Objects.equals(taskListId, that.taskListId) &&
             Objects.equals(distinct, that.distinct)
         );
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, taskName, dataCreate, dataEnd, description, cancel, puntuacion, distinct);
+        return Objects.hash(id, taskName, dataCreate, dataEnd, description, cancel, puntuacion, taskListId, distinct);
     }
 
     // prettier-ignore
@@ -211,6 +230,7 @@ public class TaskCriteria implements Serializable, Criteria {
             (description != null ? "description=" + description + ", " : "") +
             (cancel != null ? "cancel=" + cancel + ", " : "") +
             (puntuacion != null ? "puntuacion=" + puntuacion + ", " : "") +
+            (taskListId != null ? "taskListId=" + taskListId + ", " : "") +
             (distinct != null ? "distinct=" + distinct + ", " : "") +
             "}";
     }

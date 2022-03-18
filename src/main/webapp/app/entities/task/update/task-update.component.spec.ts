@@ -8,6 +8,8 @@ import { of, Subject, from } from 'rxjs';
 
 import { TaskService } from '../service/task.service';
 import { ITask, Task } from '../task.model';
+import { ITaskList } from 'app/entities/task-list/task-list.model';
+import { TaskListService } from 'app/entities/task-list/service/task-list.service';
 
 import { TaskUpdateComponent } from './task-update.component';
 
@@ -16,6 +18,7 @@ describe('Task Management Update Component', () => {
   let fixture: ComponentFixture<TaskUpdateComponent>;
   let activatedRoute: ActivatedRoute;
   let taskService: TaskService;
+  let taskListService: TaskListService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -37,18 +40,41 @@ describe('Task Management Update Component', () => {
     fixture = TestBed.createComponent(TaskUpdateComponent);
     activatedRoute = TestBed.inject(ActivatedRoute);
     taskService = TestBed.inject(TaskService);
+    taskListService = TestBed.inject(TaskListService);
 
     comp = fixture.componentInstance;
   });
 
   describe('ngOnInit', () => {
+    it('Should call TaskList query and add missing value', () => {
+      const task: ITask = { id: 456 };
+      const taskList: ITaskList = { id: 3403 };
+      task.taskList = taskList;
+
+      const taskListCollection: ITaskList[] = [{ id: 3609 }];
+      jest.spyOn(taskListService, 'query').mockReturnValue(of(new HttpResponse({ body: taskListCollection })));
+      const additionalTaskLists = [taskList];
+      const expectedCollection: ITaskList[] = [...additionalTaskLists, ...taskListCollection];
+      jest.spyOn(taskListService, 'addTaskListToCollectionIfMissing').mockReturnValue(expectedCollection);
+
+      activatedRoute.data = of({ task });
+      comp.ngOnInit();
+
+      expect(taskListService.query).toHaveBeenCalled();
+      expect(taskListService.addTaskListToCollectionIfMissing).toHaveBeenCalledWith(taskListCollection, ...additionalTaskLists);
+      expect(comp.taskListsSharedCollection).toEqual(expectedCollection);
+    });
+
     it('Should update editForm', () => {
       const task: ITask = { id: 456 };
+      const taskList: ITaskList = { id: 51798 };
+      task.taskList = taskList;
 
       activatedRoute.data = of({ task });
       comp.ngOnInit();
 
       expect(comp.editForm.value).toEqual(expect.objectContaining(task));
+      expect(comp.taskListsSharedCollection).toContain(taskList);
     });
   });
 
@@ -113,6 +139,16 @@ describe('Task Management Update Component', () => {
       expect(taskService.update).toHaveBeenCalledWith(task);
       expect(comp.isSaving).toEqual(false);
       expect(comp.previousState).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('Tracking relationships identifiers', () => {
+    describe('trackTaskListById', () => {
+      it('Should return tracked TaskList primary key', () => {
+        const entity = { id: 123 };
+        const trackResult = comp.trackTaskListById(0, entity);
+        expect(trackResult).toEqual(entity.id);
+      });
     });
   });
 });

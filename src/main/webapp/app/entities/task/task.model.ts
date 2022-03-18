@@ -1,4 +1,5 @@
 import dayjs from 'dayjs/esm';
+import { ITaskList } from 'app/entities/task-list/task-list.model';
 
 export interface ITask {
   id?: number;
@@ -10,6 +11,7 @@ export interface ITask {
   photoContentType?: string | null;
   photo?: string | null;
   puntuacion?: string | null;
+  taskList?: ITaskList | null;
 }
 
 export class Task implements ITask {
@@ -22,7 +24,8 @@ export class Task implements ITask {
     public cancel?: boolean | null,
     public photoContentType?: string | null,
     public photo?: string | null,
-    public puntuacion?: string | null
+    public puntuacion?: string | null,
+    public taskList?: ITaskList | null
   ) {
     this.cancel = this.cancel ?? false;
   }
