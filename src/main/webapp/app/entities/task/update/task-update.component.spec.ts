@@ -10,6 +10,8 @@ import { TaskService } from '../service/task.service';
 import { ITask, Task } from '../task.model';
 import { ITaskList } from 'app/entities/task-list/task-list.model';
 import { TaskListService } from 'app/entities/task-list/service/task-list.service';
+import { IUserData } from 'app/entities/Homies/user-data/user-data.model';
+import { UserDataService } from 'app/entities/Homies/user-data/service/user-data.service';
 
 import { TaskUpdateComponent } from './task-update.component';
 
@@ -19,6 +21,7 @@ describe('Task Management Update Component', () => {
   let activatedRoute: ActivatedRoute;
   let taskService: TaskService;
   let taskListService: TaskListService;
+  let userDataService: UserDataService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -41,6 +44,7 @@ describe('Task Management Update Component', () => {
     activatedRoute = TestBed.inject(ActivatedRoute);
     taskService = TestBed.inject(TaskService);
     taskListService = TestBed.inject(TaskListService);
+    userDataService = TestBed.inject(UserDataService);
 
     comp = fixture.componentInstance;
   });
@@ -65,16 +69,43 @@ describe('Task Management Update Component', () => {
       expect(comp.taskListsSharedCollection).toEqual(expectedCollection);
     });
 
+    it('Should call UserData query and add missing value', () => {
+      const task: ITask = { id: 456 };
+      const userData: IUserData = { id: 50386 };
+      task.userData = userData;
+      const userCreator: IUserData = { id: 35938 };
+      task.userCreator = userCreator;
+
+      const userDataCollection: IUserData[] = [{ id: 81236 }];
+      jest.spyOn(userDataService, 'query').mockReturnValue(of(new HttpResponse({ body: userDataCollection })));
+      const additionalUserData = [userData, userCreator];
+      const expectedCollection: IUserData[] = [...additionalUserData, ...userDataCollection];
+      jest.spyOn(userDataService, 'addUserDataToCollectionIfMissing').mockReturnValue(expectedCollection);
+
+      activatedRoute.data = of({ task });
+      comp.ngOnInit();
+
+      expect(userDataService.query).toHaveBeenCalled();
+      expect(userDataService.addUserDataToCollectionIfMissing).toHaveBeenCalledWith(userDataCollection, ...additionalUserData);
+      expect(comp.userDataSharedCollection).toEqual(expectedCollection);
+    });
+
     it('Should update editForm', () => {
       const task: ITask = { id: 456 };
       const taskList: ITaskList = { id: 51798 };
       task.taskList = taskList;
+      const userData: IUserData = { id: 51129 };
+      task.userData = userData;
+      const userCreator: IUserData = { id: 30221 };
+      task.userCreator = userCreator;
 
       activatedRoute.data = of({ task });
       comp.ngOnInit();
 
       expect(comp.editForm.value).toEqual(expect.objectContaining(task));
       expect(comp.taskListsSharedCollection).toContain(taskList);
+      expect(comp.userDataSharedCollection).toContain(userData);
+      expect(comp.userDataSharedCollection).toContain(userCreator);
     });
   });
 
@@ -147,6 +178,14 @@ describe('Task Management Update Component', () => {
       it('Should return tracked TaskList primary key', () => {
         const entity = { id: 123 };
         const trackResult = comp.trackTaskListById(0, entity);
+        expect(trackResult).toEqual(entity.id);
+      });
+    });
+
+    describe('trackUserDataById', () => {
+      it('Should return tracked UserData primary key', () => {
+        const entity = { id: 123 };
+        const trackResult = comp.trackUserDataById(0, entity);
         expect(trackResult).toEqual(entity.id);
       });
     });

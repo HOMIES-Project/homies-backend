@@ -41,6 +41,12 @@
             <column name="task_list_id" type="bigint">
                 <constraints nullable="true" />
             </column>
+            <column name="user_data_id" type="bigint">
+                <constraints nullable="true" />
+            </column>
+            <column name="user_creator_id" type="bigint">
+                <constraints nullable="true" />
+            </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
     </changeSet>

@@ -53,6 +53,18 @@
             <a [routerLink]="['/task-list', task.taskList?.id, 'view']">{{ task.taskList?.nameList }}</a>
           </div>
         </dd>
+        <dt><span>User Data</span></dt>
+        <dd>
+          <div *ngIf="task.userData">
+            <a [routerLink]="['/user-data', task.userData?.id, 'view']">{{ task.userData?.id }}</a>
+          </div>
+        </dd>
+        <dt><span>User Creator</span></dt>
+        <dd>
+          <div *ngIf="task.userCreator">
+            <a [routerLink]="['/user-data', task.userCreator?.id, 'view']">{{ task.userCreator?.id }}</a>
+          </div>
+        </dd>
       </dl>
 
       <button type="submit" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">

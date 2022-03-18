@@ -109,6 +109,21 @@ public class TaskQueryService extends QueryService<Task> {
                         buildSpecification(criteria.getTaskListId(), root -> root.join(Task_.taskList, JoinType.LEFT).get(TaskList_.id))
                     );
             }
+            if (criteria.getUserDataId() != null) {
+                specification =
+                    specification.and(
+                        buildSpecification(criteria.getUserDataId(), root -> root.join(Task_.userData, JoinType.LEFT).get(UserData_.id))
+                    );
+            }
+            if (criteria.getUserCreatorId() != null) {
+                specification =
+                    specification.and(
+                        buildSpecification(
+                            criteria.getUserCreatorId(),
+                            root -> root.join(Task_.userCreator, JoinType.LEFT).get(UserData_.id)
+                        )
+                    );
+            }
         }
         return specification;
     }

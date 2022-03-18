@@ -48,6 +48,18 @@
       "otherEntityName": "taskList",
       "relationshipName": "taskList",
       "relationshipType": "many-to-one"
+    },
+    {
+      "otherEntityField": "id",
+      "otherEntityName": "userData",
+      "relationshipName": "userData",
+      "relationshipType": "many-to-one"
+    },
+    {
+      "otherEntityField": "id",
+      "otherEntityName": "userData",
+      "relationshipName": "userCreator",
+      "relationshipType": "many-to-one"
     }
   ],
   "service": "serviceImpl"

@@ -43,6 +43,10 @@ public class TaskCriteria implements Serializable, Criteria {
 
     private LongFilter taskListId;
 
+    private LongFilter userDataId;
+
+    private LongFilter userCreatorId;
+
     private Boolean distinct;
 
     public TaskCriteria() {}
@@ -56,6 +60,8 @@ public class TaskCriteria implements Serializable, Criteria {
         this.cancel = other.cancel == null ? null : other.cancel.copy();
         this.puntuacion = other.puntuacion == null ? null : other.puntuacion.copy();
         this.taskListId = other.taskListId == null ? null : other.taskListId.copy();
+        this.userDataId = other.userDataId == null ? null : other.userDataId.copy();
+        this.userCreatorId = other.userCreatorId == null ? null : other.userCreatorId.copy();
         this.distinct = other.distinct;
     }
 
@@ -184,6 +190,36 @@ public class TaskCriteria implements Serializable, Criteria {
         this.taskListId = taskListId;
     }
 
+    public LongFilter getUserDataId() {
+        return userDataId;
+    }
+
+    public LongFilter userDataId() {
+        if (userDataId == null) {
+            userDataId = new LongFilter();
+        }
+        return userDataId;
+    }
+
+    public void setUserDataId(LongFilter userDataId) {
+        this.userDataId = userDataId;
+    }
+
+    public LongFilter getUserCreatorId() {
+        return userCreatorId;
+    }
+
+    public LongFilter userCreatorId() {
+        if (userCreatorId == null) {
+            userCreatorId = new LongFilter();
+        }
+        return userCreatorId;
+    }
+
+    public void setUserCreatorId(LongFilter userCreatorId) {
+        this.userCreatorId = userCreatorId;
+    }
+
     public Boolean getDistinct() {
         return distinct;
     }
@@ -210,13 +246,27 @@ public class TaskCriteria implements Serializable, Criteria {
             Objects.equals(cancel, that.cancel) &&
             Objects.equals(puntuacion, that.puntuacion) &&
             Objects.equals(taskListId, that.taskListId) &&
+            Objects.equals(userDataId, that.userDataId) &&
+            Objects.equals(userCreatorId, that.userCreatorId) &&
             Objects.equals(distinct, that.distinct)
         );
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, taskName, dataCreate, dataEnd, description, cancel, puntuacion, taskListId, distinct);
+        return Objects.hash(
+            id,
+            taskName,
+            dataCreate,
+            dataEnd,
+            description,
+            cancel,
+            puntuacion,
+            taskListId,
+            userDataId,
+            userCreatorId,
+            distinct
+        );
     }
 
     // prettier-ignore
@@ -231,6 +281,8 @@ public class TaskCriteria implements Serializable, Criteria {
             (cancel != null ? "cancel=" + cancel + ", " : "") +
             (puntuacion != null ? "puntuacion=" + puntuacion + ", " : "") +
             (taskListId != null ? "taskListId=" + taskListId + ", " : "") +
+            (userDataId != null ? "userDataId=" + userDataId + ", " : "") +
+            (userCreatorId != null ? "userCreatorId=" + userCreatorId + ", " : "") +
             (distinct != null ? "distinct=" + distinct + ", " : "") +
             "}";
     }

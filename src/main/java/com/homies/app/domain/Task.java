@@ -56,6 +56,14 @@ public class Task implements Serializable {
     @JsonIgnoreProperties(value = { "group", "tasks" }, allowSetters = true)
     private TaskList taskList;
 
+    @ManyToOne
+    @JsonIgnoreProperties(value = { "groups", "user", "adminGroups" }, allowSetters = true)
+    private UserData userData;
+
+    @ManyToOne
+    @JsonIgnoreProperties(value = { "groups", "user", "adminGroups" }, allowSetters = true)
+    private UserData userCreator;
+
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
     public Long getId() {
@@ -185,6 +193,32 @@ public class Task implements Serializable {
 
     public Task taskList(TaskList taskList) {
         this.setTaskList(taskList);
+        return this;
+    }
+
+    public UserData getUserData() {
+        return this.userData;
+    }
+
+    public void setUserData(UserData userData) {
+        this.userData = userData;
+    }
+
+    public Task userData(UserData userData) {
+        this.setUserData(userData);
+        return this;
+    }
+
+    public UserData getUserCreator() {
+        return this.userCreator;
+    }
+
+    public void setUserCreator(UserData userData) {
+        this.userCreator = userData;
+    }
+
+    public Task userCreator(UserData userData) {
+        this.setUserCreator(userData);
         return this;
     }
 
