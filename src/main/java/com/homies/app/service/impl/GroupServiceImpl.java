@@ -2,6 +2,7 @@ package com.homies.app.service.impl;
 
 import com.homies.app.domain.Group;
 import com.homies.app.repository.GroupRepository;
+import com.homies.app.repository.TaskListRepository;
 import com.homies.app.service.GroupService;
 import java.util.Optional;
 import org.slf4j.Logger;
@@ -22,13 +23,18 @@ public class GroupServiceImpl implements GroupService {
 
     private final GroupRepository groupRepository;
 
-    public GroupServiceImpl(GroupRepository groupRepository) {
+    private final TaskListRepository taskListRepository;
+
+    public GroupServiceImpl(GroupRepository groupRepository, TaskListRepository taskListRepository) {
         this.groupRepository = groupRepository;
+        this.taskListRepository = taskListRepository;
     }
 
     @Override
     public Group save(Group group) {
         log.debug("Request to save Group : {}", group);
+        Long taskListId = group.getTaskList().getId();
+        taskListRepository.findById(taskListId).ifPresent(group::taskList);
         return groupRepository.save(group);
     }
 

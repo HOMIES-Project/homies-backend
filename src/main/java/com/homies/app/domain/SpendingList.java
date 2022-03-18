@@ -21,14 +21,14 @@ public class SpendingList implements Serializable {
     @Column(name = "id")
     private Long id;
 
-    @NotNull
-    @Size(min = 3, max = 20)
-    @Column(name = "name", length = 20, nullable = false)
-    private String name;
-
     @DecimalMin(value = "0")
     @Column(name = "total")
     private Float total;
+
+    @NotNull
+    @Size(min = 3, max = 20)
+    @Column(name = "name_spend_list", length = 20, nullable = false)
+    private String nameSpendList;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -45,19 +45,6 @@ public class SpendingList implements Serializable {
         this.id = id;
     }
 
-    public String getName() {
-        return this.name;
-    }
-
-    public SpendingList name(String name) {
-        this.setName(name);
-        return this;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public Float getTotal() {
         return this.total;
     }
@@ -69,6 +56,19 @@ public class SpendingList implements Serializable {
 
     public void setTotal(Float total) {
         this.total = total;
+    }
+
+    public String getNameSpendList() {
+        return this.nameSpendList;
+    }
+
+    public SpendingList nameSpendList(String nameSpendList) {
+        this.setNameSpendList(nameSpendList);
+        return this;
+    }
+
+    public void setNameSpendList(String nameSpendList) {
+        this.nameSpendList = nameSpendList;
     }
 
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
@@ -95,8 +95,8 @@ public class SpendingList implements Serializable {
     public String toString() {
         return "SpendingList{" +
             "id=" + getId() +
-            ", name='" + getName() + "'" +
             ", total=" + getTotal() +
+            ", nameSpendList='" + getNameSpendList() + "'" +
             "}";
     }
 }

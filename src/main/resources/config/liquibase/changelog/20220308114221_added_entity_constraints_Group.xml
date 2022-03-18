@@ -19,5 +19,17 @@
                                  constraintName="fk_rel_jhi_group__user_data__user_data_id"
                                  referencedColumnNames="id"
                                  referencedTableName="user_data"/>
+
+        <addForeignKeyConstraint baseColumnNames="user_admin_id"
+                                 baseTableName="jhi_group"
+                                 constraintName="fk_jhi_group__user_admin_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="user_data"/>
+
+        <addForeignKeyConstraint baseColumnNames="id"
+                                 baseTableName="jhi_group"
+                                 constraintName="fk_jhi_group__task_list_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="task_list"/>
     </changeSet>
 </databaseChangeLog>

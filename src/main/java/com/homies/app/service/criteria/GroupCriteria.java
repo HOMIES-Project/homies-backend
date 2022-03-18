@@ -39,6 +39,10 @@ public class GroupCriteria implements Serializable, Criteria {
 
     private LongFilter userDataId;
 
+    private LongFilter userAdminId;
+
+    private LongFilter taskListId;
+
     private Boolean distinct;
 
     public GroupCriteria() {}
@@ -50,6 +54,8 @@ public class GroupCriteria implements Serializable, Criteria {
         this.groupRelationName = other.groupRelationName == null ? null : other.groupRelationName.copy();
         this.addGroupDate = other.addGroupDate == null ? null : other.addGroupDate.copy();
         this.userDataId = other.userDataId == null ? null : other.userDataId.copy();
+        this.userAdminId = other.userAdminId == null ? null : other.userAdminId.copy();
+        this.taskListId = other.taskListId == null ? null : other.taskListId.copy();
         this.distinct = other.distinct;
     }
 
@@ -148,6 +154,36 @@ public class GroupCriteria implements Serializable, Criteria {
         this.userDataId = userDataId;
     }
 
+    public LongFilter getUserAdminId() {
+        return userAdminId;
+    }
+
+    public LongFilter userAdminId() {
+        if (userAdminId == null) {
+            userAdminId = new LongFilter();
+        }
+        return userAdminId;
+    }
+
+    public void setUserAdminId(LongFilter userAdminId) {
+        this.userAdminId = userAdminId;
+    }
+
+    public LongFilter getTaskListId() {
+        return taskListId;
+    }
+
+    public LongFilter taskListId() {
+        if (taskListId == null) {
+            taskListId = new LongFilter();
+        }
+        return taskListId;
+    }
+
+    public void setTaskListId(LongFilter taskListId) {
+        this.taskListId = taskListId;
+    }
+
     public Boolean getDistinct() {
         return distinct;
     }
@@ -172,13 +208,15 @@ public class GroupCriteria implements Serializable, Criteria {
             Objects.equals(groupRelationName, that.groupRelationName) &&
             Objects.equals(addGroupDate, that.addGroupDate) &&
             Objects.equals(userDataId, that.userDataId) &&
+            Objects.equals(userAdminId, that.userAdminId) &&
+            Objects.equals(taskListId, that.taskListId) &&
             Objects.equals(distinct, that.distinct)
         );
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, groupKey, groupName, groupRelationName, addGroupDate, userDataId, distinct);
+        return Objects.hash(id, groupKey, groupName, groupRelationName, addGroupDate, userDataId, userAdminId, taskListId, distinct);
     }
 
     // prettier-ignore
@@ -191,6 +229,8 @@ public class GroupCriteria implements Serializable, Criteria {
             (groupRelationName != null ? "groupRelationName=" + groupRelationName + ", " : "") +
             (addGroupDate != null ? "addGroupDate=" + addGroupDate + ", " : "") +
             (userDataId != null ? "userDataId=" + userDataId + ", " : "") +
+            (userAdminId != null ? "userAdminId=" + userAdminId + ", " : "") +
+            (taskListId != null ? "taskListId=" + taskListId + ", " : "") +
             (distinct != null ? "distinct=" + distinct + ", " : "") +
             "}";
     }

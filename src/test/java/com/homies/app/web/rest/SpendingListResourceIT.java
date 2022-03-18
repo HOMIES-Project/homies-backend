@@ -30,12 +30,12 @@ import org.springframework.transaction.annotation.Transactional;
 @WithMockUser
 class SpendingListResourceIT {
 
-    private static final String DEFAULT_NAME = "AAAAAAAAAA";
-    private static final String UPDATED_NAME = "BBBBBBBBBB";
-
     private static final Float DEFAULT_TOTAL = 0F;
     private static final Float UPDATED_TOTAL = 1F;
     private static final Float SMALLER_TOTAL = 0F - 1F;
+
+    private static final String DEFAULT_NAME_SPEND_LIST = "AAAAAAAAAA";
+    private static final String UPDATED_NAME_SPEND_LIST = "BBBBBBBBBB";
 
     private static final String ENTITY_API_URL = "/api/spending-lists";
     private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
@@ -61,7 +61,7 @@ class SpendingListResourceIT {
      * if they test an entity which requires the current entity.
      */
     public static SpendingList createEntity(EntityManager em) {
-        SpendingList spendingList = new SpendingList().name(DEFAULT_NAME).total(DEFAULT_TOTAL);
+        SpendingList spendingList = new SpendingList().total(DEFAULT_TOTAL).nameSpendList(DEFAULT_NAME_SPEND_LIST);
         return spendingList;
     }
 
@@ -72,7 +72,7 @@ class SpendingListResourceIT {
      * if they test an entity which requires the current entity.
      */
     public static SpendingList createUpdatedEntity(EntityManager em) {
-        SpendingList spendingList = new SpendingList().name(UPDATED_NAME).total(UPDATED_TOTAL);
+        SpendingList spendingList = new SpendingList().total(UPDATED_TOTAL).nameSpendList(UPDATED_NAME_SPEND_LIST);
         return spendingList;
     }
 
@@ -94,8 +94,8 @@ class SpendingListResourceIT {
         List<SpendingList> spendingListList = spendingListRepository.findAll();
         assertThat(spendingListList).hasSize(databaseSizeBeforeCreate + 1);
         SpendingList testSpendingList = spendingListList.get(spendingListList.size() - 1);
-        assertThat(testSpendingList.getName()).isEqualTo(DEFAULT_NAME);
         assertThat(testSpendingList.getTotal()).isEqualTo(DEFAULT_TOTAL);
+        assertThat(testSpendingList.getNameSpendList()).isEqualTo(DEFAULT_NAME_SPEND_LIST);
     }
 
     @Test
@@ -118,10 +118,10 @@ class SpendingListResourceIT {
 
     @Test
     @Transactional
-    void checkNameIsRequired() throws Exception {
+    void checkNameSpendListIsRequired() throws Exception {
         int databaseSizeBeforeTest = spendingListRepository.findAll().size();
         // set the field null
-        spendingList.setName(null);
+        spendingList.setNameSpendList(null);
 
         // Create the SpendingList, which fails.
 
@@ -145,8 +145,8 @@ class SpendingListResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(spendingList.getId().intValue())))
-            .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
-            .andExpect(jsonPath("$.[*].total").value(hasItem(DEFAULT_TOTAL.doubleValue())));
+            .andExpect(jsonPath("$.[*].total").value(hasItem(DEFAULT_TOTAL.doubleValue())))
+            .andExpect(jsonPath("$.[*].nameSpendList").value(hasItem(DEFAULT_NAME_SPEND_LIST)));
     }
 
     @Test
@@ -161,8 +161,8 @@ class SpendingListResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.id").value(spendingList.getId().intValue()))
-            .andExpect(jsonPath("$.name").value(DEFAULT_NAME))
-            .andExpect(jsonPath("$.total").value(DEFAULT_TOTAL.doubleValue()));
+            .andExpect(jsonPath("$.total").value(DEFAULT_TOTAL.doubleValue()))
+            .andExpect(jsonPath("$.nameSpendList").value(DEFAULT_NAME_SPEND_LIST));
     }
 
     @Test
@@ -181,84 +181,6 @@ class SpendingListResourceIT {
 
         defaultSpendingListShouldBeFound("id.lessThanOrEqual=" + id);
         defaultSpendingListShouldNotBeFound("id.lessThan=" + id);
-    }
-
-    @Test
-    @Transactional
-    void getAllSpendingListsByNameIsEqualToSomething() throws Exception {
-        // Initialize the database
-        spendingListRepository.saveAndFlush(spendingList);
-
-        // Get all the spendingListList where name equals to DEFAULT_NAME
-        defaultSpendingListShouldBeFound("name.equals=" + DEFAULT_NAME);
-
-        // Get all the spendingListList where name equals to UPDATED_NAME
-        defaultSpendingListShouldNotBeFound("name.equals=" + UPDATED_NAME);
-    }
-
-    @Test
-    @Transactional
-    void getAllSpendingListsByNameIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        spendingListRepository.saveAndFlush(spendingList);
-
-        // Get all the spendingListList where name not equals to DEFAULT_NAME
-        defaultSpendingListShouldNotBeFound("name.notEquals=" + DEFAULT_NAME);
-
-        // Get all the spendingListList where name not equals to UPDATED_NAME
-        defaultSpendingListShouldBeFound("name.notEquals=" + UPDATED_NAME);
-    }
-
-    @Test
-    @Transactional
-    void getAllSpendingListsByNameIsInShouldWork() throws Exception {
-        // Initialize the database
-        spendingListRepository.saveAndFlush(spendingList);
-
-        // Get all the spendingListList where name in DEFAULT_NAME or UPDATED_NAME
-        defaultSpendingListShouldBeFound("name.in=" + DEFAULT_NAME + "," + UPDATED_NAME);
-
-        // Get all the spendingListList where name equals to UPDATED_NAME
-        defaultSpendingListShouldNotBeFound("name.in=" + UPDATED_NAME);
-    }
-
-    @Test
-    @Transactional
-    void getAllSpendingListsByNameIsNullOrNotNull() throws Exception {
-        // Initialize the database
-        spendingListRepository.saveAndFlush(spendingList);
-
-        // Get all the spendingListList where name is not null
-        defaultSpendingListShouldBeFound("name.specified=true");
-
-        // Get all the spendingListList where name is null
-        defaultSpendingListShouldNotBeFound("name.specified=false");
-    }
-
-    @Test
-    @Transactional
-    void getAllSpendingListsByNameContainsSomething() throws Exception {
-        // Initialize the database
-        spendingListRepository.saveAndFlush(spendingList);
-
-        // Get all the spendingListList where name contains DEFAULT_NAME
-        defaultSpendingListShouldBeFound("name.contains=" + DEFAULT_NAME);
-
-        // Get all the spendingListList where name contains UPDATED_NAME
-        defaultSpendingListShouldNotBeFound("name.contains=" + UPDATED_NAME);
-    }
-
-    @Test
-    @Transactional
-    void getAllSpendingListsByNameNotContainsSomething() throws Exception {
-        // Initialize the database
-        spendingListRepository.saveAndFlush(spendingList);
-
-        // Get all the spendingListList where name does not contain DEFAULT_NAME
-        defaultSpendingListShouldNotBeFound("name.doesNotContain=" + DEFAULT_NAME);
-
-        // Get all the spendingListList where name does not contain UPDATED_NAME
-        defaultSpendingListShouldBeFound("name.doesNotContain=" + UPDATED_NAME);
     }
 
     @Test
@@ -365,6 +287,84 @@ class SpendingListResourceIT {
         defaultSpendingListShouldBeFound("total.greaterThan=" + SMALLER_TOTAL);
     }
 
+    @Test
+    @Transactional
+    void getAllSpendingListsByNameSpendListIsEqualToSomething() throws Exception {
+        // Initialize the database
+        spendingListRepository.saveAndFlush(spendingList);
+
+        // Get all the spendingListList where nameSpendList equals to DEFAULT_NAME_SPEND_LIST
+        defaultSpendingListShouldBeFound("nameSpendList.equals=" + DEFAULT_NAME_SPEND_LIST);
+
+        // Get all the spendingListList where nameSpendList equals to UPDATED_NAME_SPEND_LIST
+        defaultSpendingListShouldNotBeFound("nameSpendList.equals=" + UPDATED_NAME_SPEND_LIST);
+    }
+
+    @Test
+    @Transactional
+    void getAllSpendingListsByNameSpendListIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        spendingListRepository.saveAndFlush(spendingList);
+
+        // Get all the spendingListList where nameSpendList not equals to DEFAULT_NAME_SPEND_LIST
+        defaultSpendingListShouldNotBeFound("nameSpendList.notEquals=" + DEFAULT_NAME_SPEND_LIST);
+
+        // Get all the spendingListList where nameSpendList not equals to UPDATED_NAME_SPEND_LIST
+        defaultSpendingListShouldBeFound("nameSpendList.notEquals=" + UPDATED_NAME_SPEND_LIST);
+    }
+
+    @Test
+    @Transactional
+    void getAllSpendingListsByNameSpendListIsInShouldWork() throws Exception {
+        // Initialize the database
+        spendingListRepository.saveAndFlush(spendingList);
+
+        // Get all the spendingListList where nameSpendList in DEFAULT_NAME_SPEND_LIST or UPDATED_NAME_SPEND_LIST
+        defaultSpendingListShouldBeFound("nameSpendList.in=" + DEFAULT_NAME_SPEND_LIST + "," + UPDATED_NAME_SPEND_LIST);
+
+        // Get all the spendingListList where nameSpendList equals to UPDATED_NAME_SPEND_LIST
+        defaultSpendingListShouldNotBeFound("nameSpendList.in=" + UPDATED_NAME_SPEND_LIST);
+    }
+
+    @Test
+    @Transactional
+    void getAllSpendingListsByNameSpendListIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        spendingListRepository.saveAndFlush(spendingList);
+
+        // Get all the spendingListList where nameSpendList is not null
+        defaultSpendingListShouldBeFound("nameSpendList.specified=true");
+
+        // Get all the spendingListList where nameSpendList is null
+        defaultSpendingListShouldNotBeFound("nameSpendList.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllSpendingListsByNameSpendListContainsSomething() throws Exception {
+        // Initialize the database
+        spendingListRepository.saveAndFlush(spendingList);
+
+        // Get all the spendingListList where nameSpendList contains DEFAULT_NAME_SPEND_LIST
+        defaultSpendingListShouldBeFound("nameSpendList.contains=" + DEFAULT_NAME_SPEND_LIST);
+
+        // Get all the spendingListList where nameSpendList contains UPDATED_NAME_SPEND_LIST
+        defaultSpendingListShouldNotBeFound("nameSpendList.contains=" + UPDATED_NAME_SPEND_LIST);
+    }
+
+    @Test
+    @Transactional
+    void getAllSpendingListsByNameSpendListNotContainsSomething() throws Exception {
+        // Initialize the database
+        spendingListRepository.saveAndFlush(spendingList);
+
+        // Get all the spendingListList where nameSpendList does not contain DEFAULT_NAME_SPEND_LIST
+        defaultSpendingListShouldNotBeFound("nameSpendList.doesNotContain=" + DEFAULT_NAME_SPEND_LIST);
+
+        // Get all the spendingListList where nameSpendList does not contain UPDATED_NAME_SPEND_LIST
+        defaultSpendingListShouldBeFound("nameSpendList.doesNotContain=" + UPDATED_NAME_SPEND_LIST);
+    }
+
     /**
      * Executes the search, and checks that the default entity is returned.
      */
@@ -374,8 +374,8 @@ class SpendingListResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(spendingList.getId().intValue())))
-            .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
-            .andExpect(jsonPath("$.[*].total").value(hasItem(DEFAULT_TOTAL.doubleValue())));
+            .andExpect(jsonPath("$.[*].total").value(hasItem(DEFAULT_TOTAL.doubleValue())))
+            .andExpect(jsonPath("$.[*].nameSpendList").value(hasItem(DEFAULT_NAME_SPEND_LIST)));
 
         // Check, that the count call also returns 1
         restSpendingListMockMvc
@@ -423,7 +423,7 @@ class SpendingListResourceIT {
         SpendingList updatedSpendingList = spendingListRepository.findById(spendingList.getId()).get();
         // Disconnect from session so that the updates on updatedSpendingList are not directly saved in db
         em.detach(updatedSpendingList);
-        updatedSpendingList.name(UPDATED_NAME).total(UPDATED_TOTAL);
+        updatedSpendingList.total(UPDATED_TOTAL).nameSpendList(UPDATED_NAME_SPEND_LIST);
 
         restSpendingListMockMvc
             .perform(
@@ -437,8 +437,8 @@ class SpendingListResourceIT {
         List<SpendingList> spendingListList = spendingListRepository.findAll();
         assertThat(spendingListList).hasSize(databaseSizeBeforeUpdate);
         SpendingList testSpendingList = spendingListList.get(spendingListList.size() - 1);
-        assertThat(testSpendingList.getName()).isEqualTo(UPDATED_NAME);
         assertThat(testSpendingList.getTotal()).isEqualTo(UPDATED_TOTAL);
+        assertThat(testSpendingList.getNameSpendList()).isEqualTo(UPDATED_NAME_SPEND_LIST);
     }
 
     @Test
@@ -521,8 +521,8 @@ class SpendingListResourceIT {
         List<SpendingList> spendingListList = spendingListRepository.findAll();
         assertThat(spendingListList).hasSize(databaseSizeBeforeUpdate);
         SpendingList testSpendingList = spendingListList.get(spendingListList.size() - 1);
-        assertThat(testSpendingList.getName()).isEqualTo(DEFAULT_NAME);
         assertThat(testSpendingList.getTotal()).isEqualTo(DEFAULT_TOTAL);
+        assertThat(testSpendingList.getNameSpendList()).isEqualTo(DEFAULT_NAME_SPEND_LIST);
     }
 
     @Test
@@ -537,7 +537,7 @@ class SpendingListResourceIT {
         SpendingList partialUpdatedSpendingList = new SpendingList();
         partialUpdatedSpendingList.setId(spendingList.getId());
 
-        partialUpdatedSpendingList.name(UPDATED_NAME).total(UPDATED_TOTAL);
+        partialUpdatedSpendingList.total(UPDATED_TOTAL).nameSpendList(UPDATED_NAME_SPEND_LIST);
 
         restSpendingListMockMvc
             .perform(
@@ -551,8 +551,8 @@ class SpendingListResourceIT {
         List<SpendingList> spendingListList = spendingListRepository.findAll();
         assertThat(spendingListList).hasSize(databaseSizeBeforeUpdate);
         SpendingList testSpendingList = spendingListList.get(spendingListList.size() - 1);
-        assertThat(testSpendingList.getName()).isEqualTo(UPDATED_NAME);
         assertThat(testSpendingList.getTotal()).isEqualTo(UPDATED_TOTAL);
+        assertThat(testSpendingList.getNameSpendList()).isEqualTo(UPDATED_NAME_SPEND_LIST);
     }
 
     @Test

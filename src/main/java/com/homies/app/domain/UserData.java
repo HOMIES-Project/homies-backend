@@ -21,7 +21,6 @@ public class UserData implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
 
@@ -48,8 +47,18 @@ public class UserData implements Serializable {
 
     @ManyToMany(mappedBy = "userData")
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-    @JsonIgnoreProperties(value = { "userData" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "userData", "userAdmin", "taskList" }, allowSetters = true)
     private Set<Group> groups = new HashSet<>();
+
+    @OneToOne
+    @MapsId
+    @JoinColumn(name = "id")
+    private User user;
+
+    @OneToMany(mappedBy = "userAdmin")
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    @JsonIgnoreProperties(value = { "userData", "userAdmin", "taskList" }, allowSetters = true)
+    private Set<Group> adminGroups = new HashSet<>();
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -172,6 +181,50 @@ public class UserData implements Serializable {
     public UserData removeGroup(Group group) {
         this.groups.remove(group);
         group.getUserData().remove(this);
+        return this;
+    }
+
+    public User getUser() {
+        return this.user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public UserData user(User user) {
+        this.setUser(user);
+        return this;
+    }
+
+    public Set<Group> getAdminGroups() {
+        return this.adminGroups;
+    }
+
+    public void setAdminGroups(Set<Group> groups) {
+        if (this.adminGroups != null) {
+            this.adminGroups.forEach(i -> i.setUserAdmin(null));
+        }
+        if (groups != null) {
+            groups.forEach(i -> i.setUserAdmin(this));
+        }
+        this.adminGroups = groups;
+    }
+
+    public UserData adminGroups(Set<Group> groups) {
+        this.setAdminGroups(groups);
+        return this;
+    }
+
+    public UserData addAdminGroups(Group group) {
+        this.adminGroups.add(group);
+        group.setUserAdmin(this);
+        return this;
+    }
+
+    public UserData removeAdminGroups(Group group) {
+        this.adminGroups.remove(group);
+        group.setUserAdmin(null);
         return this;
     }
 

@@ -3,13 +3,15 @@ import { HttpResponse } from '@angular/common/http';
 import { FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs';
-import { finalize } from 'rxjs/operators';
+import { finalize, map } from 'rxjs/operators';
 
 import { IUserData, UserData } from '../user-data.model';
 import { UserDataService } from '../service/user-data.service';
 import { AlertError } from 'app/shared/alert/alert-error.model';
 import { EventManager, EventWithContent } from 'app/core/util/event-manager.service';
 import { DataUtils, FileLoadError } from 'app/core/util/data-util.service';
+import { IUser } from 'app/entities/user/user.model';
+import { UserService } from 'app/entities/user/user.service';
 
 @Component({
   selector: 'jhi-user-data-update',
@@ -17,6 +19,8 @@ import { DataUtils, FileLoadError } from 'app/core/util/data-util.service';
 })
 export class UserDataUpdateComponent implements OnInit {
   isSaving = false;
+
+  usersSharedCollection: IUser[] = [];
 
   editForm = this.fb.group({
     id: [],
@@ -26,12 +30,14 @@ export class UserDataUpdateComponent implements OnInit {
     premium: [null, [Validators.required]],
     birthDate: [],
     addDate: [],
+    user: [],
   });
 
   constructor(
     protected dataUtils: DataUtils,
     protected eventManager: EventManager,
     protected userDataService: UserDataService,
+    protected userService: UserService,
     protected elementRef: ElementRef,
     protected activatedRoute: ActivatedRoute,
     protected fb: FormBuilder
@@ -40,6 +46,8 @@ export class UserDataUpdateComponent implements OnInit {
   ngOnInit(): void {
     this.activatedRoute.data.subscribe(({ userData }) => {
       this.updateForm(userData);
+
+      this.loadRelationshipsOptions();
     });
   }
 
@@ -82,6 +90,10 @@ export class UserDataUpdateComponent implements OnInit {
     }
   }
 
+  trackUserById(index: number, item: IUser): number {
+    return item.id!;
+  }
+
   protected subscribeToSaveResponse(result: Observable<HttpResponse<IUserData>>): void {
     result.pipe(finalize(() => this.onSaveFinalize())).subscribe({
       next: () => this.onSaveSuccess(),
@@ -110,7 +122,18 @@ export class UserDataUpdateComponent implements OnInit {
       premium: userData.premium,
       birthDate: userData.birthDate,
       addDate: userData.addDate,
+      user: userData.user,
     });
+
+    this.usersSharedCollection = this.userService.addUserToCollectionIfMissing(this.usersSharedCollection, userData.user);
+  }
+
+  protected loadRelationshipsOptions(): void {
+    this.userService
+      .query()
+      .pipe(map((res: HttpResponse<IUser[]>) => res.body ?? []))
+      .pipe(map((users: IUser[]) => this.userService.addUserToCollectionIfMissing(users, this.editForm.get('user')!.value)))
+      .subscribe((users: IUser[]) => (this.usersSharedCollection = users));
   }
 
   protected createFromForm(): IUserData {
@@ -123,6 +146,7 @@ export class UserDataUpdateComponent implements OnInit {
       premium: this.editForm.get(['premium'])!.value,
       birthDate: this.editForm.get(['birthDate'])!.value,
       addDate: this.editForm.get(['addDate'])!.value,
+      user: this.editForm.get(['user'])!.value,
     };
   }
 }

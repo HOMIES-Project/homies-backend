@@ -52,11 +52,6 @@ public class GroupResource {
         this.groupQueryService = groupQueryService;
     }
 
-    @GetMapping("/lista-usuarios")
-    public ResponseEntity<List<Group>> findByUserData_Id(@RequestParam Long id){
-        return ResponseEntity.ok().body(groupRepository.findByUserData_Id(id));
-    }
-
     /**
      * {@code POST  /groups} : Create a new group.
      *
@@ -69,6 +64,9 @@ public class GroupResource {
         log.debug("REST request to save Group : {}", group);
         if (group.getId() != null) {
             throw new BadRequestAlertException("A new group cannot already have an ID", ENTITY_NAME, "idexists");
+        }
+        if (Objects.isNull(group.getTaskList())) {
+            throw new BadRequestAlertException("Invalid association value provided", ENTITY_NAME, "null");
         }
         Group result = groupService.save(group);
         return ResponseEntity

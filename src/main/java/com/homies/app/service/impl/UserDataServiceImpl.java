@@ -2,6 +2,7 @@ package com.homies.app.service.impl;
 
 import com.homies.app.domain.UserData;
 import com.homies.app.repository.UserDataRepository;
+import com.homies.app.repository.UserRepository;
 import com.homies.app.service.UserDataService;
 import java.util.Optional;
 import org.slf4j.Logger;
@@ -22,13 +23,18 @@ public class UserDataServiceImpl implements UserDataService {
 
     private final UserDataRepository userDataRepository;
 
-    public UserDataServiceImpl(UserDataRepository userDataRepository) {
+    private final UserRepository userRepository;
+
+    public UserDataServiceImpl(UserDataRepository userDataRepository, UserRepository userRepository) {
         this.userDataRepository = userDataRepository;
+        this.userRepository = userRepository;
     }
 
     @Override
     public UserData save(UserData userData) {
         log.debug("Request to save UserData : {}", userData);
+        Long userId = userData.getUser().getId();
+        userRepository.findById(userId).ifPresent(userData::user);
         return userDataRepository.save(userData);
     }
 
@@ -70,11 +76,15 @@ public class UserDataServiceImpl implements UserDataService {
         return userDataRepository.findAll(pageable);
     }
 
+    public Page<UserData> findAllWithEagerRelationships(Pageable pageable) {
+        return userDataRepository.findAllWithEagerRelationships(pageable);
+    }
+
     @Override
     @Transactional(readOnly = true)
     public Optional<UserData> findOne(Long id) {
         log.debug("Request to get UserData : {}", id);
-        return userDataRepository.findById(id);
+        return userDataRepository.findOneWithEagerRelationships(id);
     }
 
     @Override

@@ -17,8 +17,8 @@ export class SpendingListUpdateComponent implements OnInit {
 
   editForm = this.fb.group({
     id: [],
-    name: [null, [Validators.required, Validators.minLength(3), Validators.maxLength(20)]],
     total: [null, [Validators.min(0)]],
+    nameSpendList: [null, [Validators.required, Validators.minLength(3), Validators.maxLength(20)]],
   });
 
   constructor(protected spendingListService: SpendingListService, protected activatedRoute: ActivatedRoute, protected fb: FormBuilder) {}
@@ -65,8 +65,8 @@ export class SpendingListUpdateComponent implements OnInit {
   protected updateForm(spendingList: ISpendingList): void {
     this.editForm.patchValue({
       id: spendingList.id,
-      name: spendingList.name,
       total: spendingList.total,
+      nameSpendList: spendingList.nameSpendList,
     });
   }
 
@@ -74,8 +74,8 @@ export class SpendingListUpdateComponent implements OnInit {
     return {
       ...new SpendingList(),
       id: this.editForm.get(['id'])!.value,
-      name: this.editForm.get(['name'])!.value,
       total: this.editForm.get(['total'])!.value,
+      nameSpendList: this.editForm.get(['nameSpendList'])!.value,
     };
   }
 }

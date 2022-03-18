@@ -93,6 +93,32 @@
             </option>
           </select>
         </div>
+
+        <div class="row mb-3">
+          <label class="form-label" for="field_userAdmin">User Admin</label>
+          <select class="form-control" id="field_userAdmin" data-cy="userAdmin" name="userAdmin" formControlName="userAdmin">
+            <option [ngValue]="null"></option>
+            <option
+              [ngValue]="userDataOption.id === editForm.get('userAdmin')!.value?.id ? editForm.get('userAdmin')!.value : userDataOption"
+              *ngFor="let userDataOption of userDataSharedCollection; trackBy: trackUserDataById"
+            >
+              {{ userDataOption.id }}
+            </option>
+          </select>
+        </div>
+
+        <div class="row mb-3">
+          <label class="form-label" for="field_taskList">Task List</label>
+          <select class="form-control" id="field_taskList" data-cy="taskList" name="taskList" formControlName="taskList">
+            <option [ngValue]="null"></option>
+            <option
+              [ngValue]="taskListOption.id === editForm.get('taskList')!.value?.id ? editForm.get('taskList')!.value : taskListOption"
+              *ngFor="let taskListOption of taskListsCollection; trackBy: trackTaskListById"
+            >
+              {{ taskListOption.nameList }}
+            </option>
+          </select>
+        </div>
       </div>
 
       <div>

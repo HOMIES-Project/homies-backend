@@ -42,6 +42,21 @@
       "ownerSide": false,
       "relationshipName": "group",
       "relationshipType": "many-to-many"
+    },
+    {
+      "id": true,
+      "otherEntityField": "login",
+      "otherEntityName": "user",
+      "otherEntityRelationshipName": "userData",
+      "ownerSide": true,
+      "relationshipName": "user",
+      "relationshipType": "one-to-one"
+    },
+    {
+      "otherEntityName": "group",
+      "otherEntityRelationshipName": "userAdmin",
+      "relationshipName": "adminGroups",
+      "relationshipType": "one-to-many"
     }
   ],
   "service": "serviceImpl"

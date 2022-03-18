@@ -103,6 +103,21 @@ public class UserDataQueryService extends QueryService<UserData> {
                         buildSpecification(criteria.getGroupId(), root -> root.join(UserData_.groups, JoinType.LEFT).get(Group_.id))
                     );
             }
+            if (criteria.getUserId() != null) {
+                specification =
+                    specification.and(
+                        buildSpecification(criteria.getUserId(), root -> root.join(UserData_.user, JoinType.LEFT).get(User_.id))
+                    );
+            }
+            if (criteria.getAdminGroupsId() != null) {
+                specification =
+                    specification.and(
+                        buildSpecification(
+                            criteria.getAdminGroupsId(),
+                            root -> root.join(UserData_.adminGroups, JoinType.LEFT).get(Group_.id)
+                        )
+                    );
+            }
         }
         return specification;
     }

@@ -103,6 +103,18 @@ public class GroupQueryService extends QueryService<Group> {
                         buildSpecification(criteria.getUserDataId(), root -> root.join(Group_.userData, JoinType.LEFT).get(UserData_.id))
                     );
             }
+            if (criteria.getUserAdminId() != null) {
+                specification =
+                    specification.and(
+                        buildSpecification(criteria.getUserAdminId(), root -> root.join(Group_.userAdmin, JoinType.LEFT).get(UserData_.id))
+                    );
+            }
+            if (criteria.getTaskListId() != null) {
+                specification =
+                    specification.and(
+                        buildSpecification(criteria.getTaskListId(), root -> root.join(Group_.taskList, JoinType.LEFT).get(TaskList_.id))
+                    );
+            }
         }
         return specification;
     }

@@ -39,6 +39,10 @@ public class UserDataCriteria implements Serializable, Criteria {
 
     private LongFilter groupId;
 
+    private LongFilter userId;
+
+    private LongFilter adminGroupsId;
+
     private Boolean distinct;
 
     public UserDataCriteria() {}
@@ -50,6 +54,8 @@ public class UserDataCriteria implements Serializable, Criteria {
         this.birthDate = other.birthDate == null ? null : other.birthDate.copy();
         this.addDate = other.addDate == null ? null : other.addDate.copy();
         this.groupId = other.groupId == null ? null : other.groupId.copy();
+        this.userId = other.userId == null ? null : other.userId.copy();
+        this.adminGroupsId = other.adminGroupsId == null ? null : other.adminGroupsId.copy();
         this.distinct = other.distinct;
     }
 
@@ -148,6 +154,36 @@ public class UserDataCriteria implements Serializable, Criteria {
         this.groupId = groupId;
     }
 
+    public LongFilter getUserId() {
+        return userId;
+    }
+
+    public LongFilter userId() {
+        if (userId == null) {
+            userId = new LongFilter();
+        }
+        return userId;
+    }
+
+    public void setUserId(LongFilter userId) {
+        this.userId = userId;
+    }
+
+    public LongFilter getAdminGroupsId() {
+        return adminGroupsId;
+    }
+
+    public LongFilter adminGroupsId() {
+        if (adminGroupsId == null) {
+            adminGroupsId = new LongFilter();
+        }
+        return adminGroupsId;
+    }
+
+    public void setAdminGroupsId(LongFilter adminGroupsId) {
+        this.adminGroupsId = adminGroupsId;
+    }
+
     public Boolean getDistinct() {
         return distinct;
     }
@@ -172,13 +208,15 @@ public class UserDataCriteria implements Serializable, Criteria {
             Objects.equals(birthDate, that.birthDate) &&
             Objects.equals(addDate, that.addDate) &&
             Objects.equals(groupId, that.groupId) &&
+            Objects.equals(userId, that.userId) &&
+            Objects.equals(adminGroupsId, that.adminGroupsId) &&
             Objects.equals(distinct, that.distinct)
         );
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, phone, premium, birthDate, addDate, groupId, distinct);
+        return Objects.hash(id, phone, premium, birthDate, addDate, groupId, userId, adminGroupsId, distinct);
     }
 
     // prettier-ignore
@@ -191,6 +229,8 @@ public class UserDataCriteria implements Serializable, Criteria {
             (birthDate != null ? "birthDate=" + birthDate + ", " : "") +
             (addDate != null ? "addDate=" + addDate + ", " : "") +
             (groupId != null ? "groupId=" + groupId + ", " : "") +
+            (userId != null ? "userId=" + userId + ", " : "") +
+            (adminGroupsId != null ? "adminGroupsId=" + adminGroupsId + ", " : "") +
             (distinct != null ? "distinct=" + distinct + ", " : "") +
             "}";
     }

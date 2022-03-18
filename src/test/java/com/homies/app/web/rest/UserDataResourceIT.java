@@ -7,6 +7,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.homies.app.IntegrationTest;
 import com.homies.app.domain.Group;
+import com.homies.app.domain.User;
 import com.homies.app.domain.UserData;
 import com.homies.app.repository.UserDataRepository;
 import com.homies.app.service.criteria.UserDataCriteria;
@@ -84,6 +85,11 @@ class UserDataResourceIT {
             .premium(DEFAULT_PREMIUM)
             .birthDate(DEFAULT_BIRTH_DATE)
             .addDate(DEFAULT_ADD_DATE);
+        // Add required entity
+        User user = UserResourceIT.createEntity(em);
+        em.persist(user);
+        em.flush();
+        userData.setUser(user);
         return userData;
     }
 
@@ -101,6 +107,11 @@ class UserDataResourceIT {
             .premium(UPDATED_PREMIUM)
             .birthDate(UPDATED_BIRTH_DATE)
             .addDate(UPDATED_ADD_DATE);
+        // Add required entity
+        User user = UserResourceIT.createEntity(em);
+        em.persist(user);
+        em.flush();
+        userData.setUser(user);
         return userData;
     }
 
@@ -128,6 +139,9 @@ class UserDataResourceIT {
         assertThat(testUserData.getPremium()).isEqualTo(DEFAULT_PREMIUM);
         assertThat(testUserData.getBirthDate()).isEqualTo(DEFAULT_BIRTH_DATE);
         assertThat(testUserData.getAddDate()).isEqualTo(DEFAULT_ADD_DATE);
+
+        // Validate the id for MapsId, the ids must be same
+        assertThat(testUserData.getId()).isEqualTo(testUserData.getUser().getId());
     }
 
     @Test
@@ -146,6 +160,41 @@ class UserDataResourceIT {
         // Validate the UserData in the database
         List<UserData> userDataList = userDataRepository.findAll();
         assertThat(userDataList).hasSize(databaseSizeBeforeCreate);
+    }
+
+    @Test
+    @Transactional
+    void updateUserDataMapsIdAssociationWithNewId() throws Exception {
+        // Initialize the database
+        userDataRepository.saveAndFlush(userData);
+        int databaseSizeBeforeCreate = userDataRepository.findAll().size();
+
+        // Load the userData
+        UserData updatedUserData = userDataRepository.findById(userData.getId()).get();
+        assertThat(updatedUserData).isNotNull();
+        // Disconnect from session so that the updates on updatedUserData are not directly saved in db
+        em.detach(updatedUserData);
+
+        // Update the User with new association value
+        updatedUserData.setUser();
+
+        // Update the entity
+        restUserDataMockMvc
+            .perform(
+                put(ENTITY_API_URL_ID, updatedUserData.getId())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(updatedUserData))
+            )
+            .andExpect(status().isOk());
+
+        // Validate the UserData in the database
+        List<UserData> userDataList = userDataRepository.findAll();
+        assertThat(userDataList).hasSize(databaseSizeBeforeCreate);
+        UserData testUserData = userDataList.get(userDataList.size() - 1);
+        // Validate the id for MapsId, the ids must be same
+        // Uncomment the following line for assertion. However, please note that there is a known issue and uncommenting will fail the test.
+        // Please look at https://github.com/jhipster/generator-jhipster/issues/9100. You can modify this test as necessary.
+        // assertThat(testUserData.getId()).isEqualTo(testUserData.getUser().getId());
     }
 
     @Test
@@ -585,6 +634,47 @@ class UserDataResourceIT {
 
         // Get all the userDataList where group equals to (groupId + 1)
         defaultUserDataShouldNotBeFound("groupId.equals=" + (groupId + 1));
+    }
+
+    @Test
+    @Transactional
+    void getAllUserDataByUserIsEqualToSomething() throws Exception {
+        // Get already existing entity
+        User user = userData.getUser();
+        userDataRepository.saveAndFlush(userData);
+        Long userId = user.getId();
+
+        // Get all the userDataList where user equals to userId
+        defaultUserDataShouldBeFound("userId.equals=" + userId);
+
+        // Get all the userDataList where user equals to (userId + 1)
+        defaultUserDataShouldNotBeFound("userId.equals=" + (userId + 1));
+    }
+
+    @Test
+    @Transactional
+    void getAllUserDataByAdminGroupsIsEqualToSomething() throws Exception {
+        // Initialize the database
+        userDataRepository.saveAndFlush(userData);
+        Group adminGroups;
+        if (TestUtil.findAll(em, Group.class).isEmpty()) {
+            adminGroups = GroupResourceIT.createEntity(em);
+            em.persist(adminGroups);
+            em.flush();
+        } else {
+            adminGroups = TestUtil.findAll(em, Group.class).get(0);
+        }
+        em.persist(adminGroups);
+        em.flush();
+        userData.addAdminGroups(adminGroups);
+        userDataRepository.saveAndFlush(userData);
+        Long adminGroupsId = adminGroups.getId();
+
+        // Get all the userDataList where adminGroups equals to adminGroupsId
+        defaultUserDataShouldBeFound("adminGroupsId.equals=" + adminGroupsId);
+
+        // Get all the userDataList where adminGroups equals to (adminGroupsId + 1)
+        defaultUserDataShouldNotBeFound("adminGroupsId.equals=" + (adminGroupsId + 1));
     }
 
     /**

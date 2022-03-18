@@ -38,6 +38,7 @@
           <th scope="col" jhiSortBy="premium"><span>Premium</span> <fa-icon icon="sort"></fa-icon></th>
           <th scope="col" jhiSortBy="birthDate"><span>Birth Date</span> <fa-icon icon="sort"></fa-icon></th>
           <th scope="col" jhiSortBy="addDate"><span>Add Date</span> <fa-icon icon="sort"></fa-icon></th>
+          <th scope="col" jhiSortBy="user.login"><span>User</span> <fa-icon icon="sort"></fa-icon></th>
           <th scope="col"></th>
         </tr>
       </thead>
@@ -60,6 +61,9 @@
           <td>{{ userData.premium }}</td>
           <td>{{ userData.birthDate | formatMediumDate }}</td>
           <td>{{ userData.addDate | formatMediumDate }}</td>
+          <td>
+            {{ userData.user?.login }}
+          </td>
           <td class="text-end">
             <div class="btn-group">
               <button

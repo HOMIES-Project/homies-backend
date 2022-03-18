@@ -188,7 +188,7 @@ describe('Group Service', () => {
       });
 
       it('should add only unique Group to an array', () => {
-        const groupArray: IGroup[] = [{ id: 123 }, { id: 456 }, { id: 4018 }];
+        const groupArray: IGroup[] = [{ id: 123 }, { id: 456 }, { id: 32773 }];
         const groupCollection: IGroup[] = [{ id: 123 }];
         expectedResult = service.addGroupToCollectionIfMissing(groupCollection, ...groupArray);
         expect(expectedResult).toHaveLength(3);

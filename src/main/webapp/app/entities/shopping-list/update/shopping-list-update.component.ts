@@ -17,8 +17,8 @@ export class ShoppingListUpdateComponent implements OnInit {
 
   editForm = this.fb.group({
     id: [],
-    name: [null, [Validators.required, Validators.minLength(3), Validators.maxLength(20)]],
     total: [],
+    nameShopList: [null, [Validators.required, Validators.minLength(3), Validators.maxLength(20)]],
   });
 
   constructor(protected shoppingListService: ShoppingListService, protected activatedRoute: ActivatedRoute, protected fb: FormBuilder) {}
@@ -65,8 +65,8 @@ export class ShoppingListUpdateComponent implements OnInit {
   protected updateForm(shoppingList: IShoppingList): void {
     this.editForm.patchValue({
       id: shoppingList.id,
-      name: shoppingList.name,
       total: shoppingList.total,
+      nameShopList: shoppingList.nameShopList,
     });
   }
 
@@ -74,8 +74,8 @@ export class ShoppingListUpdateComponent implements OnInit {
     return {
       ...new ShoppingList(),
       id: this.editForm.get(['id'])!.value,
-      name: this.editForm.get(['name'])!.value,
       total: this.editForm.get(['total'])!.value,
+      nameShopList: this.editForm.get(['nameShopList'])!.value,
     };
   }
 }

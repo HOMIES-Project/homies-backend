@@ -85,11 +85,11 @@ public class SpendingListQueryService extends QueryService<SpendingList> {
             if (criteria.getId() != null) {
                 specification = specification.and(buildRangeSpecification(criteria.getId(), SpendingList_.id));
             }
-            if (criteria.getName() != null) {
-                specification = specification.and(buildStringSpecification(criteria.getName(), SpendingList_.name));
-            }
             if (criteria.getTotal() != null) {
                 specification = specification.and(buildRangeSpecification(criteria.getTotal(), SpendingList_.total));
+            }
+            if (criteria.getNameSpendList() != null) {
+                specification = specification.and(buildStringSpecification(criteria.getNameSpendList(), SpendingList_.nameSpendList));
             }
         }
         return specification;

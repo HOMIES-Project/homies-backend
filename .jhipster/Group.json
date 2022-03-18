@@ -43,6 +43,21 @@
       "ownerSide": true,
       "relationshipName": "userData",
       "relationshipType": "many-to-many"
+    },
+    {
+      "otherEntityField": "id",
+      "otherEntityName": "userData",
+      "relationshipName": "userAdmin",
+      "relationshipType": "many-to-one"
+    },
+    {
+      "id": true,
+      "otherEntityField": "nameList",
+      "otherEntityName": "taskList",
+      "otherEntityRelationshipName": "group",
+      "ownerSide": true,
+      "relationshipName": "taskList",
+      "relationshipType": "one-to-one"
     }
   ],
   "service": "serviceImpl"

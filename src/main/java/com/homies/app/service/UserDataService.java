@@ -34,6 +34,14 @@ public interface UserDataService {
     Page<UserData> findAll(Pageable pageable);
 
     /**
+     * Get all the userData with eager load of many-to-many relationships.
+     *
+     * @param pageable the pagination information.
+     * @return the list of entities.
+     */
+    Page<UserData> findAllWithEagerRelationships(Pageable pageable);
+
+    /**
      * Get the "id" userData.
      *
      * @param id the id of the entity.

@@ -28,9 +28,9 @@ public class ShoppingListCriteria implements Serializable, Criteria {
 
     private LongFilter id;
 
-    private StringFilter name;
-
     private FloatFilter total;
+
+    private StringFilter nameShopList;
 
     private Boolean distinct;
 
@@ -38,8 +38,8 @@ public class ShoppingListCriteria implements Serializable, Criteria {
 
     public ShoppingListCriteria(ShoppingListCriteria other) {
         this.id = other.id == null ? null : other.id.copy();
-        this.name = other.name == null ? null : other.name.copy();
         this.total = other.total == null ? null : other.total.copy();
+        this.nameShopList = other.nameShopList == null ? null : other.nameShopList.copy();
         this.distinct = other.distinct;
     }
 
@@ -63,21 +63,6 @@ public class ShoppingListCriteria implements Serializable, Criteria {
         this.id = id;
     }
 
-    public StringFilter getName() {
-        return name;
-    }
-
-    public StringFilter name() {
-        if (name == null) {
-            name = new StringFilter();
-        }
-        return name;
-    }
-
-    public void setName(StringFilter name) {
-        this.name = name;
-    }
-
     public FloatFilter getTotal() {
         return total;
     }
@@ -91,6 +76,21 @@ public class ShoppingListCriteria implements Serializable, Criteria {
 
     public void setTotal(FloatFilter total) {
         this.total = total;
+    }
+
+    public StringFilter getNameShopList() {
+        return nameShopList;
+    }
+
+    public StringFilter nameShopList() {
+        if (nameShopList == null) {
+            nameShopList = new StringFilter();
+        }
+        return nameShopList;
+    }
+
+    public void setNameShopList(StringFilter nameShopList) {
+        this.nameShopList = nameShopList;
     }
 
     public Boolean getDistinct() {
@@ -112,15 +112,15 @@ public class ShoppingListCriteria implements Serializable, Criteria {
         final ShoppingListCriteria that = (ShoppingListCriteria) o;
         return (
             Objects.equals(id, that.id) &&
-            Objects.equals(name, that.name) &&
             Objects.equals(total, that.total) &&
+            Objects.equals(nameShopList, that.nameShopList) &&
             Objects.equals(distinct, that.distinct)
         );
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, total, distinct);
+        return Objects.hash(id, total, nameShopList, distinct);
     }
 
     // prettier-ignore
@@ -128,8 +128,8 @@ public class ShoppingListCriteria implements Serializable, Criteria {
     public String toString() {
         return "ShoppingListCriteria{" +
             (id != null ? "id=" + id + ", " : "") +
-            (name != null ? "name=" + name + ", " : "") +
             (total != null ? "total=" + total + ", " : "") +
+            (nameShopList != null ? "nameShopList=" + nameShopList + ", " : "") +
             (distinct != null ? "distinct=" + distinct + ", " : "") +
             "}";
     }

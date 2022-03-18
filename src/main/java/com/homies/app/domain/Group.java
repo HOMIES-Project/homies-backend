@@ -21,7 +21,6 @@ public class Group implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
 
@@ -49,8 +48,17 @@ public class Group implements Serializable {
         inverseJoinColumns = @JoinColumn(name = "user_data_id")
     )
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-    @JsonIgnoreProperties(value = { "groups" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "groups", "user", "adminGroups" }, allowSetters = true)
     private Set<UserData> userData = new HashSet<>();
+
+    @ManyToOne
+    @JsonIgnoreProperties(value = { "groups", "user", "adminGroups" }, allowSetters = true)
+    private UserData userAdmin;
+
+    @OneToOne
+    @MapsId
+    @JoinColumn(name = "id")
+    private TaskList taskList;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -141,6 +149,32 @@ public class Group implements Serializable {
     public Group removeUserData(UserData userData) {
         this.userData.remove(userData);
         userData.getGroups().remove(this);
+        return this;
+    }
+
+    public UserData getUserAdmin() {
+        return this.userAdmin;
+    }
+
+    public void setUserAdmin(UserData userData) {
+        this.userAdmin = userData;
+    }
+
+    public Group userAdmin(UserData userData) {
+        this.setUserAdmin(userData);
+        return this;
+    }
+
+    public TaskList getTaskList() {
+        return this.taskList;
+    }
+
+    public void setTaskList(TaskList taskList) {
+        this.taskList = taskList;
+    }
+
+    public Group taskList(TaskList taskList) {
+        this.setTaskList(taskList);
         return this;
     }
 

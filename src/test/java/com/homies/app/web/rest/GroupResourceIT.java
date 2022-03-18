@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.homies.app.IntegrationTest;
 import com.homies.app.domain.Group;
+import com.homies.app.domain.TaskList;
 import com.homies.app.domain.UserData;
 import com.homies.app.repository.GroupRepository;
 import com.homies.app.service.GroupService;
@@ -90,6 +91,16 @@ class GroupResourceIT {
             .groupName(DEFAULT_GROUP_NAME)
             .groupRelationName(DEFAULT_GROUP_RELATION_NAME)
             .addGroupDate(DEFAULT_ADD_GROUP_DATE);
+        // Add required entity
+        TaskList taskList;
+        if (TestUtil.findAll(em, TaskList.class).isEmpty()) {
+            taskList = TaskListResourceIT.createEntity(em);
+            em.persist(taskList);
+            em.flush();
+        } else {
+            taskList = TestUtil.findAll(em, TaskList.class).get(0);
+        }
+        group.setTaskList(taskList);
         return group;
     }
 
@@ -105,6 +116,16 @@ class GroupResourceIT {
             .groupName(UPDATED_GROUP_NAME)
             .groupRelationName(UPDATED_GROUP_RELATION_NAME)
             .addGroupDate(UPDATED_ADD_GROUP_DATE);
+        // Add required entity
+        TaskList taskList;
+        if (TestUtil.findAll(em, TaskList.class).isEmpty()) {
+            taskList = TaskListResourceIT.createUpdatedEntity(em);
+            em.persist(taskList);
+            em.flush();
+        } else {
+            taskList = TestUtil.findAll(em, TaskList.class).get(0);
+        }
+        group.setTaskList(taskList);
         return group;
     }
 
@@ -130,6 +151,9 @@ class GroupResourceIT {
         assertThat(testGroup.getGroupName()).isEqualTo(DEFAULT_GROUP_NAME);
         assertThat(testGroup.getGroupRelationName()).isEqualTo(DEFAULT_GROUP_RELATION_NAME);
         assertThat(testGroup.getAddGroupDate()).isEqualTo(DEFAULT_ADD_GROUP_DATE);
+
+        // Validate the id for MapsId, the ids must be same
+        assertThat(testGroup.getId()).isEqualTo(testGroup.getTaskList().getId());
     }
 
     @Test
@@ -148,6 +172,41 @@ class GroupResourceIT {
         // Validate the Group in the database
         List<Group> groupList = groupRepository.findAll();
         assertThat(groupList).hasSize(databaseSizeBeforeCreate);
+    }
+
+    @Test
+    @Transactional
+    void updateGroupMapsIdAssociationWithNewId() throws Exception {
+        // Initialize the database
+        groupRepository.saveAndFlush(group);
+        int databaseSizeBeforeCreate = groupRepository.findAll().size();
+
+        // Load the group
+        Group updatedGroup = groupRepository.findById(group.getId()).get();
+        assertThat(updatedGroup).isNotNull();
+        // Disconnect from session so that the updates on updatedGroup are not directly saved in db
+        em.detach(updatedGroup);
+
+        // Update the TaskList with new association value
+        updatedGroup.setTaskList();
+
+        // Update the entity
+        restGroupMockMvc
+            .perform(
+                put(ENTITY_API_URL_ID, updatedGroup.getId())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(updatedGroup))
+            )
+            .andExpect(status().isOk());
+
+        // Validate the Group in the database
+        List<Group> groupList = groupRepository.findAll();
+        assertThat(groupList).hasSize(databaseSizeBeforeCreate);
+        Group testGroup = groupList.get(groupList.size() - 1);
+        // Validate the id for MapsId, the ids must be same
+        // Uncomment the following line for assertion. However, please note that there is a known issue and uncommenting will fail the test.
+        // Please look at https://github.com/jhipster/generator-jhipster/issues/9100. You can modify this test as necessary.
+        // assertThat(testGroup.getId()).isEqualTo(testGroup.getTaskList().getId());
     }
 
     @Test
@@ -618,6 +677,47 @@ class GroupResourceIT {
 
         // Get all the groupList where userData equals to (userDataId + 1)
         defaultGroupShouldNotBeFound("userDataId.equals=" + (userDataId + 1));
+    }
+
+    @Test
+    @Transactional
+    void getAllGroupsByUserAdminIsEqualToSomething() throws Exception {
+        // Initialize the database
+        groupRepository.saveAndFlush(group);
+        UserData userAdmin;
+        if (TestUtil.findAll(em, UserData.class).isEmpty()) {
+            userAdmin = UserDataResourceIT.createEntity(em);
+            em.persist(userAdmin);
+            em.flush();
+        } else {
+            userAdmin = TestUtil.findAll(em, UserData.class).get(0);
+        }
+        em.persist(userAdmin);
+        em.flush();
+        group.setUserAdmin(userAdmin);
+        groupRepository.saveAndFlush(group);
+        Long userAdminId = userAdmin.getId();
+
+        // Get all the groupList where userAdmin equals to userAdminId
+        defaultGroupShouldBeFound("userAdminId.equals=" + userAdminId);
+
+        // Get all the groupList where userAdmin equals to (userAdminId + 1)
+        defaultGroupShouldNotBeFound("userAdminId.equals=" + (userAdminId + 1));
+    }
+
+    @Test
+    @Transactional
+    void getAllGroupsByTaskListIsEqualToSomething() throws Exception {
+        // Get already existing entity
+        TaskList taskList = group.getTaskList();
+        groupRepository.saveAndFlush(group);
+        Long taskListId = taskList.getId();
+
+        // Get all the groupList where taskList equals to taskListId
+        defaultGroupShouldBeFound("taskListId.equals=" + taskListId);
+
+        // Get all the groupList where taskList equals to (taskListId + 1)
+        defaultGroupShouldNotBeFound("taskListId.equals=" + (taskListId + 1));
     }
 
     /**

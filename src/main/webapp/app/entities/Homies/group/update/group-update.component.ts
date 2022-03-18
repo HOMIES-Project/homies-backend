@@ -9,6 +9,8 @@ import { IGroup, Group } from '../group.model';
 import { GroupService } from '../service/group.service';
 import { IUserData } from 'app/entities/Homies/user-data/user-data.model';
 import { UserDataService } from 'app/entities/Homies/user-data/service/user-data.service';
+import { ITaskList } from 'app/entities/task-list/task-list.model';
+import { TaskListService } from 'app/entities/task-list/service/task-list.service';
 
 @Component({
   selector: 'jhi-group-update',
@@ -18,6 +20,7 @@ export class GroupUpdateComponent implements OnInit {
   isSaving = false;
 
   userDataSharedCollection: IUserData[] = [];
+  taskListsCollection: ITaskList[] = [];
 
   editForm = this.fb.group({
     id: [],
@@ -26,11 +29,14 @@ export class GroupUpdateComponent implements OnInit {
     groupRelationName: [null, [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
     addGroupDate: [],
     userData: [],
+    userAdmin: [],
+    taskList: [],
   });
 
   constructor(
     protected groupService: GroupService,
     protected userDataService: UserDataService,
+    protected taskListService: TaskListService,
     protected activatedRoute: ActivatedRoute,
     protected fb: FormBuilder
   ) {}
@@ -58,6 +64,10 @@ export class GroupUpdateComponent implements OnInit {
   }
 
   trackUserDataById(index: number, item: IUserData): number {
+    return item.id!;
+  }
+
+  trackTaskListById(index: number, item: ITaskList): number {
     return item.id!;
   }
 
@@ -99,12 +109,16 @@ export class GroupUpdateComponent implements OnInit {
       groupRelationName: group.groupRelationName,
       addGroupDate: group.addGroupDate,
       userData: group.userData,
+      userAdmin: group.userAdmin,
+      taskList: group.taskList,
     });
 
     this.userDataSharedCollection = this.userDataService.addUserDataToCollectionIfMissing(
       this.userDataSharedCollection,
-      ...(group.userData ?? [])
+      ...(group.userData ?? []),
+      group.userAdmin
     );
+    this.taskListsCollection = this.taskListService.addTaskListToCollectionIfMissing(this.taskListsCollection, group.taskList);
   }
 
   protected loadRelationshipsOptions(): void {
@@ -113,10 +127,24 @@ export class GroupUpdateComponent implements OnInit {
       .pipe(map((res: HttpResponse<IUserData[]>) => res.body ?? []))
       .pipe(
         map((userData: IUserData[]) =>
-          this.userDataService.addUserDataToCollectionIfMissing(userData, ...(this.editForm.get('userData')!.value ?? []))
+          this.userDataService.addUserDataToCollectionIfMissing(
+            userData,
+            ...(this.editForm.get('userData')!.value ?? []),
+            this.editForm.get('userAdmin')!.value
+          )
         )
       )
       .subscribe((userData: IUserData[]) => (this.userDataSharedCollection = userData));
+
+    this.taskListService
+      .query({ 'groupId.specified': 'false' })
+      .pipe(map((res: HttpResponse<ITaskList[]>) => res.body ?? []))
+      .pipe(
+        map((taskLists: ITaskList[]) =>
+          this.taskListService.addTaskListToCollectionIfMissing(taskLists, this.editForm.get('taskList')!.value)
+        )
+      )
+      .subscribe((taskLists: ITaskList[]) => (this.taskListsCollection = taskLists));
   }
 
   protected createFromForm(): IGroup {
@@ -128,6 +156,8 @@ export class GroupUpdateComponent implements OnInit {
       groupRelationName: this.editForm.get(['groupRelationName'])!.value,
       addGroupDate: this.editForm.get(['addGroupDate'])!.value,
       userData: this.editForm.get(['userData'])!.value,
+      userAdmin: this.editForm.get(['userAdmin'])!.value,
+      taskList: this.editForm.get(['taskList'])!.value,
     };
   }
 }
