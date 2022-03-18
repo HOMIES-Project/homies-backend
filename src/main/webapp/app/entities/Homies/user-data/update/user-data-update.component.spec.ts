@@ -11,6 +11,8 @@ import { IUserData, UserData } from '../user-data.model';
 
 import { IUser } from 'app/entities/user/user.model';
 import { UserService } from 'app/entities/user/user.service';
+import { ITask } from 'app/entities/task/task.model';
+import { TaskService } from 'app/entities/task/service/task.service';
 
 import { UserDataUpdateComponent } from './user-data-update.component';
 
@@ -20,6 +22,7 @@ describe('UserData Management Update Component', () => {
   let activatedRoute: ActivatedRoute;
   let userDataService: UserDataService;
   let userService: UserService;
+  let taskService: TaskService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -42,6 +45,7 @@ describe('UserData Management Update Component', () => {
     activatedRoute = TestBed.inject(ActivatedRoute);
     userDataService = TestBed.inject(UserDataService);
     userService = TestBed.inject(UserService);
+    taskService = TestBed.inject(TaskService);
 
     comp = fixture.componentInstance;
   });
@@ -66,16 +70,38 @@ describe('UserData Management Update Component', () => {
       expect(comp.usersSharedCollection).toEqual(expectedCollection);
     });
 
+    it('Should call Task query and add missing value', () => {
+      const userData: IUserData = { id: 456 };
+      const taskAsigneds: ITask[] = [{ id: 32302 }];
+      userData.taskAsigneds = taskAsigneds;
+
+      const taskCollection: ITask[] = [{ id: 56974 }];
+      jest.spyOn(taskService, 'query').mockReturnValue(of(new HttpResponse({ body: taskCollection })));
+      const additionalTasks = [...taskAsigneds];
+      const expectedCollection: ITask[] = [...additionalTasks, ...taskCollection];
+      jest.spyOn(taskService, 'addTaskToCollectionIfMissing').mockReturnValue(expectedCollection);
+
+      activatedRoute.data = of({ userData });
+      comp.ngOnInit();
+
+      expect(taskService.query).toHaveBeenCalled();
+      expect(taskService.addTaskToCollectionIfMissing).toHaveBeenCalledWith(taskCollection, ...additionalTasks);
+      expect(comp.tasksSharedCollection).toEqual(expectedCollection);
+    });
+
     it('Should update editForm', () => {
       const userData: IUserData = { id: 456 };
       const user: IUser = { id: 53371 };
       userData.user = user;
+      const taskAsigneds: ITask = { id: 75914 };
+      userData.taskAsigneds = [taskAsigneds];
 
       activatedRoute.data = of({ userData });
       comp.ngOnInit();
 
       expect(comp.editForm.value).toEqual(expect.objectContaining(userData));
       expect(comp.usersSharedCollection).toContain(user);
+      expect(comp.tasksSharedCollection).toContain(taskAsigneds);
     });
   });
 
@@ -149,6 +175,42 @@ describe('UserData Management Update Component', () => {
         const entity = { id: 123 };
         const trackResult = comp.trackUserById(0, entity);
         expect(trackResult).toEqual(entity.id);
+      });
+    });
+
+    describe('trackTaskById', () => {
+      it('Should return tracked Task primary key', () => {
+        const entity = { id: 123 };
+        const trackResult = comp.trackTaskById(0, entity);
+        expect(trackResult).toEqual(entity.id);
+      });
+    });
+  });
+
+  describe('Getting selected relationships', () => {
+    describe('getSelectedTask', () => {
+      it('Should return option if no Task is selected', () => {
+        const option = { id: 123 };
+        const result = comp.getSelectedTask(option);
+        expect(result === option).toEqual(true);
+      });
+
+      it('Should return selected Task for according option', () => {
+        const option = { id: 123 };
+        const selected = { id: 123 };
+        const selected2 = { id: 456 };
+        const result = comp.getSelectedTask(option, [selected2, selected]);
+        expect(result === selected).toEqual(true);
+        expect(result === selected2).toEqual(false);
+        expect(result === option).toEqual(false);
+      });
+
+      it('Should return option if this Task is not selected', () => {
+        const option = { id: 123 };
+        const selected = { id: 456 };
+        const result = comp.getSelectedTask(option, [selected]);
+        expect(result === option).toEqual(true);
+        expect(result === selected).toEqual(false);
       });
     });
   });

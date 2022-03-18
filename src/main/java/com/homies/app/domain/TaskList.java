@@ -34,7 +34,7 @@ public class TaskList implements Serializable {
 
     @OneToMany(mappedBy = "taskList")
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-    @JsonIgnoreProperties(value = { "taskList", "userData", "userCreator" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "taskList", "userData", "userCreator", "userAssigneds" }, allowSetters = true)
     private Set<Task> tasks = new HashSet<>();
 
     // jhipster-needle-entity-add-field - JHipster will add fields here

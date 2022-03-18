@@ -60,6 +60,13 @@
       "otherEntityName": "userData",
       "relationshipName": "userCreator",
       "relationshipType": "many-to-one"
+    },
+    {
+      "otherEntityName": "userData",
+      "otherEntityRelationshipName": "taskAsigned",
+      "ownerSide": false,
+      "relationshipName": "userAssigned",
+      "relationshipType": "many-to-many"
     }
   ],
   "service": "serviceImpl"

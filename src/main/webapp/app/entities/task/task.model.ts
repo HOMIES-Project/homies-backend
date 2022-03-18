@@ -15,6 +15,7 @@ export interface ITask {
   taskList?: ITaskList | null;
   userData?: IUserData | null;
   userCreator?: IUserData | null;
+  userAssigneds?: IUserData[] | null;
 }
 
 export class Task implements ITask {
@@ -30,7 +31,8 @@ export class Task implements ITask {
     public puntuacion?: string | null,
     public taskList?: ITaskList | null,
     public userData?: IUserData | null,
-    public userCreator?: IUserData | null
+    public userCreator?: IUserData | null,
+    public userAssigneds?: IUserData[] | null
   ) {
     this.cancel = this.cancel ?? false;
   }

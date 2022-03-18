@@ -13,5 +13,17 @@
                                  constraintName="fk_user_data__user_id"
                                  referencedColumnNames="id"
                                  referencedTableName="jhi_user"/>
+
+        <addForeignKeyConstraint baseColumnNames="user_data_id"
+                                 baseTableName="rel_user_data__task_asigned"
+                                 constraintName="fk_rel_user_data__task_asigned__user_data_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="user_data"/>
+
+        <addForeignKeyConstraint baseColumnNames="task_asigned_id"
+                                 baseTableName="rel_user_data__task_asigned"
+                                 constraintName="fk_rel_user_data__task_asigned__task_asigned_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="task"/>
     </changeSet>
 </databaseChangeLog>

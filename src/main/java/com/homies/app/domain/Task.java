@@ -3,6 +3,8 @@ package com.homies.app.domain;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 import org.hibernate.annotations.Cache;
@@ -57,12 +59,17 @@ public class Task implements Serializable {
     private TaskList taskList;
 
     @ManyToOne
-    @JsonIgnoreProperties(value = { "groups", "user", "adminGroups" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "groups", "user", "adminGroups", "taskAsigneds" }, allowSetters = true)
     private UserData userData;
 
     @ManyToOne
-    @JsonIgnoreProperties(value = { "groups", "user", "adminGroups" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "groups", "user", "adminGroups", "taskAsigneds" }, allowSetters = true)
     private UserData userCreator;
+
+    @ManyToMany(mappedBy = "taskAsigneds")
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    @JsonIgnoreProperties(value = { "groups", "user", "adminGroups", "taskAsigneds" }, allowSetters = true)
+    private Set<UserData> userAssigneds = new HashSet<>();
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -219,6 +226,37 @@ public class Task implements Serializable {
 
     public Task userCreator(UserData userData) {
         this.setUserCreator(userData);
+        return this;
+    }
+
+    public Set<UserData> getUserAssigneds() {
+        return this.userAssigneds;
+    }
+
+    public void setUserAssigneds(Set<UserData> userData) {
+        if (this.userAssigneds != null) {
+            this.userAssigneds.forEach(i -> i.removeTaskAsigned(this));
+        }
+        if (userData != null) {
+            userData.forEach(i -> i.addTaskAsigned(this));
+        }
+        this.userAssigneds = userData;
+    }
+
+    public Task userAssigneds(Set<UserData> userData) {
+        this.setUserAssigneds(userData);
+        return this;
+    }
+
+    public Task addUserAssigned(UserData userData) {
+        this.userAssigneds.add(userData);
+        userData.getTaskAsigneds().add(this);
+        return this;
+    }
+
+    public Task removeUserAssigned(UserData userData) {
+        this.userAssigneds.remove(userData);
+        userData.getTaskAsigneds().remove(this);
         return this;
     }
 

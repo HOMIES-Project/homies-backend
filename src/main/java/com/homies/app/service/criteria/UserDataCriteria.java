@@ -43,6 +43,8 @@ public class UserDataCriteria implements Serializable, Criteria {
 
     private LongFilter adminGroupsId;
 
+    private LongFilter taskAsignedId;
+
     private Boolean distinct;
 
     public UserDataCriteria() {}
@@ -56,6 +58,7 @@ public class UserDataCriteria implements Serializable, Criteria {
         this.groupId = other.groupId == null ? null : other.groupId.copy();
         this.userId = other.userId == null ? null : other.userId.copy();
         this.adminGroupsId = other.adminGroupsId == null ? null : other.adminGroupsId.copy();
+        this.taskAsignedId = other.taskAsignedId == null ? null : other.taskAsignedId.copy();
         this.distinct = other.distinct;
     }
 
@@ -184,6 +187,21 @@ public class UserDataCriteria implements Serializable, Criteria {
         this.adminGroupsId = adminGroupsId;
     }
 
+    public LongFilter getTaskAsignedId() {
+        return taskAsignedId;
+    }
+
+    public LongFilter taskAsignedId() {
+        if (taskAsignedId == null) {
+            taskAsignedId = new LongFilter();
+        }
+        return taskAsignedId;
+    }
+
+    public void setTaskAsignedId(LongFilter taskAsignedId) {
+        this.taskAsignedId = taskAsignedId;
+    }
+
     public Boolean getDistinct() {
         return distinct;
     }
@@ -210,13 +228,14 @@ public class UserDataCriteria implements Serializable, Criteria {
             Objects.equals(groupId, that.groupId) &&
             Objects.equals(userId, that.userId) &&
             Objects.equals(adminGroupsId, that.adminGroupsId) &&
+            Objects.equals(taskAsignedId, that.taskAsignedId) &&
             Objects.equals(distinct, that.distinct)
         );
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, phone, premium, birthDate, addDate, groupId, userId, adminGroupsId, distinct);
+        return Objects.hash(id, phone, premium, birthDate, addDate, groupId, userId, adminGroupsId, taskAsignedId, distinct);
     }
 
     // prettier-ignore
@@ -231,6 +250,7 @@ public class UserDataCriteria implements Serializable, Criteria {
             (groupId != null ? "groupId=" + groupId + ", " : "") +
             (userId != null ? "userId=" + userId + ", " : "") +
             (adminGroupsId != null ? "adminGroupsId=" + adminGroupsId + ", " : "") +
+            (taskAsignedId != null ? "taskAsignedId=" + taskAsignedId + ", " : "") +
             (distinct != null ? "distinct=" + distinct + ", " : "") +
             "}";
     }

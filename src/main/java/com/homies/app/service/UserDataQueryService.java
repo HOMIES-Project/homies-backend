@@ -118,6 +118,15 @@ public class UserDataQueryService extends QueryService<UserData> {
                         )
                     );
             }
+            if (criteria.getTaskAsignedId() != null) {
+                specification =
+                    specification.and(
+                        buildSpecification(
+                            criteria.getTaskAsignedId(),
+                            root -> root.join(UserData_.taskAsigneds, JoinType.LEFT).get(Task_.id)
+                        )
+                    );
+            }
         }
         return specification;
     }

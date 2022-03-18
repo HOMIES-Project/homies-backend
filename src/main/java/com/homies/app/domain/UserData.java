@@ -60,6 +60,16 @@ public class UserData implements Serializable {
     @JsonIgnoreProperties(value = { "userData", "userAdmin", "taskList" }, allowSetters = true)
     private Set<Group> adminGroups = new HashSet<>();
 
+    @ManyToMany
+    @JoinTable(
+        name = "rel_user_data__task_asigned",
+        joinColumns = @JoinColumn(name = "user_data_id"),
+        inverseJoinColumns = @JoinColumn(name = "task_asigned_id")
+    )
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    @JsonIgnoreProperties(value = { "taskList", "userData", "userCreator", "userAssigneds" }, allowSetters = true)
+    private Set<Task> taskAsigneds = new HashSet<>();
+
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
     public Long getId() {
@@ -225,6 +235,31 @@ public class UserData implements Serializable {
     public UserData removeAdminGroups(Group group) {
         this.adminGroups.remove(group);
         group.setUserAdmin(null);
+        return this;
+    }
+
+    public Set<Task> getTaskAsigneds() {
+        return this.taskAsigneds;
+    }
+
+    public void setTaskAsigneds(Set<Task> tasks) {
+        this.taskAsigneds = tasks;
+    }
+
+    public UserData taskAsigneds(Set<Task> tasks) {
+        this.setTaskAsigneds(tasks);
+        return this;
+    }
+
+    public UserData addTaskAsigned(Task task) {
+        this.taskAsigneds.add(task);
+        task.getUserAssigneds().add(this);
+        return this;
+    }
+
+    public UserData removeTaskAsigned(Task task) {
+        this.taskAsigneds.remove(task);
+        task.getUserAssigneds().remove(this);
         return this;
     }
 

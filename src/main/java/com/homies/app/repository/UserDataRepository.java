@@ -13,17 +13,18 @@ import org.springframework.stereotype.Repository;
  * Spring Data SQL repository for the UserData entity.
  */
 @Repository
-public interface UserDataRepository extends JpaRepository<UserData, Long>, JpaSpecificationExecutor<UserData> {
+public interface UserDataRepository
+    extends UserDataRepositoryWithBagRelationships, JpaRepository<UserData, Long>, JpaSpecificationExecutor<UserData> {
     default Optional<UserData> findOneWithEagerRelationships(Long id) {
-        return this.findOneWithToOneRelationships(id);
+        return this.fetchBagRelationships(this.findOneWithToOneRelationships(id));
     }
 
     default List<UserData> findAllWithEagerRelationships() {
-        return this.findAllWithToOneRelationships();
+        return this.fetchBagRelationships(this.findAllWithToOneRelationships());
     }
 
     default Page<UserData> findAllWithEagerRelationships(Pageable pageable) {
-        return this.findAllWithToOneRelationships(pageable);
+        return this.fetchBagRelationships(this.findAllWithToOneRelationships(pageable));
     }
 
     @Query(

@@ -57,6 +57,14 @@
       "otherEntityRelationshipName": "userAdmin",
       "relationshipName": "adminGroups",
       "relationshipType": "one-to-many"
+    },
+    {
+      "otherEntityField": "id",
+      "otherEntityName": "task",
+      "otherEntityRelationshipName": "userAssigned",
+      "ownerSide": true,
+      "relationshipName": "taskAsigned",
+      "relationshipType": "many-to-many"
     }
   ],
   "service": "serviceImpl"

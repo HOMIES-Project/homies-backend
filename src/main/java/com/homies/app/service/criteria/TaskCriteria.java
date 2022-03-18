@@ -47,6 +47,8 @@ public class TaskCriteria implements Serializable, Criteria {
 
     private LongFilter userCreatorId;
 
+    private LongFilter userAssignedId;
+
     private Boolean distinct;
 
     public TaskCriteria() {}
@@ -62,6 +64,7 @@ public class TaskCriteria implements Serializable, Criteria {
         this.taskListId = other.taskListId == null ? null : other.taskListId.copy();
         this.userDataId = other.userDataId == null ? null : other.userDataId.copy();
         this.userCreatorId = other.userCreatorId == null ? null : other.userCreatorId.copy();
+        this.userAssignedId = other.userAssignedId == null ? null : other.userAssignedId.copy();
         this.distinct = other.distinct;
     }
 
@@ -220,6 +223,21 @@ public class TaskCriteria implements Serializable, Criteria {
         this.userCreatorId = userCreatorId;
     }
 
+    public LongFilter getUserAssignedId() {
+        return userAssignedId;
+    }
+
+    public LongFilter userAssignedId() {
+        if (userAssignedId == null) {
+            userAssignedId = new LongFilter();
+        }
+        return userAssignedId;
+    }
+
+    public void setUserAssignedId(LongFilter userAssignedId) {
+        this.userAssignedId = userAssignedId;
+    }
+
     public Boolean getDistinct() {
         return distinct;
     }
@@ -248,6 +266,7 @@ public class TaskCriteria implements Serializable, Criteria {
             Objects.equals(taskListId, that.taskListId) &&
             Objects.equals(userDataId, that.userDataId) &&
             Objects.equals(userCreatorId, that.userCreatorId) &&
+            Objects.equals(userAssignedId, that.userAssignedId) &&
             Objects.equals(distinct, that.distinct)
         );
     }
@@ -265,6 +284,7 @@ public class TaskCriteria implements Serializable, Criteria {
             taskListId,
             userDataId,
             userCreatorId,
+            userAssignedId,
             distinct
         );
     }
@@ -283,6 +303,7 @@ public class TaskCriteria implements Serializable, Criteria {
             (taskListId != null ? "taskListId=" + taskListId + ", " : "") +
             (userDataId != null ? "userDataId=" + userDataId + ", " : "") +
             (userCreatorId != null ? "userCreatorId=" + userCreatorId + ", " : "") +
+            (userAssignedId != null ? "userAssignedId=" + userAssignedId + ", " : "") +
             (distinct != null ? "distinct=" + distinct + ", " : "") +
             "}";
     }

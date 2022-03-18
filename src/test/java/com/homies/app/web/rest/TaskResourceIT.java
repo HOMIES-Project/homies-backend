@@ -829,6 +829,32 @@ class TaskResourceIT {
         defaultTaskShouldNotBeFound("userCreatorId.equals=" + (userCreatorId + 1));
     }
 
+    @Test
+    @Transactional
+    void getAllTasksByUserAssignedIsEqualToSomething() throws Exception {
+        // Initialize the database
+        taskRepository.saveAndFlush(task);
+        UserData userAssigned;
+        if (TestUtil.findAll(em, UserData.class).isEmpty()) {
+            userAssigned = UserDataResourceIT.createEntity(em);
+            em.persist(userAssigned);
+            em.flush();
+        } else {
+            userAssigned = TestUtil.findAll(em, UserData.class).get(0);
+        }
+        em.persist(userAssigned);
+        em.flush();
+        task.addUserAssigned(userAssigned);
+        taskRepository.saveAndFlush(task);
+        Long userAssignedId = userAssigned.getId();
+
+        // Get all the taskList where userAssigned equals to userAssignedId
+        defaultTaskShouldBeFound("userAssignedId.equals=" + userAssignedId);
+
+        // Get all the taskList where userAssigned equals to (userAssignedId + 1)
+        defaultTaskShouldNotBeFound("userAssignedId.equals=" + (userAssignedId + 1));
+    }
+
     /**
      * Executes the search, and checks that the default entity is returned.
      */

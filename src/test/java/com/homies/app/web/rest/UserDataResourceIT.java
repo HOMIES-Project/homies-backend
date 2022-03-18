@@ -2,25 +2,34 @@ package com.homies.app.web.rest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.homies.app.IntegrationTest;
 import com.homies.app.domain.Group;
+import com.homies.app.domain.Task;
 import com.homies.app.domain.User;
 import com.homies.app.domain.UserData;
 import com.homies.app.repository.UserDataRepository;
+import com.homies.app.service.UserDataService;
 import com.homies.app.service.criteria.UserDataCriteria;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
 import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -31,6 +40,7 @@ import org.springframework.util.Base64Utils;
  * Integration tests for the {@link UserDataResource} REST controller.
  */
 @IntegrationTest
+@ExtendWith(MockitoExtension.class)
 @AutoConfigureMockMvc
 @WithMockUser
 class UserDataResourceIT {
@@ -62,6 +72,12 @@ class UserDataResourceIT {
 
     @Autowired
     private UserDataRepository userDataRepository;
+
+    @Mock
+    private UserDataRepository userDataRepositoryMock;
+
+    @Mock
+    private UserDataService userDataServiceMock;
 
     @Autowired
     private EntityManager em;
@@ -232,6 +248,24 @@ class UserDataResourceIT {
             .andExpect(jsonPath("$.[*].premium").value(hasItem(DEFAULT_PREMIUM.booleanValue())))
             .andExpect(jsonPath("$.[*].birthDate").value(hasItem(DEFAULT_BIRTH_DATE.toString())))
             .andExpect(jsonPath("$.[*].addDate").value(hasItem(DEFAULT_ADD_DATE.toString())));
+    }
+
+    @SuppressWarnings({ "unchecked" })
+    void getAllUserDataWithEagerRelationshipsIsEnabled() throws Exception {
+        when(userDataServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
+
+        restUserDataMockMvc.perform(get(ENTITY_API_URL + "?eagerload=true")).andExpect(status().isOk());
+
+        verify(userDataServiceMock, times(1)).findAllWithEagerRelationships(any());
+    }
+
+    @SuppressWarnings({ "unchecked" })
+    void getAllUserDataWithEagerRelationshipsIsNotEnabled() throws Exception {
+        when(userDataServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
+
+        restUserDataMockMvc.perform(get(ENTITY_API_URL + "?eagerload=true")).andExpect(status().isOk());
+
+        verify(userDataServiceMock, times(1)).findAllWithEagerRelationships(any());
     }
 
     @Test
@@ -675,6 +709,32 @@ class UserDataResourceIT {
 
         // Get all the userDataList where adminGroups equals to (adminGroupsId + 1)
         defaultUserDataShouldNotBeFound("adminGroupsId.equals=" + (adminGroupsId + 1));
+    }
+
+    @Test
+    @Transactional
+    void getAllUserDataByTaskAsignedIsEqualToSomething() throws Exception {
+        // Initialize the database
+        userDataRepository.saveAndFlush(userData);
+        Task taskAsigned;
+        if (TestUtil.findAll(em, Task.class).isEmpty()) {
+            taskAsigned = TaskResourceIT.createEntity(em);
+            em.persist(taskAsigned);
+            em.flush();
+        } else {
+            taskAsigned = TestUtil.findAll(em, Task.class).get(0);
+        }
+        em.persist(taskAsigned);
+        em.flush();
+        userData.addTaskAsigned(taskAsigned);
+        userDataRepository.saveAndFlush(userData);
+        Long taskAsignedId = taskAsigned.getId();
+
+        // Get all the userDataList where taskAsigned equals to taskAsignedId
+        defaultUserDataShouldBeFound("taskAsignedId.equals=" + taskAsignedId);
+
+        // Get all the userDataList where taskAsigned equals to (taskAsignedId + 1)
+        defaultUserDataShouldNotBeFound("taskAsignedId.equals=" + (taskAsignedId + 1));
     }
 
     /**

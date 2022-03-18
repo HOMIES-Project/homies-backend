@@ -124,6 +124,15 @@ public class TaskQueryService extends QueryService<Task> {
                         )
                     );
             }
+            if (criteria.getUserAssignedId() != null) {
+                specification =
+                    specification.and(
+                        buildSpecification(
+                            criteria.getUserAssignedId(),
+                            root -> root.join(Task_.userAssigneds, JoinType.LEFT).get(UserData_.id)
+                        )
+                    );
+            }
         }
         return specification;
     }

@@ -109,6 +109,25 @@
             </option>
           </select>
         </div>
+
+        <div class="row mb-3">
+          <label for="field_taskAsigneds">Task Asigned</label>
+          <select
+            class="form-control"
+            id="field_taskAsigneds"
+            data-cy="taskAsigned"
+            multiple
+            name="taskAsigneds"
+            formControlName="taskAsigneds"
+          >
+            <option
+              [ngValue]="getSelectedTask(taskOption, editForm.get('taskAsigneds')!.value)"
+              *ngFor="let taskOption of tasksSharedCollection; trackBy: trackTaskById"
+            >
+              {{ taskOption.id }}
+            </option>
+          </select>
+        </div>
       </div>
 
       <div>
