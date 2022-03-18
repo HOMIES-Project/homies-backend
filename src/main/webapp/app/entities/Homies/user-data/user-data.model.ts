@@ -1,4 +1,5 @@
 import dayjs from 'dayjs/esm';
+import { IGroup } from 'app/entities/Homies/group/group.model';
 
 export interface IUserData {
   id?: number;
@@ -8,6 +9,7 @@ export interface IUserData {
   premium?: boolean;
   birthDate?: dayjs.Dayjs | null;
   addDate?: dayjs.Dayjs | null;
+  groups?: IGroup[] | null;
 }
 
 export class UserData implements IUserData {
@@ -18,7 +20,8 @@ export class UserData implements IUserData {
     public phone?: string | null,
     public premium?: boolean,
     public birthDate?: dayjs.Dayjs | null,
-    public addDate?: dayjs.Dayjs | null
+    public addDate?: dayjs.Dayjs | null,
+    public groups?: IGroup[] | null
   ) {
     this.premium = this.premium ?? false;
   }

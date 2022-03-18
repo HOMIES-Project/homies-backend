@@ -30,6 +30,13 @@
         <dd>
           <span>{{ group.addGroupDate | formatMediumDate }}</span>
         </dd>
+        <dt><span>User Data</span></dt>
+        <dd>
+          <span *ngFor="let userData of group.userData; let last = last">
+            <a [routerLink]="['/user-data', userData?.id, 'view']">{{ userData.id }}</a
+            >{{ last ? '' : ', ' }}
+          </span>
+        </dd>
       </dl>
 
       <button type="submit" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">

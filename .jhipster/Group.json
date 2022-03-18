@@ -35,6 +35,15 @@
   "name": "Group",
   "pagination": "pagination",
   "readOnly": false,
-  "relationships": [],
+  "relationships": [
+    {
+      "otherEntityField": "id",
+      "otherEntityName": "userData",
+      "otherEntityRelationshipName": "group",
+      "ownerSide": true,
+      "relationshipName": "userData",
+      "relationshipType": "many-to-many"
+    }
+  ],
   "service": "serviceImpl"
 }

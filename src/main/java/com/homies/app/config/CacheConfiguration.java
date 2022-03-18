@@ -57,6 +57,8 @@ public class CacheConfiguration {
             createCache(cm, com.homies.app.domain.SpendingList.class.getName());
             createCache(cm, com.homies.app.domain.UserData.class.getName());
             createCache(cm, com.homies.app.domain.Group.class.getName());
+            createCache(cm, com.homies.app.domain.Group.class.getName() + ".userData");
+            createCache(cm, com.homies.app.domain.UserData.class.getName() + ".groups");
             // jhipster-needle-ehcache-add-entry
         };
     }

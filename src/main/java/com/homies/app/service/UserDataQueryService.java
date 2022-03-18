@@ -97,6 +97,12 @@ public class UserDataQueryService extends QueryService<UserData> {
             if (criteria.getAddDate() != null) {
                 specification = specification.and(buildRangeSpecification(criteria.getAddDate(), UserData_.addDate));
             }
+            if (criteria.getGroupId() != null) {
+                specification =
+                    specification.and(
+                        buildSpecification(criteria.getGroupId(), root -> root.join(UserData_.groups, JoinType.LEFT).get(Group_.id))
+                    );
+            }
         }
         return specification;
     }

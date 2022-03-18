@@ -2,23 +2,32 @@ package com.homies.app.web.rest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.homies.app.IntegrationTest;
 import com.homies.app.domain.Group;
+import com.homies.app.domain.UserData;
 import com.homies.app.repository.GroupRepository;
+import com.homies.app.service.GroupService;
 import com.homies.app.service.criteria.GroupCriteria;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
 import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -28,6 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
  * Integration tests for the {@link GroupResource} REST controller.
  */
 @IntegrationTest
+@ExtendWith(MockitoExtension.class)
 @AutoConfigureMockMvc
 @WithMockUser
 class GroupResourceIT {
@@ -53,6 +63,12 @@ class GroupResourceIT {
 
     @Autowired
     private GroupRepository groupRepository;
+
+    @Mock
+    private GroupRepository groupRepositoryMock;
+
+    @Mock
+    private GroupService groupServiceMock;
 
     @Autowired
     private EntityManager em;
@@ -184,6 +200,24 @@ class GroupResourceIT {
             .andExpect(jsonPath("$.[*].groupName").value(hasItem(DEFAULT_GROUP_NAME)))
             .andExpect(jsonPath("$.[*].groupRelationName").value(hasItem(DEFAULT_GROUP_RELATION_NAME)))
             .andExpect(jsonPath("$.[*].addGroupDate").value(hasItem(DEFAULT_ADD_GROUP_DATE.toString())));
+    }
+
+    @SuppressWarnings({ "unchecked" })
+    void getAllGroupsWithEagerRelationshipsIsEnabled() throws Exception {
+        when(groupServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
+
+        restGroupMockMvc.perform(get(ENTITY_API_URL + "?eagerload=true")).andExpect(status().isOk());
+
+        verify(groupServiceMock, times(1)).findAllWithEagerRelationships(any());
+    }
+
+    @SuppressWarnings({ "unchecked" })
+    void getAllGroupsWithEagerRelationshipsIsNotEnabled() throws Exception {
+        when(groupServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
+
+        restGroupMockMvc.perform(get(ENTITY_API_URL + "?eagerload=true")).andExpect(status().isOk());
+
+        verify(groupServiceMock, times(1)).findAllWithEagerRelationships(any());
     }
 
     @Test
@@ -558,6 +592,32 @@ class GroupResourceIT {
 
         // Get all the groupList where addGroupDate is greater than SMALLER_ADD_GROUP_DATE
         defaultGroupShouldBeFound("addGroupDate.greaterThan=" + SMALLER_ADD_GROUP_DATE);
+    }
+
+    @Test
+    @Transactional
+    void getAllGroupsByUserDataIsEqualToSomething() throws Exception {
+        // Initialize the database
+        groupRepository.saveAndFlush(group);
+        UserData userData;
+        if (TestUtil.findAll(em, UserData.class).isEmpty()) {
+            userData = UserDataResourceIT.createEntity(em);
+            em.persist(userData);
+            em.flush();
+        } else {
+            userData = TestUtil.findAll(em, UserData.class).get(0);
+        }
+        em.persist(userData);
+        em.flush();
+        group.addUserData(userData);
+        groupRepository.saveAndFlush(group);
+        Long userDataId = userData.getId();
+
+        // Get all the groupList where userData equals to userDataId
+        defaultGroupShouldBeFound("userDataId.equals=" + userDataId);
+
+        // Get all the groupList where userData equals to (userDataId + 1)
+        defaultGroupShouldNotBeFound("userDataId.equals=" + (userDataId + 1));
     }
 
     /**

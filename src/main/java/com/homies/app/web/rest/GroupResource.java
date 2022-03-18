@@ -52,6 +52,11 @@ public class GroupResource {
         this.groupQueryService = groupQueryService;
     }
 
+    @GetMapping("/lista-usuarios")
+    public ResponseEntity<List<Group>> findByUserData_Id(@RequestParam Long id){
+        return ResponseEntity.ok().body(groupRepository.findByUserData_Id(id));
+    }
+
     /**
      * {@code POST  /groups} : Create a new group.
      *

@@ -1,7 +1,10 @@
 package com.homies.app.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 import org.hibernate.annotations.Cache;
@@ -42,6 +45,11 @@ public class UserData implements Serializable {
 
     @Column(name = "add_date")
     private LocalDate addDate;
+
+    @ManyToMany(mappedBy = "userData")
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    @JsonIgnoreProperties(value = { "userData" }, allowSetters = true)
+    private Set<Group> groups = new HashSet<>();
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -134,6 +142,37 @@ public class UserData implements Serializable {
 
     public void setAddDate(LocalDate addDate) {
         this.addDate = addDate;
+    }
+
+    public Set<Group> getGroups() {
+        return this.groups;
+    }
+
+    public void setGroups(Set<Group> groups) {
+        if (this.groups != null) {
+            this.groups.forEach(i -> i.removeUserData(this));
+        }
+        if (groups != null) {
+            groups.forEach(i -> i.addUserData(this));
+        }
+        this.groups = groups;
+    }
+
+    public UserData groups(Set<Group> groups) {
+        this.setGroups(groups);
+        return this;
+    }
+
+    public UserData addGroup(Group group) {
+        this.groups.add(group);
+        group.getUserData().add(this);
+        return this;
+    }
+
+    public UserData removeGroup(Group group) {
+        this.groups.remove(group);
+        group.getUserData().remove(this);
+        return this;
     }
 
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here

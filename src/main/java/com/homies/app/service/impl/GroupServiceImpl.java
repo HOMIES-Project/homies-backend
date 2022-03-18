@@ -64,11 +64,15 @@ public class GroupServiceImpl implements GroupService {
         return groupRepository.findAll(pageable);
     }
 
+    public Page<Group> findAllWithEagerRelationships(Pageable pageable) {
+        return groupRepository.findAllWithEagerRelationships(pageable);
+    }
+
     @Override
     @Transactional(readOnly = true)
     public Optional<Group> findOne(Long id) {
         log.debug("Request to get Group : {}", id);
-        return groupRepository.findById(id);
+        return groupRepository.findOneWithEagerRelationships(id);
     }
 
     @Override

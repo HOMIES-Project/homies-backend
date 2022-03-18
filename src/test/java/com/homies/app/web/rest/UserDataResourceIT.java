@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.homies.app.IntegrationTest;
+import com.homies.app.domain.Group;
 import com.homies.app.domain.UserData;
 import com.homies.app.repository.UserDataRepository;
 import com.homies.app.service.criteria.UserDataCriteria;
@@ -558,6 +559,32 @@ class UserDataResourceIT {
 
         // Get all the userDataList where addDate is greater than SMALLER_ADD_DATE
         defaultUserDataShouldBeFound("addDate.greaterThan=" + SMALLER_ADD_DATE);
+    }
+
+    @Test
+    @Transactional
+    void getAllUserDataByGroupIsEqualToSomething() throws Exception {
+        // Initialize the database
+        userDataRepository.saveAndFlush(userData);
+        Group group;
+        if (TestUtil.findAll(em, Group.class).isEmpty()) {
+            group = GroupResourceIT.createEntity(em);
+            em.persist(group);
+            em.flush();
+        } else {
+            group = TestUtil.findAll(em, Group.class).get(0);
+        }
+        em.persist(group);
+        em.flush();
+        userData.addGroup(group);
+        userDataRepository.saveAndFlush(userData);
+        Long groupId = group.getId();
+
+        // Get all the userDataList where group equals to groupId
+        defaultUserDataShouldBeFound("groupId.equals=" + groupId);
+
+        // Get all the userDataList where group equals to (groupId + 1)
+        defaultUserDataShouldNotBeFound("groupId.equals=" + (groupId + 1));
     }
 
     /**

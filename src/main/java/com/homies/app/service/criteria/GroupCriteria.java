@@ -37,6 +37,8 @@ public class GroupCriteria implements Serializable, Criteria {
 
     private LocalDateFilter addGroupDate;
 
+    private LongFilter userDataId;
+
     private Boolean distinct;
 
     public GroupCriteria() {}
@@ -47,6 +49,7 @@ public class GroupCriteria implements Serializable, Criteria {
         this.groupName = other.groupName == null ? null : other.groupName.copy();
         this.groupRelationName = other.groupRelationName == null ? null : other.groupRelationName.copy();
         this.addGroupDate = other.addGroupDate == null ? null : other.addGroupDate.copy();
+        this.userDataId = other.userDataId == null ? null : other.userDataId.copy();
         this.distinct = other.distinct;
     }
 
@@ -130,6 +133,21 @@ public class GroupCriteria implements Serializable, Criteria {
         this.addGroupDate = addGroupDate;
     }
 
+    public LongFilter getUserDataId() {
+        return userDataId;
+    }
+
+    public LongFilter userDataId() {
+        if (userDataId == null) {
+            userDataId = new LongFilter();
+        }
+        return userDataId;
+    }
+
+    public void setUserDataId(LongFilter userDataId) {
+        this.userDataId = userDataId;
+    }
+
     public Boolean getDistinct() {
         return distinct;
     }
@@ -153,13 +171,14 @@ public class GroupCriteria implements Serializable, Criteria {
             Objects.equals(groupName, that.groupName) &&
             Objects.equals(groupRelationName, that.groupRelationName) &&
             Objects.equals(addGroupDate, that.addGroupDate) &&
+            Objects.equals(userDataId, that.userDataId) &&
             Objects.equals(distinct, that.distinct)
         );
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, groupKey, groupName, groupRelationName, addGroupDate, distinct);
+        return Objects.hash(id, groupKey, groupName, groupRelationName, addGroupDate, userDataId, distinct);
     }
 
     // prettier-ignore
@@ -171,6 +190,7 @@ public class GroupCriteria implements Serializable, Criteria {
             (groupName != null ? "groupName=" + groupName + ", " : "") +
             (groupRelationName != null ? "groupRelationName=" + groupRelationName + ", " : "") +
             (addGroupDate != null ? "addGroupDate=" + addGroupDate + ", " : "") +
+            (userDataId != null ? "userDataId=" + userDataId + ", " : "") +
             (distinct != null ? "distinct=" + distinct + ", " : "") +
             "}";
     }

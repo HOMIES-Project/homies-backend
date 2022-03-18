@@ -37,6 +37,8 @@ public class UserDataCriteria implements Serializable, Criteria {
 
     private LocalDateFilter addDate;
 
+    private LongFilter groupId;
+
     private Boolean distinct;
 
     public UserDataCriteria() {}
@@ -47,6 +49,7 @@ public class UserDataCriteria implements Serializable, Criteria {
         this.premium = other.premium == null ? null : other.premium.copy();
         this.birthDate = other.birthDate == null ? null : other.birthDate.copy();
         this.addDate = other.addDate == null ? null : other.addDate.copy();
+        this.groupId = other.groupId == null ? null : other.groupId.copy();
         this.distinct = other.distinct;
     }
 
@@ -130,6 +133,21 @@ public class UserDataCriteria implements Serializable, Criteria {
         this.addDate = addDate;
     }
 
+    public LongFilter getGroupId() {
+        return groupId;
+    }
+
+    public LongFilter groupId() {
+        if (groupId == null) {
+            groupId = new LongFilter();
+        }
+        return groupId;
+    }
+
+    public void setGroupId(LongFilter groupId) {
+        this.groupId = groupId;
+    }
+
     public Boolean getDistinct() {
         return distinct;
     }
@@ -153,13 +171,14 @@ public class UserDataCriteria implements Serializable, Criteria {
             Objects.equals(premium, that.premium) &&
             Objects.equals(birthDate, that.birthDate) &&
             Objects.equals(addDate, that.addDate) &&
+            Objects.equals(groupId, that.groupId) &&
             Objects.equals(distinct, that.distinct)
         );
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, phone, premium, birthDate, addDate, distinct);
+        return Objects.hash(id, phone, premium, birthDate, addDate, groupId, distinct);
     }
 
     // prettier-ignore
@@ -171,6 +190,7 @@ public class UserDataCriteria implements Serializable, Criteria {
             (premium != null ? "premium=" + premium + ", " : "") +
             (birthDate != null ? "birthDate=" + birthDate + ", " : "") +
             (addDate != null ? "addDate=" + addDate + ", " : "") +
+            (groupId != null ? "groupId=" + groupId + ", " : "") +
             (distinct != null ? "distinct=" + distinct + ", " : "") +
             "}";
     }

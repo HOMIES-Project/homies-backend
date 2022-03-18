@@ -81,6 +81,18 @@
             </button>
           </div>
         </div>
+
+        <div class="row mb-3">
+          <label for="field_userData">User Data</label>
+          <select class="form-control" id="field_userData" data-cy="userData" multiple name="userData" formControlName="userData">
+            <option
+              [ngValue]="getSelectedUserData(userDataOption, editForm.get('userData')!.value)"
+              *ngFor="let userDataOption of userDataSharedCollection; trackBy: trackUserDataById"
+            >
+              {{ userDataOption.id }}
+            </option>
+          </select>
+        </div>
       </div>
 
       <div>
