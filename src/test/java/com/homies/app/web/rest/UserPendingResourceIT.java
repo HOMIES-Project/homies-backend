@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.homies.app.IntegrationTest;
+import com.homies.app.domain.SpendingList;
 import com.homies.app.domain.UserPending;
 import com.homies.app.repository.UserPendingRepository;
 import com.homies.app.service.criteria.UserPendingCriteria;
@@ -320,6 +321,32 @@ class UserPendingResourceIT {
 
         // Get all the userPendingList where paid is null
         defaultUserPendingShouldNotBeFound("paid.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllUserPendingsBySpendingListIsEqualToSomething() throws Exception {
+        // Initialize the database
+        userPendingRepository.saveAndFlush(userPending);
+        SpendingList spendingList;
+        if (TestUtil.findAll(em, SpendingList.class).isEmpty()) {
+            spendingList = SpendingListResourceIT.createEntity(em);
+            em.persist(spendingList);
+            em.flush();
+        } else {
+            spendingList = TestUtil.findAll(em, SpendingList.class).get(0);
+        }
+        em.persist(spendingList);
+        em.flush();
+        userPending.setSpendingList(spendingList);
+        userPendingRepository.saveAndFlush(userPending);
+        Long spendingListId = spendingList.getId();
+
+        // Get all the userPendingList where spendingList equals to spendingListId
+        defaultUserPendingShouldBeFound("spendingListId.equals=" + spendingListId);
+
+        // Get all the userPendingList where spendingList equals to (spendingListId + 1)
+        defaultUserPendingShouldNotBeFound("spendingListId.equals=" + (spendingListId + 1));
     }
 
     /**

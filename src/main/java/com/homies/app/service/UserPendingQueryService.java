@@ -91,6 +91,15 @@ public class UserPendingQueryService extends QueryService<UserPending> {
             if (criteria.getPaid() != null) {
                 specification = specification.and(buildSpecification(criteria.getPaid(), UserPending_.paid));
             }
+            if (criteria.getSpendingListId() != null) {
+                specification =
+                    specification.and(
+                        buildSpecification(
+                            criteria.getSpendingListId(),
+                            root -> root.join(UserPending_.spendingList, JoinType.LEFT).get(SpendingList_.id)
+                        )
+                    );
+            }
         }
         return specification;
     }

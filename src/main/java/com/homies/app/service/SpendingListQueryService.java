@@ -91,6 +91,15 @@ public class SpendingListQueryService extends QueryService<SpendingList> {
             if (criteria.getNameSpendList() != null) {
                 specification = specification.and(buildStringSpecification(criteria.getNameSpendList(), SpendingList_.nameSpendList));
             }
+            if (criteria.getSpendingId() != null) {
+                specification =
+                    specification.and(
+                        buildSpecification(
+                            criteria.getSpendingId(),
+                            root -> root.join(SpendingList_.spendings, JoinType.LEFT).get(UserPending_.id)
+                        )
+                    );
+            }
         }
         return specification;
     }

@@ -1,6 +1,9 @@
 package com.homies.app.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 import org.hibernate.annotations.Cache;
@@ -29,6 +32,11 @@ public class SpendingList implements Serializable {
     @Size(min = 3, max = 20)
     @Column(name = "name_spend_list", length = 20, nullable = false)
     private String nameSpendList;
+
+    @OneToMany(mappedBy = "spendingList")
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    @JsonIgnoreProperties(value = { "spendingList" }, allowSetters = true)
+    private Set<UserPending> spendings = new HashSet<>();
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -69,6 +77,37 @@ public class SpendingList implements Serializable {
 
     public void setNameSpendList(String nameSpendList) {
         this.nameSpendList = nameSpendList;
+    }
+
+    public Set<UserPending> getSpendings() {
+        return this.spendings;
+    }
+
+    public void setSpendings(Set<UserPending> userPendings) {
+        if (this.spendings != null) {
+            this.spendings.forEach(i -> i.setSpendingList(null));
+        }
+        if (userPendings != null) {
+            userPendings.forEach(i -> i.setSpendingList(this));
+        }
+        this.spendings = userPendings;
+    }
+
+    public SpendingList spendings(Set<UserPending> userPendings) {
+        this.setSpendings(userPendings);
+        return this;
+    }
+
+    public SpendingList addSpending(UserPending userPending) {
+        this.spendings.add(userPending);
+        userPending.setSpendingList(this);
+        return this;
+    }
+
+    public SpendingList removeSpending(UserPending userPending) {
+        this.spendings.remove(userPending);
+        userPending.setSpendingList(null);
+        return this;
     }
 
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here

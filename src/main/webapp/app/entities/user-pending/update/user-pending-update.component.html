@@ -26,6 +26,21 @@
           <label class="form-label" for="field_paid">Paid</label>
           <input type="checkbox" class="form-check" name="paid" id="field_paid" data-cy="paid" formControlName="paid" />
         </div>
+
+        <div class="row mb-3">
+          <label class="form-label" for="field_spendingList">Spending List</label>
+          <select class="form-control" id="field_spendingList" data-cy="spendingList" name="spendingList" formControlName="spendingList">
+            <option [ngValue]="null"></option>
+            <option
+              [ngValue]="
+                spendingListOption.id === editForm.get('spendingList')!.value?.id ? editForm.get('spendingList')!.value : spendingListOption
+              "
+              *ngFor="let spendingListOption of spendingListsSharedCollection; trackBy: trackSpendingListById"
+            >
+              {{ spendingListOption.nameSpendList }}
+            </option>
+          </select>
+        </div>
       </div>
 
       <div>

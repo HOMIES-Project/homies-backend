@@ -8,6 +8,8 @@ import { of, Subject, from } from 'rxjs';
 
 import { UserPendingService } from '../service/user-pending.service';
 import { IUserPending, UserPending } from '../user-pending.model';
+import { ISpendingList } from 'app/entities/spending-list/spending-list.model';
+import { SpendingListService } from 'app/entities/spending-list/service/spending-list.service';
 
 import { UserPendingUpdateComponent } from './user-pending-update.component';
 
@@ -16,6 +18,7 @@ describe('UserPending Management Update Component', () => {
   let fixture: ComponentFixture<UserPendingUpdateComponent>;
   let activatedRoute: ActivatedRoute;
   let userPendingService: UserPendingService;
+  let spendingListService: SpendingListService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -37,18 +40,44 @@ describe('UserPending Management Update Component', () => {
     fixture = TestBed.createComponent(UserPendingUpdateComponent);
     activatedRoute = TestBed.inject(ActivatedRoute);
     userPendingService = TestBed.inject(UserPendingService);
+    spendingListService = TestBed.inject(SpendingListService);
 
     comp = fixture.componentInstance;
   });
 
   describe('ngOnInit', () => {
+    it('Should call SpendingList query and add missing value', () => {
+      const userPending: IUserPending = { id: 456 };
+      const spendingList: ISpendingList = { id: 31633 };
+      userPending.spendingList = spendingList;
+
+      const spendingListCollection: ISpendingList[] = [{ id: 31508 }];
+      jest.spyOn(spendingListService, 'query').mockReturnValue(of(new HttpResponse({ body: spendingListCollection })));
+      const additionalSpendingLists = [spendingList];
+      const expectedCollection: ISpendingList[] = [...additionalSpendingLists, ...spendingListCollection];
+      jest.spyOn(spendingListService, 'addSpendingListToCollectionIfMissing').mockReturnValue(expectedCollection);
+
+      activatedRoute.data = of({ userPending });
+      comp.ngOnInit();
+
+      expect(spendingListService.query).toHaveBeenCalled();
+      expect(spendingListService.addSpendingListToCollectionIfMissing).toHaveBeenCalledWith(
+        spendingListCollection,
+        ...additionalSpendingLists
+      );
+      expect(comp.spendingListsSharedCollection).toEqual(expectedCollection);
+    });
+
     it('Should update editForm', () => {
       const userPending: IUserPending = { id: 456 };
+      const spendingList: ISpendingList = { id: 74574 };
+      userPending.spendingList = spendingList;
 
       activatedRoute.data = of({ userPending });
       comp.ngOnInit();
 
       expect(comp.editForm.value).toEqual(expect.objectContaining(userPending));
+      expect(comp.spendingListsSharedCollection).toContain(spendingList);
     });
   });
 
@@ -113,6 +142,16 @@ describe('UserPending Management Update Component', () => {
       expect(userPendingService.update).toHaveBeenCalledWith(userPending);
       expect(comp.isSaving).toEqual(false);
       expect(comp.previousState).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('Tracking relationships identifiers', () => {
+    describe('trackSpendingListById', () => {
+      it('Should return tracked SpendingList primary key', () => {
+        const entity = { id: 123 };
+        const trackResult = comp.trackSpendingListById(0, entity);
+        expect(trackResult).toEqual(entity.id);
+      });
     });
   });
 });

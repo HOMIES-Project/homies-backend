@@ -20,6 +20,13 @@
   "name": "SpendingList",
   "pagination": "pagination",
   "readOnly": false,
-  "relationships": [],
+  "relationships": [
+    {
+      "otherEntityName": "userPending",
+      "otherEntityRelationshipName": "spendingList",
+      "relationshipName": "spending",
+      "relationshipType": "one-to-many"
+    }
+  ],
   "service": "serviceImpl"
 }

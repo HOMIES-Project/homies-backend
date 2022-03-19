@@ -7,6 +7,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.homies.app.IntegrationTest;
 import com.homies.app.domain.SpendingList;
+import com.homies.app.domain.UserPending;
 import com.homies.app.repository.SpendingListRepository;
 import com.homies.app.service.criteria.SpendingListCriteria;
 import java.util.List;
@@ -363,6 +364,32 @@ class SpendingListResourceIT {
 
         // Get all the spendingListList where nameSpendList does not contain UPDATED_NAME_SPEND_LIST
         defaultSpendingListShouldBeFound("nameSpendList.doesNotContain=" + UPDATED_NAME_SPEND_LIST);
+    }
+
+    @Test
+    @Transactional
+    void getAllSpendingListsBySpendingIsEqualToSomething() throws Exception {
+        // Initialize the database
+        spendingListRepository.saveAndFlush(spendingList);
+        UserPending spending;
+        if (TestUtil.findAll(em, UserPending.class).isEmpty()) {
+            spending = UserPendingResourceIT.createEntity(em);
+            em.persist(spending);
+            em.flush();
+        } else {
+            spending = TestUtil.findAll(em, UserPending.class).get(0);
+        }
+        em.persist(spending);
+        em.flush();
+        spendingList.addSpending(spending);
+        spendingListRepository.saveAndFlush(spendingList);
+        Long spendingId = spending.getId();
+
+        // Get all the spendingListList where spending equals to spendingId
+        defaultSpendingListShouldBeFound("spendingId.equals=" + spendingId);
+
+        // Get all the spendingListList where spending equals to (spendingId + 1)
+        defaultSpendingListShouldNotBeFound("spendingId.equals=" + (spendingId + 1));
     }
 
     /**

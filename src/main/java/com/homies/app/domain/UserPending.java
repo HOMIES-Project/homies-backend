@@ -1,5 +1,6 @@
 package com.homies.app.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
 import javax.persistence.*;
 import javax.validation.constraints.*;
@@ -27,6 +28,10 @@ public class UserPending implements Serializable {
 
     @Column(name = "paid")
     private Boolean paid;
+
+    @ManyToOne
+    @JsonIgnoreProperties(value = { "spendings" }, allowSetters = true)
+    private SpendingList spendingList;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -67,6 +72,19 @@ public class UserPending implements Serializable {
 
     public void setPaid(Boolean paid) {
         this.paid = paid;
+    }
+
+    public SpendingList getSpendingList() {
+        return this.spendingList;
+    }
+
+    public void setSpendingList(SpendingList spendingList) {
+        this.spendingList = spendingList;
+    }
+
+    public UserPending spendingList(SpendingList spendingList) {
+        this.setSpendingList(spendingList);
+        return this;
     }
 
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here

@@ -58,11 +58,15 @@ public class UserPendingServiceImpl implements UserPendingService {
         return userPendingRepository.findAll(pageable);
     }
 
+    public Page<UserPending> findAllWithEagerRelationships(Pageable pageable) {
+        return userPendingRepository.findAllWithEagerRelationships(pageable);
+    }
+
     @Override
     @Transactional(readOnly = true)
     public Optional<UserPending> findOne(Long id) {
         log.debug("Request to get UserPending : {}", id);
-        return userPendingRepository.findById(id);
+        return userPendingRepository.findOneWithEagerRelationships(id);
     }
 
     @Override
