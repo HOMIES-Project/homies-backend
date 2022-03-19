@@ -43,6 +43,7 @@
           <th scope="col" jhiSortBy="shoppingDate"><span>Shopping Date</span> <fa-icon icon="sort"></fa-icon></th>
           <th scope="col" jhiSortBy="purchased"><span>Purchased</span> <fa-icon icon="sort"></fa-icon></th>
           <th scope="col" jhiSortBy="userCreated"><span>User Created</span> <fa-icon icon="sort"></fa-icon></th>
+          <th scope="col" jhiSortBy="userCreator.id"><span>User Creator</span> <fa-icon icon="sort"></fa-icon></th>
           <th scope="col"></th>
         </tr>
       </thead>
@@ -70,6 +71,11 @@
           <td>{{ products.shoppingDate | formatMediumDate }}</td>
           <td>{{ products.purchased }}</td>
           <td>{{ products.userCreated }}</td>
+          <td>
+            <div *ngIf="products.userCreator">
+              <a [routerLink]="['/user-data', products.userCreator?.id, 'view']">{{ products.userCreator?.id }}</a>
+            </div>
+          </td>
           <td class="text-end">
             <div class="btn-group">
               <button

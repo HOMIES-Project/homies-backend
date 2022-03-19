@@ -1,4 +1,5 @@
 import dayjs from 'dayjs/esm';
+import { IUserData } from 'app/entities/Homies/user-data/user-data.model';
 
 export interface IProducts {
   id?: number;
@@ -13,6 +14,7 @@ export interface IProducts {
   shoppingDate?: dayjs.Dayjs | null;
   purchased?: boolean | null;
   userCreated?: number | null;
+  userCreator?: IUserData | null;
 }
 
 export class Products implements IProducts {
@@ -28,7 +30,8 @@ export class Products implements IProducts {
     public dataCreated?: dayjs.Dayjs | null,
     public shoppingDate?: dayjs.Dayjs | null,
     public purchased?: boolean | null,
-    public userCreated?: number | null
+    public userCreated?: number | null,
+    public userCreator?: IUserData | null
   ) {
     this.purchased = this.purchased ?? false;
   }

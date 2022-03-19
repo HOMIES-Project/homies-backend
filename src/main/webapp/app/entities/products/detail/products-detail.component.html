@@ -59,6 +59,12 @@
         <dd>
           <span>{{ products.userCreated }}</span>
         </dd>
+        <dt><span>User Creator</span></dt>
+        <dd>
+          <div *ngIf="products.userCreator">
+            <a [routerLink]="['/user-data', products.userCreator?.id, 'view']">{{ products.userCreator?.id }}</a>
+          </div>
+        </dd>
       </dl>
 
       <button type="submit" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">

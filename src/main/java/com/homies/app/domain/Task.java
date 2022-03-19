@@ -59,16 +59,16 @@ public class Task implements Serializable {
     private TaskList taskList;
 
     @ManyToOne
-    @JsonIgnoreProperties(value = { "groups", "user", "adminGroups", "taskAsigneds" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "groups", "user", "adminGroups", "taskAsigneds", "productCreateds" }, allowSetters = true)
     private UserData userData;
 
     @ManyToOne
-    @JsonIgnoreProperties(value = { "groups", "user", "adminGroups", "taskAsigneds" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "groups", "user", "adminGroups", "taskAsigneds", "productCreateds" }, allowSetters = true)
     private UserData userCreator;
 
     @ManyToMany(mappedBy = "taskAsigneds")
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-    @JsonIgnoreProperties(value = { "groups", "user", "adminGroups", "taskAsigneds" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "groups", "user", "adminGroups", "taskAsigneds", "productCreateds" }, allowSetters = true)
     private Set<UserData> userAssigneds = new HashSet<>();
 
     // jhipster-needle-entity-add-field - JHipster will add fields here

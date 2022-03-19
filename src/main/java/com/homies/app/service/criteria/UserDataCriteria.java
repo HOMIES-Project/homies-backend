@@ -45,6 +45,8 @@ public class UserDataCriteria implements Serializable, Criteria {
 
     private LongFilter taskAsignedId;
 
+    private LongFilter productCreatedId;
+
     private Boolean distinct;
 
     public UserDataCriteria() {}
@@ -59,6 +61,7 @@ public class UserDataCriteria implements Serializable, Criteria {
         this.userId = other.userId == null ? null : other.userId.copy();
         this.adminGroupsId = other.adminGroupsId == null ? null : other.adminGroupsId.copy();
         this.taskAsignedId = other.taskAsignedId == null ? null : other.taskAsignedId.copy();
+        this.productCreatedId = other.productCreatedId == null ? null : other.productCreatedId.copy();
         this.distinct = other.distinct;
     }
 
@@ -202,6 +205,21 @@ public class UserDataCriteria implements Serializable, Criteria {
         this.taskAsignedId = taskAsignedId;
     }
 
+    public LongFilter getProductCreatedId() {
+        return productCreatedId;
+    }
+
+    public LongFilter productCreatedId() {
+        if (productCreatedId == null) {
+            productCreatedId = new LongFilter();
+        }
+        return productCreatedId;
+    }
+
+    public void setProductCreatedId(LongFilter productCreatedId) {
+        this.productCreatedId = productCreatedId;
+    }
+
     public Boolean getDistinct() {
         return distinct;
     }
@@ -229,13 +247,26 @@ public class UserDataCriteria implements Serializable, Criteria {
             Objects.equals(userId, that.userId) &&
             Objects.equals(adminGroupsId, that.adminGroupsId) &&
             Objects.equals(taskAsignedId, that.taskAsignedId) &&
+            Objects.equals(productCreatedId, that.productCreatedId) &&
             Objects.equals(distinct, that.distinct)
         );
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, phone, premium, birthDate, addDate, groupId, userId, adminGroupsId, taskAsignedId, distinct);
+        return Objects.hash(
+            id,
+            phone,
+            premium,
+            birthDate,
+            addDate,
+            groupId,
+            userId,
+            adminGroupsId,
+            taskAsignedId,
+            productCreatedId,
+            distinct
+        );
     }
 
     // prettier-ignore
@@ -251,6 +282,7 @@ public class UserDataCriteria implements Serializable, Criteria {
             (userId != null ? "userId=" + userId + ", " : "") +
             (adminGroupsId != null ? "adminGroupsId=" + adminGroupsId + ", " : "") +
             (taskAsignedId != null ? "taskAsignedId=" + taskAsignedId + ", " : "") +
+            (productCreatedId != null ? "productCreatedId=" + productCreatedId + ", " : "") +
             (distinct != null ? "distinct=" + distinct + ", " : "") +
             "}";
     }

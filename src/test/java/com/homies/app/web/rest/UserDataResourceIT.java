@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.homies.app.IntegrationTest;
 import com.homies.app.domain.Group;
+import com.homies.app.domain.Products;
 import com.homies.app.domain.Task;
 import com.homies.app.domain.User;
 import com.homies.app.domain.UserData;
@@ -735,6 +736,32 @@ class UserDataResourceIT {
 
         // Get all the userDataList where taskAsigned equals to (taskAsignedId + 1)
         defaultUserDataShouldNotBeFound("taskAsignedId.equals=" + (taskAsignedId + 1));
+    }
+
+    @Test
+    @Transactional
+    void getAllUserDataByProductCreatedIsEqualToSomething() throws Exception {
+        // Initialize the database
+        userDataRepository.saveAndFlush(userData);
+        Products productCreated;
+        if (TestUtil.findAll(em, Products.class).isEmpty()) {
+            productCreated = ProductsResourceIT.createEntity(em);
+            em.persist(productCreated);
+            em.flush();
+        } else {
+            productCreated = TestUtil.findAll(em, Products.class).get(0);
+        }
+        em.persist(productCreated);
+        em.flush();
+        userData.addProductCreated(productCreated);
+        userDataRepository.saveAndFlush(userData);
+        Long productCreatedId = productCreated.getId();
+
+        // Get all the userDataList where productCreated equals to productCreatedId
+        defaultUserDataShouldBeFound("productCreatedId.equals=" + productCreatedId);
+
+        // Get all the userDataList where productCreated equals to (productCreatedId + 1)
+        defaultUserDataShouldNotBeFound("productCreatedId.equals=" + (productCreatedId + 1));
     }
 
     /**

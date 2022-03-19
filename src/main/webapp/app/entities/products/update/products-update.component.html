@@ -140,6 +140,19 @@
             formControlName="userCreated"
           />
         </div>
+
+        <div class="row mb-3">
+          <label class="form-label" for="field_userCreator">User Creator</label>
+          <select class="form-control" id="field_userCreator" data-cy="userCreator" name="userCreator" formControlName="userCreator">
+            <option [ngValue]="null"></option>
+            <option
+              [ngValue]="userDataOption.id === editForm.get('userCreator')!.value?.id ? editForm.get('userCreator')!.value : userDataOption"
+              *ngFor="let userDataOption of userDataSharedCollection; trackBy: trackUserDataById"
+            >
+              {{ userDataOption.id }}
+            </option>
+          </select>
+        </div>
       </div>
 
       <div>

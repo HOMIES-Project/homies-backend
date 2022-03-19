@@ -55,6 +55,13 @@
   "name": "Products",
   "pagination": "pagination",
   "readOnly": false,
-  "relationships": [],
+  "relationships": [
+    {
+      "otherEntityField": "id",
+      "otherEntityName": "userData",
+      "relationshipName": "userCreator",
+      "relationshipType": "many-to-one"
+    }
+  ],
   "service": "serviceImpl"
 }

@@ -70,6 +70,11 @@ public class UserData implements Serializable {
     @JsonIgnoreProperties(value = { "taskList", "userData", "userCreator", "userAssigneds" }, allowSetters = true)
     private Set<Task> taskAsigneds = new HashSet<>();
 
+    @OneToMany(mappedBy = "userCreator")
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    @JsonIgnoreProperties(value = { "userCreator" }, allowSetters = true)
+    private Set<Products> productCreateds = new HashSet<>();
+
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
     public Long getId() {
@@ -260,6 +265,37 @@ public class UserData implements Serializable {
     public UserData removeTaskAsigned(Task task) {
         this.taskAsigneds.remove(task);
         task.getUserAssigneds().remove(this);
+        return this;
+    }
+
+    public Set<Products> getProductCreateds() {
+        return this.productCreateds;
+    }
+
+    public void setProductCreateds(Set<Products> products) {
+        if (this.productCreateds != null) {
+            this.productCreateds.forEach(i -> i.setUserCreator(null));
+        }
+        if (products != null) {
+            products.forEach(i -> i.setUserCreator(this));
+        }
+        this.productCreateds = products;
+    }
+
+    public UserData productCreateds(Set<Products> products) {
+        this.setProductCreateds(products);
+        return this;
+    }
+
+    public UserData addProductCreated(Products products) {
+        this.productCreateds.add(products);
+        products.setUserCreator(this);
+        return this;
+    }
+
+    public UserData removeProductCreated(Products products) {
+        this.productCreateds.remove(products);
+        products.setUserCreator(null);
         return this;
     }
 

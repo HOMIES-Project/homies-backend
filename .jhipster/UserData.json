@@ -65,6 +65,12 @@
       "ownerSide": true,
       "relationshipName": "taskAsigned",
       "relationshipType": "many-to-many"
+    },
+    {
+      "otherEntityName": "products",
+      "otherEntityRelationshipName": "userCreator",
+      "relationshipName": "productCreated",
+      "relationshipType": "one-to-many"
     }
   ],
   "service": "serviceImpl"

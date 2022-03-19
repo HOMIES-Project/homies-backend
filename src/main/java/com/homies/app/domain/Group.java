@@ -48,11 +48,11 @@ public class Group implements Serializable {
         inverseJoinColumns = @JoinColumn(name = "user_data_id")
     )
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-    @JsonIgnoreProperties(value = { "groups", "user", "adminGroups", "taskAsigneds" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "groups", "user", "adminGroups", "taskAsigneds", "productCreateds" }, allowSetters = true)
     private Set<UserData> userData = new HashSet<>();
 
     @ManyToOne
-    @JsonIgnoreProperties(value = { "groups", "user", "adminGroups", "taskAsigneds" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "groups", "user", "adminGroups", "taskAsigneds", "productCreateds" }, allowSetters = true)
     private UserData userAdmin;
 
     @JsonIgnoreProperties(value = { "group", "tasks" }, allowSetters = true)

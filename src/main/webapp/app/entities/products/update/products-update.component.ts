@@ -3,13 +3,15 @@ import { HttpResponse } from '@angular/common/http';
 import { FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs';
-import { finalize } from 'rxjs/operators';
+import { finalize, map } from 'rxjs/operators';
 
 import { IProducts, Products } from '../products.model';
 import { ProductsService } from '../service/products.service';
 import { AlertError } from 'app/shared/alert/alert-error.model';
 import { EventManager, EventWithContent } from 'app/core/util/event-manager.service';
 import { DataUtils, FileLoadError } from 'app/core/util/data-util.service';
+import { IUserData } from 'app/entities/Homies/user-data/user-data.model';
+import { UserDataService } from 'app/entities/Homies/user-data/service/user-data.service';
 
 @Component({
   selector: 'jhi-products-update',
@@ -17,6 +19,8 @@ import { DataUtils, FileLoadError } from 'app/core/util/data-util.service';
 })
 export class ProductsUpdateComponent implements OnInit {
   isSaving = false;
+
+  userDataSharedCollection: IUserData[] = [];
 
   editForm = this.fb.group({
     id: [],
@@ -31,12 +35,14 @@ export class ProductsUpdateComponent implements OnInit {
     shoppingDate: [],
     purchased: [],
     userCreated: [],
+    userCreator: [],
   });
 
   constructor(
     protected dataUtils: DataUtils,
     protected eventManager: EventManager,
     protected productsService: ProductsService,
+    protected userDataService: UserDataService,
     protected elementRef: ElementRef,
     protected activatedRoute: ActivatedRoute,
     protected fb: FormBuilder
@@ -45,6 +51,8 @@ export class ProductsUpdateComponent implements OnInit {
   ngOnInit(): void {
     this.activatedRoute.data.subscribe(({ products }) => {
       this.updateForm(products);
+
+      this.loadRelationshipsOptions();
     });
   }
 
@@ -87,6 +95,10 @@ export class ProductsUpdateComponent implements OnInit {
     }
   }
 
+  trackUserDataById(index: number, item: IUserData): number {
+    return item.id!;
+  }
+
   protected subscribeToSaveResponse(result: Observable<HttpResponse<IProducts>>): void {
     result.pipe(finalize(() => this.onSaveFinalize())).subscribe({
       next: () => this.onSaveSuccess(),
@@ -120,7 +132,25 @@ export class ProductsUpdateComponent implements OnInit {
       shoppingDate: products.shoppingDate,
       purchased: products.purchased,
       userCreated: products.userCreated,
+      userCreator: products.userCreator,
     });
+
+    this.userDataSharedCollection = this.userDataService.addUserDataToCollectionIfMissing(
+      this.userDataSharedCollection,
+      products.userCreator
+    );
+  }
+
+  protected loadRelationshipsOptions(): void {
+    this.userDataService
+      .query()
+      .pipe(map((res: HttpResponse<IUserData[]>) => res.body ?? []))
+      .pipe(
+        map((userData: IUserData[]) =>
+          this.userDataService.addUserDataToCollectionIfMissing(userData, this.editForm.get('userCreator')!.value)
+        )
+      )
+      .subscribe((userData: IUserData[]) => (this.userDataSharedCollection = userData));
   }
 
   protected createFromForm(): IProducts {
@@ -138,6 +168,7 @@ export class ProductsUpdateComponent implements OnInit {
       shoppingDate: this.editForm.get(['shoppingDate'])!.value,
       purchased: this.editForm.get(['purchased'])!.value,
       userCreated: this.editForm.get(['userCreated'])!.value,
+      userCreator: this.editForm.get(['userCreator'])!.value,
     };
   }
 }

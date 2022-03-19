@@ -127,6 +127,15 @@ public class UserDataQueryService extends QueryService<UserData> {
                         )
                     );
             }
+            if (criteria.getProductCreatedId() != null) {
+                specification =
+                    specification.and(
+                        buildSpecification(
+                            criteria.getProductCreatedId(),
+                            root -> root.join(UserData_.productCreateds, JoinType.LEFT).get(Products_.id)
+                        )
+                    );
+            }
         }
         return specification;
     }
