@@ -34,6 +34,8 @@ public class SpendingListCriteria implements Serializable, Criteria {
 
     private LongFilter spendingId;
 
+    private LongFilter settingsListId;
+
     private Boolean distinct;
 
     public SpendingListCriteria() {}
@@ -43,6 +45,7 @@ public class SpendingListCriteria implements Serializable, Criteria {
         this.total = other.total == null ? null : other.total.copy();
         this.nameSpendList = other.nameSpendList == null ? null : other.nameSpendList.copy();
         this.spendingId = other.spendingId == null ? null : other.spendingId.copy();
+        this.settingsListId = other.settingsListId == null ? null : other.settingsListId.copy();
         this.distinct = other.distinct;
     }
 
@@ -111,6 +114,21 @@ public class SpendingListCriteria implements Serializable, Criteria {
         this.spendingId = spendingId;
     }
 
+    public LongFilter getSettingsListId() {
+        return settingsListId;
+    }
+
+    public LongFilter settingsListId() {
+        if (settingsListId == null) {
+            settingsListId = new LongFilter();
+        }
+        return settingsListId;
+    }
+
+    public void setSettingsListId(LongFilter settingsListId) {
+        this.settingsListId = settingsListId;
+    }
+
     public Boolean getDistinct() {
         return distinct;
     }
@@ -133,13 +151,14 @@ public class SpendingListCriteria implements Serializable, Criteria {
             Objects.equals(total, that.total) &&
             Objects.equals(nameSpendList, that.nameSpendList) &&
             Objects.equals(spendingId, that.spendingId) &&
+            Objects.equals(settingsListId, that.settingsListId) &&
             Objects.equals(distinct, that.distinct)
         );
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, total, nameSpendList, spendingId, distinct);
+        return Objects.hash(id, total, nameSpendList, spendingId, settingsListId, distinct);
     }
 
     // prettier-ignore
@@ -150,6 +169,7 @@ public class SpendingListCriteria implements Serializable, Criteria {
             (total != null ? "total=" + total + ", " : "") +
             (nameSpendList != null ? "nameSpendList=" + nameSpendList + ", " : "") +
             (spendingId != null ? "spendingId=" + spendingId + ", " : "") +
+            (settingsListId != null ? "settingsListId=" + settingsListId + ", " : "") +
             (distinct != null ? "distinct=" + distinct + ", " : "") +
             "}";
     }

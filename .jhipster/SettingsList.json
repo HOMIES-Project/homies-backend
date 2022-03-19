@@ -35,6 +35,13 @@
   "name": "SettingsList",
   "pagination": "pagination",
   "readOnly": false,
-  "relationships": [],
+  "relationships": [
+    {
+      "otherEntityField": "id",
+      "otherEntityName": "spendingList",
+      "relationshipName": "spendingList",
+      "relationshipType": "many-to-one"
+    }
+  ],
   "service": "serviceImpl"
 }

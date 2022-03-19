@@ -40,6 +40,7 @@
           <th scope="col" jhiSortBy="settingFive"><span>Setting Five</span> <fa-icon icon="sort"></fa-icon></th>
           <th scope="col" jhiSortBy="settingSix"><span>Setting Six</span> <fa-icon icon="sort"></fa-icon></th>
           <th scope="col" jhiSortBy="settingSeven"><span>Setting Seven</span> <fa-icon icon="sort"></fa-icon></th>
+          <th scope="col" jhiSortBy="spendingList.id"><span>Spending List</span> <fa-icon icon="sort"></fa-icon></th>
           <th scope="col"></th>
         </tr>
       </thead>
@@ -55,6 +56,11 @@
           <td>{{ settingsList.settingFive }}</td>
           <td>{{ settingsList.settingSix }}</td>
           <td>{{ settingsList.settingSeven }}</td>
+          <td>
+            <div *ngIf="settingsList.spendingList">
+              <a [routerLink]="['/spending-list', settingsList.spendingList?.id, 'view']">{{ settingsList.spendingList?.id }}</a>
+            </div>
+          </td>
           <td class="text-end">
             <div class="btn-group">
               <button

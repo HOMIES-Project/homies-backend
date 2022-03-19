@@ -3,10 +3,12 @@ import { HttpResponse } from '@angular/common/http';
 import { FormBuilder } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs';
-import { finalize } from 'rxjs/operators';
+import { finalize, map } from 'rxjs/operators';
 
 import { ISettingsList, SettingsList } from '../settings-list.model';
 import { SettingsListService } from '../service/settings-list.service';
+import { ISpendingList } from 'app/entities/spending-list/spending-list.model';
+import { SpendingListService } from 'app/entities/spending-list/service/spending-list.service';
 
 @Component({
   selector: 'jhi-settings-list-update',
@@ -14,6 +16,8 @@ import { SettingsListService } from '../service/settings-list.service';
 })
 export class SettingsListUpdateComponent implements OnInit {
   isSaving = false;
+
+  spendingListsSharedCollection: ISpendingList[] = [];
 
   editForm = this.fb.group({
     id: [],
@@ -24,13 +28,21 @@ export class SettingsListUpdateComponent implements OnInit {
     settingFive: [],
     settingSix: [],
     settingSeven: [],
+    spendingList: [],
   });
 
-  constructor(protected settingsListService: SettingsListService, protected activatedRoute: ActivatedRoute, protected fb: FormBuilder) {}
+  constructor(
+    protected settingsListService: SettingsListService,
+    protected spendingListService: SpendingListService,
+    protected activatedRoute: ActivatedRoute,
+    protected fb: FormBuilder
+  ) {}
 
   ngOnInit(): void {
     this.activatedRoute.data.subscribe(({ settingsList }) => {
       this.updateForm(settingsList);
+
+      this.loadRelationshipsOptions();
     });
   }
 
@@ -46,6 +58,10 @@ export class SettingsListUpdateComponent implements OnInit {
     } else {
       this.subscribeToSaveResponse(this.settingsListService.create(settingsList));
     }
+  }
+
+  trackSpendingListById(index: number, item: ISpendingList): number {
+    return item.id!;
   }
 
   protected subscribeToSaveResponse(result: Observable<HttpResponse<ISettingsList>>): void {
@@ -77,7 +93,25 @@ export class SettingsListUpdateComponent implements OnInit {
       settingFive: settingsList.settingFive,
       settingSix: settingsList.settingSix,
       settingSeven: settingsList.settingSeven,
+      spendingList: settingsList.spendingList,
     });
+
+    this.spendingListsSharedCollection = this.spendingListService.addSpendingListToCollectionIfMissing(
+      this.spendingListsSharedCollection,
+      settingsList.spendingList
+    );
+  }
+
+  protected loadRelationshipsOptions(): void {
+    this.spendingListService
+      .query()
+      .pipe(map((res: HttpResponse<ISpendingList[]>) => res.body ?? []))
+      .pipe(
+        map((spendingLists: ISpendingList[]) =>
+          this.spendingListService.addSpendingListToCollectionIfMissing(spendingLists, this.editForm.get('spendingList')!.value)
+        )
+      )
+      .subscribe((spendingLists: ISpendingList[]) => (this.spendingListsSharedCollection = spendingLists));
   }
 
   protected createFromForm(): ISettingsList {
@@ -91,6 +125,7 @@ export class SettingsListUpdateComponent implements OnInit {
       settingFive: this.editForm.get(['settingFive'])!.value,
       settingSix: this.editForm.get(['settingSix'])!.value,
       settingSeven: this.editForm.get(['settingSeven'])!.value,
+      spendingList: this.editForm.get(['spendingList'])!.value,
     };
   }
 }

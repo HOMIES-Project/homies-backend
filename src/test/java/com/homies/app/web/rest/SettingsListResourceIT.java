@@ -7,6 +7,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.homies.app.IntegrationTest;
 import com.homies.app.domain.SettingsList;
+import com.homies.app.domain.SpendingList;
 import com.homies.app.repository.SettingsListRepository;
 import com.homies.app.service.criteria.SettingsListCriteria;
 import java.util.List;
@@ -571,6 +572,32 @@ class SettingsListResourceIT {
 
         // Get all the settingsListList where settingSeven is null
         defaultSettingsListShouldNotBeFound("settingSeven.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllSettingsListsBySpendingListIsEqualToSomething() throws Exception {
+        // Initialize the database
+        settingsListRepository.saveAndFlush(settingsList);
+        SpendingList spendingList;
+        if (TestUtil.findAll(em, SpendingList.class).isEmpty()) {
+            spendingList = SpendingListResourceIT.createEntity(em);
+            em.persist(spendingList);
+            em.flush();
+        } else {
+            spendingList = TestUtil.findAll(em, SpendingList.class).get(0);
+        }
+        em.persist(spendingList);
+        em.flush();
+        settingsList.setSpendingList(spendingList);
+        settingsListRepository.saveAndFlush(settingsList);
+        Long spendingListId = spendingList.getId();
+
+        // Get all the settingsListList where spendingList equals to spendingListId
+        defaultSettingsListShouldBeFound("spendingListId.equals=" + spendingListId);
+
+        // Get all the settingsListList where spendingList equals to (spendingListId + 1)
+        defaultSettingsListShouldNotBeFound("spendingListId.equals=" + (spendingListId + 1));
     }
 
     /**

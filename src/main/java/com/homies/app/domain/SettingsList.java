@@ -1,5 +1,6 @@
 package com.homies.app.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
 import javax.persistence.*;
 import org.hibernate.annotations.Cache;
@@ -40,6 +41,10 @@ public class SettingsList implements Serializable {
 
     @Column(name = "setting_seven")
     private Boolean settingSeven;
+
+    @ManyToOne
+    @JsonIgnoreProperties(value = { "spendings", "settingsLists" }, allowSetters = true)
+    private SpendingList spendingList;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -145,6 +150,19 @@ public class SettingsList implements Serializable {
 
     public void setSettingSeven(Boolean settingSeven) {
         this.settingSeven = settingSeven;
+    }
+
+    public SpendingList getSpendingList() {
+        return this.spendingList;
+    }
+
+    public void setSpendingList(SpendingList spendingList) {
+        this.spendingList = spendingList;
+    }
+
+    public SettingsList spendingList(SpendingList spendingList) {
+        this.setSpendingList(spendingList);
+        return this;
     }
 
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here

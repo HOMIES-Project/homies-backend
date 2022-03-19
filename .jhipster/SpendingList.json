@@ -26,6 +26,12 @@
       "otherEntityRelationshipName": "spendingList",
       "relationshipName": "spending",
       "relationshipType": "one-to-many"
+    },
+    {
+      "otherEntityName": "settingsList",
+      "otherEntityRelationshipName": "spendingList",
+      "relationshipName": "settingsList",
+      "relationshipType": "one-to-many"
     }
   ],
   "service": "serviceImpl"

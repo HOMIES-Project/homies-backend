@@ -100,6 +100,15 @@ public class SpendingListQueryService extends QueryService<SpendingList> {
                         )
                     );
             }
+            if (criteria.getSettingsListId() != null) {
+                specification =
+                    specification.and(
+                        buildSpecification(
+                            criteria.getSettingsListId(),
+                            root -> root.join(SpendingList_.settingsLists, JoinType.LEFT).get(SettingsList_.id)
+                        )
+                    );
+            }
         }
         return specification;
     }

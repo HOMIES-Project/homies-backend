@@ -32,7 +32,7 @@ public class UserPending implements Serializable {
     private Boolean paid;
 
     @ManyToOne
-    @JsonIgnoreProperties(value = { "spendings" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "spendings", "settingsLists" }, allowSetters = true)
     private SpendingList spendingList;
 
     @ManyToMany

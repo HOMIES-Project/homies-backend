@@ -42,6 +42,12 @@
         <dd>
           <span>{{ settingsList.settingSeven }}</span>
         </dd>
+        <dt><span>Spending List</span></dt>
+        <dd>
+          <div *ngIf="settingsList.spendingList">
+            <a [routerLink]="['/spending-list', settingsList.spendingList?.id, 'view']">{{ settingsList.spendingList?.id }}</a>
+          </div>
+        </dd>
       </dl>
 
       <button type="submit" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">

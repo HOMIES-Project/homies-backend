@@ -1,3 +1,5 @@
+import { ISpendingList } from 'app/entities/spending-list/spending-list.model';
+
 export interface ISettingsList {
   id?: number;
   settingOne?: boolean | null;
@@ -7,6 +9,7 @@ export interface ISettingsList {
   settingFive?: boolean | null;
   settingSix?: boolean | null;
   settingSeven?: boolean | null;
+  spendingList?: ISpendingList | null;
 }
 
 export class SettingsList implements ISettingsList {
@@ -18,7 +21,8 @@ export class SettingsList implements ISettingsList {
     public settingFour?: boolean | null,
     public settingFive?: boolean | null,
     public settingSix?: boolean | null,
-    public settingSeven?: boolean | null
+    public settingSeven?: boolean | null,
+    public spendingList?: ISpendingList | null
   ) {
     this.settingOne = this.settingOne ?? false;
     this.settingTwo = this.settingTwo ?? false;

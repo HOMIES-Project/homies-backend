@@ -42,6 +42,8 @@ public class SettingsListCriteria implements Serializable, Criteria {
 
     private BooleanFilter settingSeven;
 
+    private LongFilter spendingListId;
+
     private Boolean distinct;
 
     public SettingsListCriteria() {}
@@ -55,6 +57,7 @@ public class SettingsListCriteria implements Serializable, Criteria {
         this.settingFive = other.settingFive == null ? null : other.settingFive.copy();
         this.settingSix = other.settingSix == null ? null : other.settingSix.copy();
         this.settingSeven = other.settingSeven == null ? null : other.settingSeven.copy();
+        this.spendingListId = other.spendingListId == null ? null : other.spendingListId.copy();
         this.distinct = other.distinct;
     }
 
@@ -183,6 +186,21 @@ public class SettingsListCriteria implements Serializable, Criteria {
         this.settingSeven = settingSeven;
     }
 
+    public LongFilter getSpendingListId() {
+        return spendingListId;
+    }
+
+    public LongFilter spendingListId() {
+        if (spendingListId == null) {
+            spendingListId = new LongFilter();
+        }
+        return spendingListId;
+    }
+
+    public void setSpendingListId(LongFilter spendingListId) {
+        this.spendingListId = spendingListId;
+    }
+
     public Boolean getDistinct() {
         return distinct;
     }
@@ -209,13 +227,25 @@ public class SettingsListCriteria implements Serializable, Criteria {
             Objects.equals(settingFive, that.settingFive) &&
             Objects.equals(settingSix, that.settingSix) &&
             Objects.equals(settingSeven, that.settingSeven) &&
+            Objects.equals(spendingListId, that.spendingListId) &&
             Objects.equals(distinct, that.distinct)
         );
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, settingOne, settingTwo, settingThree, settingFour, settingFive, settingSix, settingSeven, distinct);
+        return Objects.hash(
+            id,
+            settingOne,
+            settingTwo,
+            settingThree,
+            settingFour,
+            settingFive,
+            settingSix,
+            settingSeven,
+            spendingListId,
+            distinct
+        );
     }
 
     // prettier-ignore
@@ -230,6 +260,7 @@ public class SettingsListCriteria implements Serializable, Criteria {
             (settingFive != null ? "settingFive=" + settingFive + ", " : "") +
             (settingSix != null ? "settingSix=" + settingSix + ", " : "") +
             (settingSeven != null ? "settingSeven=" + settingSeven + ", " : "") +
+            (spendingListId != null ? "spendingListId=" + spendingListId + ", " : "") +
             (distinct != null ? "distinct=" + distinct + ", " : "") +
             "}";
     }
