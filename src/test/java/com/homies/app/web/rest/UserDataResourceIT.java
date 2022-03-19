@@ -193,7 +193,7 @@ class UserDataResourceIT {
         em.detach(updatedUserData);
 
         // Update the User with new association value
-        updatedUserData.setUser();
+        updatedUserData.setUser(userData.getUser());
 
         // Update the entity
         restUserDataMockMvc
