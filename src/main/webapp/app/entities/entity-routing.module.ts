@@ -49,6 +49,11 @@ import { RouterModule } from '@angular/router';
         data: { pageTitle: 'Groups' },
         loadChildren: () => import('./Homies/group/group.module').then(m => m.HomiesGroupModule),
       },
+      {
+        path: 'settings-list',
+        data: { pageTitle: 'SettingsLists' },
+        loadChildren: () => import('./settings-list/settings-list.module').then(m => m.SettingsListModule),
+      },
       /* jhipster-needle-add-entity-route - JHipster will add entity modules routes here */
     ]),
   ],

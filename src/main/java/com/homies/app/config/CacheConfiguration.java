@@ -66,6 +66,7 @@ public class CacheConfiguration {
             createCache(cm, com.homies.app.domain.UserData.class.getName() + ".productCreateds");
             createCache(cm, com.homies.app.domain.ShoppingList.class.getName() + ".products");
             createCache(cm, com.homies.app.domain.SpendingList.class.getName() + ".spendings");
+            createCache(cm, com.homies.app.domain.SettingsList.class.getName());
             // jhipster-needle-ehcache-add-entry
         };
     }

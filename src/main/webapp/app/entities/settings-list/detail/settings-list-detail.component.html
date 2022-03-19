@@ -1,0 +1,56 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    <div *ngIf="settingsList">
+      <h2 data-cy="settingsListDetailsHeading"><span>Settings List</span></h2>
+
+      <hr />
+
+      <jhi-alert-error></jhi-alert-error>
+
+      <jhi-alert></jhi-alert>
+
+      <dl class="row-md jh-entity-details">
+        <dt><span>ID</span></dt>
+        <dd>
+          <span>{{ settingsList.id }}</span>
+        </dd>
+        <dt><span>Setting One</span></dt>
+        <dd>
+          <span>{{ settingsList.settingOne }}</span>
+        </dd>
+        <dt><span>Setting Two</span></dt>
+        <dd>
+          <span>{{ settingsList.settingTwo }}</span>
+        </dd>
+        <dt><span>Setting Three</span></dt>
+        <dd>
+          <span>{{ settingsList.settingThree }}</span>
+        </dd>
+        <dt><span>Setting Four</span></dt>
+        <dd>
+          <span>{{ settingsList.settingFour }}</span>
+        </dd>
+        <dt><span>Setting Five</span></dt>
+        <dd>
+          <span>{{ settingsList.settingFive }}</span>
+        </dd>
+        <dt><span>Setting Six</span></dt>
+        <dd>
+          <span>{{ settingsList.settingSix }}</span>
+        </dd>
+        <dt><span>Setting Seven</span></dt>
+        <dd>
+          <span>{{ settingsList.settingSeven }}</span>
+        </dd>
+      </dl>
+
+      <button type="submit" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">
+        <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span>Back</span>
+      </button>
+
+      <button type="button" [routerLink]="['/settings-list', settingsList.id, 'edit']" class="btn btn-primary">
+        <fa-icon icon="pencil-alt"></fa-icon>&nbsp;<span>Edit</span>
+      </button>
+    </div>
+  </div>
+</div>
