@@ -115,6 +115,15 @@ public class SettingsListQueryService extends QueryService<SettingsList> {
                         )
                     );
             }
+            if (criteria.getUserPendingId() != null) {
+                specification =
+                    specification.and(
+                        buildSpecification(
+                            criteria.getUserPendingId(),
+                            root -> root.join(SettingsList_.userPendings, JoinType.LEFT).get(UserPending_.id)
+                        )
+                    );
+            }
         }
         return specification;
     }

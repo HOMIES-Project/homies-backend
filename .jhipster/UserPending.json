@@ -31,6 +31,12 @@
       "ownerSide": true,
       "relationshipName": "spending",
       "relationshipType": "many-to-many"
+    },
+    {
+      "otherEntityField": "id",
+      "otherEntityName": "settingsList",
+      "relationshipName": "settingsList",
+      "relationshipType": "many-to-one"
     }
   ],
   "service": "serviceImpl"

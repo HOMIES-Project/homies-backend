@@ -41,6 +41,12 @@
       "otherEntityName": "spendingList",
       "relationshipName": "spendingList",
       "relationshipType": "many-to-one"
+    },
+    {
+      "otherEntityName": "userPending",
+      "otherEntityRelationshipName": "settingsList",
+      "relationshipName": "userPending",
+      "relationshipType": "one-to-many"
     }
   ],
   "service": "serviceImpl"

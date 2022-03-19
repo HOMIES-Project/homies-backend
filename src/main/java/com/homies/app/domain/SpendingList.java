@@ -35,12 +35,12 @@ public class SpendingList implements Serializable {
 
     @OneToMany(mappedBy = "spendingList")
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-    @JsonIgnoreProperties(value = { "spendingList", "spendings" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "spendingList", "spendings", "settingsList" }, allowSetters = true)
     private Set<UserPending> spendings = new HashSet<>();
 
     @OneToMany(mappedBy = "spendingList")
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-    @JsonIgnoreProperties(value = { "spendingList" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "spendingList", "userPendings" }, allowSetters = true)
     private Set<SettingsList> settingsLists = new HashSet<>();
 
     // jhipster-needle-entity-add-field - JHipster will add fields here

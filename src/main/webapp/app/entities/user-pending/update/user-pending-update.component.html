@@ -53,6 +53,21 @@
             </option>
           </select>
         </div>
+
+        <div class="row mb-3">
+          <label class="form-label" for="field_settingsList">Settings List</label>
+          <select class="form-control" id="field_settingsList" data-cy="settingsList" name="settingsList" formControlName="settingsList">
+            <option [ngValue]="null"></option>
+            <option
+              [ngValue]="
+                settingsListOption.id === editForm.get('settingsList')!.value?.id ? editForm.get('settingsList')!.value : settingsListOption
+              "
+              *ngFor="let settingsListOption of settingsListsSharedCollection; trackBy: trackSettingsListById"
+            >
+              {{ settingsListOption.id }}
+            </option>
+          </select>
+        </div>
       </div>
 
       <div>

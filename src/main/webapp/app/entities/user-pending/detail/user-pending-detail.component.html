@@ -35,6 +35,12 @@
             >{{ last ? '' : ', ' }}
           </span>
         </dd>
+        <dt><span>Settings List</span></dt>
+        <dd>
+          <div *ngIf="userPending.settingsList">
+            <a [routerLink]="['/settings-list', userPending.settingsList?.id, 'view']">{{ userPending.settingsList?.id }}</a>
+          </div>
+        </dd>
       </dl>
 
       <button type="submit" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">

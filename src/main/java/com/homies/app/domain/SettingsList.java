@@ -2,6 +2,8 @@ package com.homies.app.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 import javax.persistence.*;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -45,6 +47,11 @@ public class SettingsList implements Serializable {
     @ManyToOne
     @JsonIgnoreProperties(value = { "spendings", "settingsLists" }, allowSetters = true)
     private SpendingList spendingList;
+
+    @OneToMany(mappedBy = "settingsList")
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    @JsonIgnoreProperties(value = { "spendingList", "spendings", "settingsList" }, allowSetters = true)
+    private Set<UserPending> userPendings = new HashSet<>();
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -162,6 +169,37 @@ public class SettingsList implements Serializable {
 
     public SettingsList spendingList(SpendingList spendingList) {
         this.setSpendingList(spendingList);
+        return this;
+    }
+
+    public Set<UserPending> getUserPendings() {
+        return this.userPendings;
+    }
+
+    public void setUserPendings(Set<UserPending> userPendings) {
+        if (this.userPendings != null) {
+            this.userPendings.forEach(i -> i.setSettingsList(null));
+        }
+        if (userPendings != null) {
+            userPendings.forEach(i -> i.setSettingsList(this));
+        }
+        this.userPendings = userPendings;
+    }
+
+    public SettingsList userPendings(Set<UserPending> userPendings) {
+        this.setUserPendings(userPendings);
+        return this;
+    }
+
+    public SettingsList addUserPending(UserPending userPending) {
+        this.userPendings.add(userPending);
+        userPending.setSettingsList(this);
+        return this;
+    }
+
+    public SettingsList removeUserPending(UserPending userPending) {
+        this.userPendings.remove(userPending);
+        userPending.setSettingsList(null);
         return this;
     }
 

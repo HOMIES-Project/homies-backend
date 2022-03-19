@@ -44,6 +44,8 @@ public class SettingsListCriteria implements Serializable, Criteria {
 
     private LongFilter spendingListId;
 
+    private LongFilter userPendingId;
+
     private Boolean distinct;
 
     public SettingsListCriteria() {}
@@ -58,6 +60,7 @@ public class SettingsListCriteria implements Serializable, Criteria {
         this.settingSix = other.settingSix == null ? null : other.settingSix.copy();
         this.settingSeven = other.settingSeven == null ? null : other.settingSeven.copy();
         this.spendingListId = other.spendingListId == null ? null : other.spendingListId.copy();
+        this.userPendingId = other.userPendingId == null ? null : other.userPendingId.copy();
         this.distinct = other.distinct;
     }
 
@@ -201,6 +204,21 @@ public class SettingsListCriteria implements Serializable, Criteria {
         this.spendingListId = spendingListId;
     }
 
+    public LongFilter getUserPendingId() {
+        return userPendingId;
+    }
+
+    public LongFilter userPendingId() {
+        if (userPendingId == null) {
+            userPendingId = new LongFilter();
+        }
+        return userPendingId;
+    }
+
+    public void setUserPendingId(LongFilter userPendingId) {
+        this.userPendingId = userPendingId;
+    }
+
     public Boolean getDistinct() {
         return distinct;
     }
@@ -228,6 +246,7 @@ public class SettingsListCriteria implements Serializable, Criteria {
             Objects.equals(settingSix, that.settingSix) &&
             Objects.equals(settingSeven, that.settingSeven) &&
             Objects.equals(spendingListId, that.spendingListId) &&
+            Objects.equals(userPendingId, that.userPendingId) &&
             Objects.equals(distinct, that.distinct)
         );
     }
@@ -244,6 +263,7 @@ public class SettingsListCriteria implements Serializable, Criteria {
             settingSix,
             settingSeven,
             spendingListId,
+            userPendingId,
             distinct
         );
     }
@@ -261,6 +281,7 @@ public class SettingsListCriteria implements Serializable, Criteria {
             (settingSix != null ? "settingSix=" + settingSix + ", " : "") +
             (settingSeven != null ? "settingSeven=" + settingSeven + ", " : "") +
             (spendingListId != null ? "spendingListId=" + spendingListId + ", " : "") +
+            (userPendingId != null ? "userPendingId=" + userPendingId + ", " : "") +
             (distinct != null ? "distinct=" + distinct + ", " : "") +
             "}";
     }

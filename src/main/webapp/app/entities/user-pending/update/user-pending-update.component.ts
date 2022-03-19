@@ -11,6 +11,8 @@ import { ISpendingList } from 'app/entities/spending-list/spending-list.model';
 import { SpendingListService } from 'app/entities/spending-list/service/spending-list.service';
 import { ISpending } from 'app/entities/spending/spending.model';
 import { SpendingService } from 'app/entities/spending/service/spending.service';
+import { ISettingsList } from 'app/entities/settings-list/settings-list.model';
+import { SettingsListService } from 'app/entities/settings-list/service/settings-list.service';
 
 @Component({
   selector: 'jhi-user-pending-update',
@@ -21,6 +23,7 @@ export class UserPendingUpdateComponent implements OnInit {
 
   spendingListsSharedCollection: ISpendingList[] = [];
   spendingsSharedCollection: ISpending[] = [];
+  settingsListsSharedCollection: ISettingsList[] = [];
 
   editForm = this.fb.group({
     id: [],
@@ -28,12 +31,14 @@ export class UserPendingUpdateComponent implements OnInit {
     paid: [],
     spendingList: [],
     spendings: [],
+    settingsList: [],
   });
 
   constructor(
     protected userPendingService: UserPendingService,
     protected spendingListService: SpendingListService,
     protected spendingService: SpendingService,
+    protected settingsListService: SettingsListService,
     protected activatedRoute: ActivatedRoute,
     protected fb: FormBuilder
   ) {}
@@ -65,6 +70,10 @@ export class UserPendingUpdateComponent implements OnInit {
   }
 
   trackSpendingById(index: number, item: ISpending): number {
+    return item.id!;
+  }
+
+  trackSettingsListById(index: number, item: ISettingsList): number {
     return item.id!;
   }
 
@@ -105,6 +114,7 @@ export class UserPendingUpdateComponent implements OnInit {
       paid: userPending.paid,
       spendingList: userPending.spendingList,
       spendings: userPending.spendings,
+      settingsList: userPending.settingsList,
     });
 
     this.spendingListsSharedCollection = this.spendingListService.addSpendingListToCollectionIfMissing(
@@ -114,6 +124,10 @@ export class UserPendingUpdateComponent implements OnInit {
     this.spendingsSharedCollection = this.spendingService.addSpendingToCollectionIfMissing(
       this.spendingsSharedCollection,
       ...(userPending.spendings ?? [])
+    );
+    this.settingsListsSharedCollection = this.settingsListService.addSettingsListToCollectionIfMissing(
+      this.settingsListsSharedCollection,
+      userPending.settingsList
     );
   }
 
@@ -137,6 +151,16 @@ export class UserPendingUpdateComponent implements OnInit {
         )
       )
       .subscribe((spendings: ISpending[]) => (this.spendingsSharedCollection = spendings));
+
+    this.settingsListService
+      .query()
+      .pipe(map((res: HttpResponse<ISettingsList[]>) => res.body ?? []))
+      .pipe(
+        map((settingsLists: ISettingsList[]) =>
+          this.settingsListService.addSettingsListToCollectionIfMissing(settingsLists, this.editForm.get('settingsList')!.value)
+        )
+      )
+      .subscribe((settingsLists: ISettingsList[]) => (this.settingsListsSharedCollection = settingsLists));
   }
 
   protected createFromForm(): IUserPending {
@@ -147,6 +171,7 @@ export class UserPendingUpdateComponent implements OnInit {
       paid: this.editForm.get(['paid'])!.value,
       spendingList: this.editForm.get(['spendingList'])!.value,
       spendings: this.editForm.get(['spendings'])!.value,
+      settingsList: this.editForm.get(['settingsList'])!.value,
     };
   }
 }

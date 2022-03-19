@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.homies.app.IntegrationTest;
 import com.homies.app.domain.SettingsList;
 import com.homies.app.domain.SpendingList;
+import com.homies.app.domain.UserPending;
 import com.homies.app.repository.SettingsListRepository;
 import com.homies.app.service.criteria.SettingsListCriteria;
 import java.util.List;
@@ -598,6 +599,32 @@ class SettingsListResourceIT {
 
         // Get all the settingsListList where spendingList equals to (spendingListId + 1)
         defaultSettingsListShouldNotBeFound("spendingListId.equals=" + (spendingListId + 1));
+    }
+
+    @Test
+    @Transactional
+    void getAllSettingsListsByUserPendingIsEqualToSomething() throws Exception {
+        // Initialize the database
+        settingsListRepository.saveAndFlush(settingsList);
+        UserPending userPending;
+        if (TestUtil.findAll(em, UserPending.class).isEmpty()) {
+            userPending = UserPendingResourceIT.createEntity(em);
+            em.persist(userPending);
+            em.flush();
+        } else {
+            userPending = TestUtil.findAll(em, UserPending.class).get(0);
+        }
+        em.persist(userPending);
+        em.flush();
+        settingsList.addUserPending(userPending);
+        settingsListRepository.saveAndFlush(settingsList);
+        Long userPendingId = userPending.getId();
+
+        // Get all the settingsListList where userPending equals to userPendingId
+        defaultSettingsListShouldBeFound("userPendingId.equals=" + userPendingId);
+
+        // Get all the settingsListList where userPending equals to (userPendingId + 1)
+        defaultSettingsListShouldNotBeFound("userPendingId.equals=" + (userPendingId + 1));
     }
 
     /**

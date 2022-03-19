@@ -12,6 +12,8 @@ import { ISpendingList } from 'app/entities/spending-list/spending-list.model';
 import { SpendingListService } from 'app/entities/spending-list/service/spending-list.service';
 import { ISpending } from 'app/entities/spending/spending.model';
 import { SpendingService } from 'app/entities/spending/service/spending.service';
+import { ISettingsList } from 'app/entities/settings-list/settings-list.model';
+import { SettingsListService } from 'app/entities/settings-list/service/settings-list.service';
 
 import { UserPendingUpdateComponent } from './user-pending-update.component';
 
@@ -22,6 +24,7 @@ describe('UserPending Management Update Component', () => {
   let userPendingService: UserPendingService;
   let spendingListService: SpendingListService;
   let spendingService: SpendingService;
+  let settingsListService: SettingsListService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -45,6 +48,7 @@ describe('UserPending Management Update Component', () => {
     userPendingService = TestBed.inject(UserPendingService);
     spendingListService = TestBed.inject(SpendingListService);
     spendingService = TestBed.inject(SpendingService);
+    settingsListService = TestBed.inject(SettingsListService);
 
     comp = fixture.componentInstance;
   });
@@ -91,12 +95,36 @@ describe('UserPending Management Update Component', () => {
       expect(comp.spendingsSharedCollection).toEqual(expectedCollection);
     });
 
+    it('Should call SettingsList query and add missing value', () => {
+      const userPending: IUserPending = { id: 456 };
+      const settingsList: ISettingsList = { id: 81770 };
+      userPending.settingsList = settingsList;
+
+      const settingsListCollection: ISettingsList[] = [{ id: 54043 }];
+      jest.spyOn(settingsListService, 'query').mockReturnValue(of(new HttpResponse({ body: settingsListCollection })));
+      const additionalSettingsLists = [settingsList];
+      const expectedCollection: ISettingsList[] = [...additionalSettingsLists, ...settingsListCollection];
+      jest.spyOn(settingsListService, 'addSettingsListToCollectionIfMissing').mockReturnValue(expectedCollection);
+
+      activatedRoute.data = of({ userPending });
+      comp.ngOnInit();
+
+      expect(settingsListService.query).toHaveBeenCalled();
+      expect(settingsListService.addSettingsListToCollectionIfMissing).toHaveBeenCalledWith(
+        settingsListCollection,
+        ...additionalSettingsLists
+      );
+      expect(comp.settingsListsSharedCollection).toEqual(expectedCollection);
+    });
+
     it('Should update editForm', () => {
       const userPending: IUserPending = { id: 456 };
       const spendingList: ISpendingList = { id: 74574 };
       userPending.spendingList = spendingList;
       const spendings: ISpending = { id: 44249 };
       userPending.spendings = [spendings];
+      const settingsList: ISettingsList = { id: 69983 };
+      userPending.settingsList = settingsList;
 
       activatedRoute.data = of({ userPending });
       comp.ngOnInit();
@@ -104,6 +132,7 @@ describe('UserPending Management Update Component', () => {
       expect(comp.editForm.value).toEqual(expect.objectContaining(userPending));
       expect(comp.spendingListsSharedCollection).toContain(spendingList);
       expect(comp.spendingsSharedCollection).toContain(spendings);
+      expect(comp.settingsListsSharedCollection).toContain(settingsList);
     });
   });
 
@@ -184,6 +213,14 @@ describe('UserPending Management Update Component', () => {
       it('Should return tracked Spending primary key', () => {
         const entity = { id: 123 };
         const trackResult = comp.trackSpendingById(0, entity);
+        expect(trackResult).toEqual(entity.id);
+      });
+    });
+
+    describe('trackSettingsListById', () => {
+      it('Should return tracked SettingsList primary key', () => {
+        const entity = { id: 123 };
+        const trackResult = comp.trackSettingsListById(0, entity);
         expect(trackResult).toEqual(entity.id);
       });
     });
