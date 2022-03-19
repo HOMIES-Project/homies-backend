@@ -23,6 +23,14 @@
       "otherEntityName": "spendingList",
       "relationshipName": "spendingList",
       "relationshipType": "many-to-one"
+    },
+    {
+      "otherEntityField": "id",
+      "otherEntityName": "spending",
+      "otherEntityRelationshipName": "userPending",
+      "ownerSide": true,
+      "relationshipName": "spending",
+      "relationshipType": "many-to-many"
     }
   ],
   "service": "serviceImpl"

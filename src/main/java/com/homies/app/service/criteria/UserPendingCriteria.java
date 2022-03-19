@@ -34,6 +34,8 @@ public class UserPendingCriteria implements Serializable, Criteria {
 
     private LongFilter spendingListId;
 
+    private LongFilter spendingId;
+
     private Boolean distinct;
 
     public UserPendingCriteria() {}
@@ -43,6 +45,7 @@ public class UserPendingCriteria implements Serializable, Criteria {
         this.pending = other.pending == null ? null : other.pending.copy();
         this.paid = other.paid == null ? null : other.paid.copy();
         this.spendingListId = other.spendingListId == null ? null : other.spendingListId.copy();
+        this.spendingId = other.spendingId == null ? null : other.spendingId.copy();
         this.distinct = other.distinct;
     }
 
@@ -111,6 +114,21 @@ public class UserPendingCriteria implements Serializable, Criteria {
         this.spendingListId = spendingListId;
     }
 
+    public LongFilter getSpendingId() {
+        return spendingId;
+    }
+
+    public LongFilter spendingId() {
+        if (spendingId == null) {
+            spendingId = new LongFilter();
+        }
+        return spendingId;
+    }
+
+    public void setSpendingId(LongFilter spendingId) {
+        this.spendingId = spendingId;
+    }
+
     public Boolean getDistinct() {
         return distinct;
     }
@@ -133,13 +151,14 @@ public class UserPendingCriteria implements Serializable, Criteria {
             Objects.equals(pending, that.pending) &&
             Objects.equals(paid, that.paid) &&
             Objects.equals(spendingListId, that.spendingListId) &&
+            Objects.equals(spendingId, that.spendingId) &&
             Objects.equals(distinct, that.distinct)
         );
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, pending, paid, spendingListId, distinct);
+        return Objects.hash(id, pending, paid, spendingListId, spendingId, distinct);
     }
 
     // prettier-ignore
@@ -150,6 +169,7 @@ public class UserPendingCriteria implements Serializable, Criteria {
             (pending != null ? "pending=" + pending + ", " : "") +
             (paid != null ? "paid=" + paid + ", " : "") +
             (spendingListId != null ? "spendingListId=" + spendingListId + ", " : "") +
+            (spendingId != null ? "spendingId=" + spendingId + ", " : "") +
             (distinct != null ? "distinct=" + distinct + ", " : "") +
             "}";
     }

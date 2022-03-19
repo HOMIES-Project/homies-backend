@@ -2,6 +2,8 @@ package com.homies.app.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 import org.hibernate.annotations.Cache;
@@ -32,6 +34,16 @@ public class UserPending implements Serializable {
     @ManyToOne
     @JsonIgnoreProperties(value = { "spendings" }, allowSetters = true)
     private SpendingList spendingList;
+
+    @ManyToMany
+    @JoinTable(
+        name = "rel_user_pending__spending",
+        joinColumns = @JoinColumn(name = "user_pending_id"),
+        inverseJoinColumns = @JoinColumn(name = "spending_id")
+    )
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    @JsonIgnoreProperties(value = { "userPendings" }, allowSetters = true)
+    private Set<Spending> spendings = new HashSet<>();
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -84,6 +96,31 @@ public class UserPending implements Serializable {
 
     public UserPending spendingList(SpendingList spendingList) {
         this.setSpendingList(spendingList);
+        return this;
+    }
+
+    public Set<Spending> getSpendings() {
+        return this.spendings;
+    }
+
+    public void setSpendings(Set<Spending> spendings) {
+        this.spendings = spendings;
+    }
+
+    public UserPending spendings(Set<Spending> spendings) {
+        this.setSpendings(spendings);
+        return this;
+    }
+
+    public UserPending addSpending(Spending spending) {
+        this.spendings.add(spending);
+        spending.getUserPendings().add(this);
+        return this;
+    }
+
+    public UserPending removeSpending(Spending spending) {
+        this.spendings.remove(spending);
+        spending.getUserPendings().remove(this);
         return this;
     }
 

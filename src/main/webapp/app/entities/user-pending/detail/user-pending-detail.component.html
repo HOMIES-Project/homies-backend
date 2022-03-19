@@ -28,6 +28,13 @@
             <a [routerLink]="['/spending-list', userPending.spendingList?.id, 'view']">{{ userPending.spendingList?.nameSpendList }}</a>
           </div>
         </dd>
+        <dt><span>Spending</span></dt>
+        <dd>
+          <span *ngFor="let spending of userPending.spendings; let last = last">
+            <a [routerLink]="['/spending', spending?.id, 'view']">{{ spending.id }}</a
+            >{{ last ? '' : ', ' }}
+          </span>
+        </dd>
       </dl>
 
       <button type="submit" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">

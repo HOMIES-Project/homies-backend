@@ -9,6 +9,8 @@ import { IUserPending, UserPending } from '../user-pending.model';
 import { UserPendingService } from '../service/user-pending.service';
 import { ISpendingList } from 'app/entities/spending-list/spending-list.model';
 import { SpendingListService } from 'app/entities/spending-list/service/spending-list.service';
+import { ISpending } from 'app/entities/spending/spending.model';
+import { SpendingService } from 'app/entities/spending/service/spending.service';
 
 @Component({
   selector: 'jhi-user-pending-update',
@@ -18,17 +20,20 @@ export class UserPendingUpdateComponent implements OnInit {
   isSaving = false;
 
   spendingListsSharedCollection: ISpendingList[] = [];
+  spendingsSharedCollection: ISpending[] = [];
 
   editForm = this.fb.group({
     id: [],
     pending: [null, [Validators.min(0)]],
     paid: [],
     spendingList: [],
+    spendings: [],
   });
 
   constructor(
     protected userPendingService: UserPendingService,
     protected spendingListService: SpendingListService,
+    protected spendingService: SpendingService,
     protected activatedRoute: ActivatedRoute,
     protected fb: FormBuilder
   ) {}
@@ -59,6 +64,21 @@ export class UserPendingUpdateComponent implements OnInit {
     return item.id!;
   }
 
+  trackSpendingById(index: number, item: ISpending): number {
+    return item.id!;
+  }
+
+  getSelectedSpending(option: ISpending, selectedVals?: ISpending[]): ISpending {
+    if (selectedVals) {
+      for (const selectedVal of selectedVals) {
+        if (option.id === selectedVal.id) {
+          return selectedVal;
+        }
+      }
+    }
+    return option;
+  }
+
   protected subscribeToSaveResponse(result: Observable<HttpResponse<IUserPending>>): void {
     result.pipe(finalize(() => this.onSaveFinalize())).subscribe({
       next: () => this.onSaveSuccess(),
@@ -84,11 +104,16 @@ export class UserPendingUpdateComponent implements OnInit {
       pending: userPending.pending,
       paid: userPending.paid,
       spendingList: userPending.spendingList,
+      spendings: userPending.spendings,
     });
 
     this.spendingListsSharedCollection = this.spendingListService.addSpendingListToCollectionIfMissing(
       this.spendingListsSharedCollection,
       userPending.spendingList
+    );
+    this.spendingsSharedCollection = this.spendingService.addSpendingToCollectionIfMissing(
+      this.spendingsSharedCollection,
+      ...(userPending.spendings ?? [])
     );
   }
 
@@ -102,6 +127,16 @@ export class UserPendingUpdateComponent implements OnInit {
         )
       )
       .subscribe((spendingLists: ISpendingList[]) => (this.spendingListsSharedCollection = spendingLists));
+
+    this.spendingService
+      .query()
+      .pipe(map((res: HttpResponse<ISpending[]>) => res.body ?? []))
+      .pipe(
+        map((spendings: ISpending[]) =>
+          this.spendingService.addSpendingToCollectionIfMissing(spendings, ...(this.editForm.get('spendings')!.value ?? []))
+        )
+      )
+      .subscribe((spendings: ISpending[]) => (this.spendingsSharedCollection = spendings));
   }
 
   protected createFromForm(): IUserPending {
@@ -111,6 +146,7 @@ export class UserPendingUpdateComponent implements OnInit {
       pending: this.editForm.get(['pending'])!.value,
       paid: this.editForm.get(['paid'])!.value,
       spendingList: this.editForm.get(['spendingList'])!.value,
+      spendings: this.editForm.get(['spendings'])!.value,
     };
   }
 }

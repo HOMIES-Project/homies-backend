@@ -41,6 +41,18 @@
             </option>
           </select>
         </div>
+
+        <div class="row mb-3">
+          <label for="field_spendings">Spending</label>
+          <select class="form-control" id="field_spendings" data-cy="spending" multiple name="spendings" formControlName="spendings">
+            <option
+              [ngValue]="getSelectedSpending(spendingOption, editForm.get('spendings')!.value)"
+              *ngFor="let spendingOption of spendingsSharedCollection; trackBy: trackSpendingById"
+            >
+              {{ spendingOption.id }}
+            </option>
+          </select>
+        </div>
       </div>
 
       <div>

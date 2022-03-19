@@ -1,3 +1,5 @@
+import { IUserPending } from 'app/entities/user-pending/user-pending.model';
+
 export interface ISpending {
   id?: number;
   payer?: number;
@@ -9,6 +11,7 @@ export interface ISpending {
   paid?: number | null;
   pending?: number | null;
   finished?: boolean | null;
+  userPendings?: IUserPending[] | null;
 }
 
 export class Spending implements ISpending {
@@ -22,7 +25,8 @@ export class Spending implements ISpending {
     public descripcion?: string | null,
     public paid?: number | null,
     public pending?: number | null,
-    public finished?: boolean | null
+    public finished?: boolean | null,
+    public userPendings?: IUserPending[] | null
   ) {
     this.finished = this.finished ?? false;
   }

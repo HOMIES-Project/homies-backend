@@ -106,6 +106,15 @@ public class SpendingQueryService extends QueryService<Spending> {
             if (criteria.getFinished() != null) {
                 specification = specification.and(buildSpecification(criteria.getFinished(), Spending_.finished));
             }
+            if (criteria.getUserPendingId() != null) {
+                specification =
+                    specification.and(
+                        buildSpecification(
+                            criteria.getUserPendingId(),
+                            root -> root.join(Spending_.userPendings, JoinType.LEFT).get(UserPending_.id)
+                        )
+                    );
+            }
         }
         return specification;
     }

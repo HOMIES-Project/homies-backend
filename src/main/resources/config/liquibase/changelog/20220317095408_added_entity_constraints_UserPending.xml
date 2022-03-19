@@ -13,5 +13,17 @@
                                  constraintName="fk_user_pending__spending_list_id"
                                  referencedColumnNames="id"
                                  referencedTableName="spending_list"/>
+
+        <addForeignKeyConstraint baseColumnNames="user_pending_id"
+                                 baseTableName="rel_user_pending__spending"
+                                 constraintName="fk_rel_user_pending__spending__user_pending_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="user_pending"/>
+
+        <addForeignKeyConstraint baseColumnNames="spending_id"
+                                 baseTableName="rel_user_pending__spending"
+                                 constraintName="fk_rel_user_pending__spending__spending_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="spending"/>
     </changeSet>
 </databaseChangeLog>

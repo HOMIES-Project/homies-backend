@@ -13,17 +13,18 @@ import org.springframework.stereotype.Repository;
  * Spring Data SQL repository for the UserPending entity.
  */
 @Repository
-public interface UserPendingRepository extends JpaRepository<UserPending, Long>, JpaSpecificationExecutor<UserPending> {
+public interface UserPendingRepository
+    extends UserPendingRepositoryWithBagRelationships, JpaRepository<UserPending, Long>, JpaSpecificationExecutor<UserPending> {
     default Optional<UserPending> findOneWithEagerRelationships(Long id) {
-        return this.findOneWithToOneRelationships(id);
+        return this.fetchBagRelationships(this.findOneWithToOneRelationships(id));
     }
 
     default List<UserPending> findAllWithEagerRelationships() {
-        return this.findAllWithToOneRelationships();
+        return this.fetchBagRelationships(this.findAllWithToOneRelationships());
     }
 
     default Page<UserPending> findAllWithEagerRelationships(Pageable pageable) {
-        return this.findAllWithToOneRelationships(pageable);
+        return this.fetchBagRelationships(this.findAllWithToOneRelationships(pageable));
     }
 
     @Query(

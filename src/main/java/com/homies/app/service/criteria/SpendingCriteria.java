@@ -42,6 +42,8 @@ public class SpendingCriteria implements Serializable, Criteria {
 
     private BooleanFilter finished;
 
+    private LongFilter userPendingId;
+
     private Boolean distinct;
 
     public SpendingCriteria() {}
@@ -55,6 +57,7 @@ public class SpendingCriteria implements Serializable, Criteria {
         this.paid = other.paid == null ? null : other.paid.copy();
         this.pending = other.pending == null ? null : other.pending.copy();
         this.finished = other.finished == null ? null : other.finished.copy();
+        this.userPendingId = other.userPendingId == null ? null : other.userPendingId.copy();
         this.distinct = other.distinct;
     }
 
@@ -183,6 +186,21 @@ public class SpendingCriteria implements Serializable, Criteria {
         this.finished = finished;
     }
 
+    public LongFilter getUserPendingId() {
+        return userPendingId;
+    }
+
+    public LongFilter userPendingId() {
+        if (userPendingId == null) {
+            userPendingId = new LongFilter();
+        }
+        return userPendingId;
+    }
+
+    public void setUserPendingId(LongFilter userPendingId) {
+        this.userPendingId = userPendingId;
+    }
+
     public Boolean getDistinct() {
         return distinct;
     }
@@ -209,13 +227,14 @@ public class SpendingCriteria implements Serializable, Criteria {
             Objects.equals(paid, that.paid) &&
             Objects.equals(pending, that.pending) &&
             Objects.equals(finished, that.finished) &&
+            Objects.equals(userPendingId, that.userPendingId) &&
             Objects.equals(distinct, that.distinct)
         );
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, payer, nameCost, cost, descripcion, paid, pending, finished, distinct);
+        return Objects.hash(id, payer, nameCost, cost, descripcion, paid, pending, finished, userPendingId, distinct);
     }
 
     // prettier-ignore
@@ -230,6 +249,7 @@ public class SpendingCriteria implements Serializable, Criteria {
             (paid != null ? "paid=" + paid + ", " : "") +
             (pending != null ? "pending=" + pending + ", " : "") +
             (finished != null ? "finished=" + finished + ", " : "") +
+            (userPendingId != null ? "userPendingId=" + userPendingId + ", " : "") +
             (distinct != null ? "distinct=" + distinct + ", " : "") +
             "}";
     }

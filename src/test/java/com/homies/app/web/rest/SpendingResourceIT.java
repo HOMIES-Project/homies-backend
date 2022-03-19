@@ -7,6 +7,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.homies.app.IntegrationTest;
 import com.homies.app.domain.Spending;
+import com.homies.app.domain.UserPending;
 import com.homies.app.repository.SpendingRepository;
 import com.homies.app.service.criteria.SpendingCriteria;
 import java.util.List;
@@ -902,6 +903,32 @@ class SpendingResourceIT {
 
         // Get all the spendingList where finished is null
         defaultSpendingShouldNotBeFound("finished.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllSpendingsByUserPendingIsEqualToSomething() throws Exception {
+        // Initialize the database
+        spendingRepository.saveAndFlush(spending);
+        UserPending userPending;
+        if (TestUtil.findAll(em, UserPending.class).isEmpty()) {
+            userPending = UserPendingResourceIT.createEntity(em);
+            em.persist(userPending);
+            em.flush();
+        } else {
+            userPending = TestUtil.findAll(em, UserPending.class).get(0);
+        }
+        em.persist(userPending);
+        em.flush();
+        spending.addUserPending(userPending);
+        spendingRepository.saveAndFlush(spending);
+        Long userPendingId = userPending.getId();
+
+        // Get all the spendingList where userPending equals to userPendingId
+        defaultSpendingShouldBeFound("userPendingId.equals=" + userPendingId);
+
+        // Get all the spendingList where userPending equals to (userPendingId + 1)
+        defaultSpendingShouldNotBeFound("userPendingId.equals=" + (userPendingId + 1));
     }
 
     /**

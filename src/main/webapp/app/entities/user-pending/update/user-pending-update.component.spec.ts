@@ -10,6 +10,8 @@ import { UserPendingService } from '../service/user-pending.service';
 import { IUserPending, UserPending } from '../user-pending.model';
 import { ISpendingList } from 'app/entities/spending-list/spending-list.model';
 import { SpendingListService } from 'app/entities/spending-list/service/spending-list.service';
+import { ISpending } from 'app/entities/spending/spending.model';
+import { SpendingService } from 'app/entities/spending/service/spending.service';
 
 import { UserPendingUpdateComponent } from './user-pending-update.component';
 
@@ -19,6 +21,7 @@ describe('UserPending Management Update Component', () => {
   let activatedRoute: ActivatedRoute;
   let userPendingService: UserPendingService;
   let spendingListService: SpendingListService;
+  let spendingService: SpendingService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -41,6 +44,7 @@ describe('UserPending Management Update Component', () => {
     activatedRoute = TestBed.inject(ActivatedRoute);
     userPendingService = TestBed.inject(UserPendingService);
     spendingListService = TestBed.inject(SpendingListService);
+    spendingService = TestBed.inject(SpendingService);
 
     comp = fixture.componentInstance;
   });
@@ -68,16 +72,38 @@ describe('UserPending Management Update Component', () => {
       expect(comp.spendingListsSharedCollection).toEqual(expectedCollection);
     });
 
+    it('Should call Spending query and add missing value', () => {
+      const userPending: IUserPending = { id: 456 };
+      const spendings: ISpending[] = [{ id: 62619 }];
+      userPending.spendings = spendings;
+
+      const spendingCollection: ISpending[] = [{ id: 69912 }];
+      jest.spyOn(spendingService, 'query').mockReturnValue(of(new HttpResponse({ body: spendingCollection })));
+      const additionalSpendings = [...spendings];
+      const expectedCollection: ISpending[] = [...additionalSpendings, ...spendingCollection];
+      jest.spyOn(spendingService, 'addSpendingToCollectionIfMissing').mockReturnValue(expectedCollection);
+
+      activatedRoute.data = of({ userPending });
+      comp.ngOnInit();
+
+      expect(spendingService.query).toHaveBeenCalled();
+      expect(spendingService.addSpendingToCollectionIfMissing).toHaveBeenCalledWith(spendingCollection, ...additionalSpendings);
+      expect(comp.spendingsSharedCollection).toEqual(expectedCollection);
+    });
+
     it('Should update editForm', () => {
       const userPending: IUserPending = { id: 456 };
       const spendingList: ISpendingList = { id: 74574 };
       userPending.spendingList = spendingList;
+      const spendings: ISpending = { id: 44249 };
+      userPending.spendings = [spendings];
 
       activatedRoute.data = of({ userPending });
       comp.ngOnInit();
 
       expect(comp.editForm.value).toEqual(expect.objectContaining(userPending));
       expect(comp.spendingListsSharedCollection).toContain(spendingList);
+      expect(comp.spendingsSharedCollection).toContain(spendings);
     });
   });
 
@@ -151,6 +177,42 @@ describe('UserPending Management Update Component', () => {
         const entity = { id: 123 };
         const trackResult = comp.trackSpendingListById(0, entity);
         expect(trackResult).toEqual(entity.id);
+      });
+    });
+
+    describe('trackSpendingById', () => {
+      it('Should return tracked Spending primary key', () => {
+        const entity = { id: 123 };
+        const trackResult = comp.trackSpendingById(0, entity);
+        expect(trackResult).toEqual(entity.id);
+      });
+    });
+  });
+
+  describe('Getting selected relationships', () => {
+    describe('getSelectedSpending', () => {
+      it('Should return option if no Spending is selected', () => {
+        const option = { id: 123 };
+        const result = comp.getSelectedSpending(option);
+        expect(result === option).toEqual(true);
+      });
+
+      it('Should return selected Spending for according option', () => {
+        const option = { id: 123 };
+        const selected = { id: 123 };
+        const selected2 = { id: 456 };
+        const result = comp.getSelectedSpending(option, [selected2, selected]);
+        expect(result === selected).toEqual(true);
+        expect(result === selected2).toEqual(false);
+        expect(result === option).toEqual(false);
+      });
+
+      it('Should return option if this Spending is not selected', () => {
+        const option = { id: 123 };
+        const selected = { id: 456 };
+        const result = comp.getSelectedSpending(option, [selected]);
+        expect(result === option).toEqual(true);
+        expect(result === selected).toEqual(false);
       });
     });
   });
