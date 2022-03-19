@@ -49,6 +49,8 @@ public class ProductsCriteria implements Serializable, Criteria {
 
     private LongFilter userCreatorId;
 
+    private LongFilter shoppingListId;
+
     private Boolean distinct;
 
     public ProductsCriteria() {}
@@ -65,6 +67,7 @@ public class ProductsCriteria implements Serializable, Criteria {
         this.purchased = other.purchased == null ? null : other.purchased.copy();
         this.userCreated = other.userCreated == null ? null : other.userCreated.copy();
         this.userCreatorId = other.userCreatorId == null ? null : other.userCreatorId.copy();
+        this.shoppingListId = other.shoppingListId == null ? null : other.shoppingListId.copy();
         this.distinct = other.distinct;
     }
 
@@ -238,6 +241,21 @@ public class ProductsCriteria implements Serializable, Criteria {
         this.userCreatorId = userCreatorId;
     }
 
+    public LongFilter getShoppingListId() {
+        return shoppingListId;
+    }
+
+    public LongFilter shoppingListId() {
+        if (shoppingListId == null) {
+            shoppingListId = new LongFilter();
+        }
+        return shoppingListId;
+    }
+
+    public void setShoppingListId(LongFilter shoppingListId) {
+        this.shoppingListId = shoppingListId;
+    }
+
     public Boolean getDistinct() {
         return distinct;
     }
@@ -267,6 +285,7 @@ public class ProductsCriteria implements Serializable, Criteria {
             Objects.equals(purchased, that.purchased) &&
             Objects.equals(userCreated, that.userCreated) &&
             Objects.equals(userCreatorId, that.userCreatorId) &&
+            Objects.equals(shoppingListId, that.shoppingListId) &&
             Objects.equals(distinct, that.distinct)
         );
     }
@@ -285,6 +304,7 @@ public class ProductsCriteria implements Serializable, Criteria {
             purchased,
             userCreated,
             userCreatorId,
+            shoppingListId,
             distinct
         );
     }
@@ -304,6 +324,7 @@ public class ProductsCriteria implements Serializable, Criteria {
             (purchased != null ? "purchased=" + purchased + ", " : "") +
             (userCreated != null ? "userCreated=" + userCreated + ", " : "") +
             (userCreatorId != null ? "userCreatorId=" + userCreatorId + ", " : "") +
+            (shoppingListId != null ? "shoppingListId=" + shoppingListId + ", " : "") +
             (distinct != null ? "distinct=" + distinct + ", " : "") +
             "}";
     }

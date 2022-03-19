@@ -44,6 +44,7 @@
           <th scope="col" jhiSortBy="purchased"><span>Purchased</span> <fa-icon icon="sort"></fa-icon></th>
           <th scope="col" jhiSortBy="userCreated"><span>User Created</span> <fa-icon icon="sort"></fa-icon></th>
           <th scope="col" jhiSortBy="userCreator.id"><span>User Creator</span> <fa-icon icon="sort"></fa-icon></th>
+          <th scope="col" jhiSortBy="shoppingList.nameShopList"><span>Shopping List</span> <fa-icon icon="sort"></fa-icon></th>
           <th scope="col"></th>
         </tr>
       </thead>
@@ -74,6 +75,11 @@
           <td>
             <div *ngIf="products.userCreator">
               <a [routerLink]="['/user-data', products.userCreator?.id, 'view']">{{ products.userCreator?.id }}</a>
+            </div>
+          </td>
+          <td>
+            <div *ngIf="products.shoppingList">
+              <a [routerLink]="['/shopping-list', products.shoppingList?.id, 'view']">{{ products.shoppingList?.nameShopList }}</a>
             </div>
           </td>
           <td class="text-end">

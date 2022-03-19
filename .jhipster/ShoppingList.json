@@ -18,6 +18,13 @@
   "name": "ShoppingList",
   "pagination": "pagination",
   "readOnly": false,
-  "relationships": [],
+  "relationships": [
+    {
+      "otherEntityName": "products",
+      "otherEntityRelationshipName": "shoppingList",
+      "relationshipName": "products",
+      "relationshipType": "one-to-many"
+    }
+  ],
   "service": "serviceImpl"
 }

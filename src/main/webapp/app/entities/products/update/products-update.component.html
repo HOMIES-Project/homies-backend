@@ -153,6 +153,21 @@
             </option>
           </select>
         </div>
+
+        <div class="row mb-3">
+          <label class="form-label" for="field_shoppingList">Shopping List</label>
+          <select class="form-control" id="field_shoppingList" data-cy="shoppingList" name="shoppingList" formControlName="shoppingList">
+            <option [ngValue]="null"></option>
+            <option
+              [ngValue]="
+                shoppingListOption.id === editForm.get('shoppingList')!.value?.id ? editForm.get('shoppingList')!.value : shoppingListOption
+              "
+              *ngFor="let shoppingListOption of shoppingListsSharedCollection; trackBy: trackShoppingListById"
+            >
+              {{ shoppingListOption.nameShopList }}
+            </option>
+          </select>
+        </div>
       </div>
 
       <div>

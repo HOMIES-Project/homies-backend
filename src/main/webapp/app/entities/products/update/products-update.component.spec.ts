@@ -10,6 +10,8 @@ import { ProductsService } from '../service/products.service';
 import { IProducts, Products } from '../products.model';
 import { IUserData } from 'app/entities/Homies/user-data/user-data.model';
 import { UserDataService } from 'app/entities/Homies/user-data/service/user-data.service';
+import { IShoppingList } from 'app/entities/shopping-list/shopping-list.model';
+import { ShoppingListService } from 'app/entities/shopping-list/service/shopping-list.service';
 
 import { ProductsUpdateComponent } from './products-update.component';
 
@@ -19,6 +21,7 @@ describe('Products Management Update Component', () => {
   let activatedRoute: ActivatedRoute;
   let productsService: ProductsService;
   let userDataService: UserDataService;
+  let shoppingListService: ShoppingListService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -41,6 +44,7 @@ describe('Products Management Update Component', () => {
     activatedRoute = TestBed.inject(ActivatedRoute);
     productsService = TestBed.inject(ProductsService);
     userDataService = TestBed.inject(UserDataService);
+    shoppingListService = TestBed.inject(ShoppingListService);
 
     comp = fixture.componentInstance;
   });
@@ -65,16 +69,41 @@ describe('Products Management Update Component', () => {
       expect(comp.userDataSharedCollection).toEqual(expectedCollection);
     });
 
+    it('Should call ShoppingList query and add missing value', () => {
+      const products: IProducts = { id: 456 };
+      const shoppingList: IShoppingList = { id: 42350 };
+      products.shoppingList = shoppingList;
+
+      const shoppingListCollection: IShoppingList[] = [{ id: 25415 }];
+      jest.spyOn(shoppingListService, 'query').mockReturnValue(of(new HttpResponse({ body: shoppingListCollection })));
+      const additionalShoppingLists = [shoppingList];
+      const expectedCollection: IShoppingList[] = [...additionalShoppingLists, ...shoppingListCollection];
+      jest.spyOn(shoppingListService, 'addShoppingListToCollectionIfMissing').mockReturnValue(expectedCollection);
+
+      activatedRoute.data = of({ products });
+      comp.ngOnInit();
+
+      expect(shoppingListService.query).toHaveBeenCalled();
+      expect(shoppingListService.addShoppingListToCollectionIfMissing).toHaveBeenCalledWith(
+        shoppingListCollection,
+        ...additionalShoppingLists
+      );
+      expect(comp.shoppingListsSharedCollection).toEqual(expectedCollection);
+    });
+
     it('Should update editForm', () => {
       const products: IProducts = { id: 456 };
       const userCreator: IUserData = { id: 25638 };
       products.userCreator = userCreator;
+      const shoppingList: IShoppingList = { id: 55839 };
+      products.shoppingList = shoppingList;
 
       activatedRoute.data = of({ products });
       comp.ngOnInit();
 
       expect(comp.editForm.value).toEqual(expect.objectContaining(products));
       expect(comp.userDataSharedCollection).toContain(userCreator);
+      expect(comp.shoppingListsSharedCollection).toContain(shoppingList);
     });
   });
 
@@ -147,6 +176,14 @@ describe('Products Management Update Component', () => {
       it('Should return tracked UserData primary key', () => {
         const entity = { id: 123 };
         const trackResult = comp.trackUserDataById(0, entity);
+        expect(trackResult).toEqual(entity.id);
+      });
+    });
+
+    describe('trackShoppingListById', () => {
+      it('Should return tracked ShoppingList primary key', () => {
+        const entity = { id: 123 };
+        const trackResult = comp.trackShoppingListById(0, entity);
         expect(trackResult).toEqual(entity.id);
       });
     });

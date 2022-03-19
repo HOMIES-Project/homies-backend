@@ -121,6 +121,15 @@ public class ProductsQueryService extends QueryService<Products> {
                         )
                     );
             }
+            if (criteria.getShoppingListId() != null) {
+                specification =
+                    specification.and(
+                        buildSpecification(
+                            criteria.getShoppingListId(),
+                            root -> root.join(Products_.shoppingList, JoinType.LEFT).get(ShoppingList_.id)
+                        )
+                    );
+            }
         }
         return specification;
     }

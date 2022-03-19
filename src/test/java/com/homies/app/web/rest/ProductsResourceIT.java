@@ -7,6 +7,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.homies.app.IntegrationTest;
 import com.homies.app.domain.Products;
+import com.homies.app.domain.ShoppingList;
 import com.homies.app.domain.UserData;
 import com.homies.app.repository.ProductsRepository;
 import com.homies.app.service.criteria.ProductsCriteria;
@@ -1113,6 +1114,32 @@ class ProductsResourceIT {
 
         // Get all the productsList where userCreator equals to (userCreatorId + 1)
         defaultProductsShouldNotBeFound("userCreatorId.equals=" + (userCreatorId + 1));
+    }
+
+    @Test
+    @Transactional
+    void getAllProductsByShoppingListIsEqualToSomething() throws Exception {
+        // Initialize the database
+        productsRepository.saveAndFlush(products);
+        ShoppingList shoppingList;
+        if (TestUtil.findAll(em, ShoppingList.class).isEmpty()) {
+            shoppingList = ShoppingListResourceIT.createEntity(em);
+            em.persist(shoppingList);
+            em.flush();
+        } else {
+            shoppingList = TestUtil.findAll(em, ShoppingList.class).get(0);
+        }
+        em.persist(shoppingList);
+        em.flush();
+        products.setShoppingList(shoppingList);
+        productsRepository.saveAndFlush(products);
+        Long shoppingListId = shoppingList.getId();
+
+        // Get all the productsList where shoppingList equals to shoppingListId
+        defaultProductsShouldBeFound("shoppingListId.equals=" + shoppingListId);
+
+        // Get all the productsList where shoppingList equals to (shoppingListId + 1)
+        defaultProductsShouldNotBeFound("shoppingListId.equals=" + (shoppingListId + 1));
     }
 
     /**

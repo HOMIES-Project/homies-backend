@@ -66,6 +66,10 @@ public class Products implements Serializable {
     @JsonIgnoreProperties(value = { "groups", "user", "adminGroups", "taskAsigneds", "productCreateds" }, allowSetters = true)
     private UserData userCreator;
 
+    @ManyToOne
+    @JsonIgnoreProperties(value = { "products" }, allowSetters = true)
+    private ShoppingList shoppingList;
+
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
     public Long getId() {
@@ -234,6 +238,19 @@ public class Products implements Serializable {
 
     public Products userCreator(UserData userData) {
         this.setUserCreator(userData);
+        return this;
+    }
+
+    public ShoppingList getShoppingList() {
+        return this.shoppingList;
+    }
+
+    public void setShoppingList(ShoppingList shoppingList) {
+        this.shoppingList = shoppingList;
+    }
+
+    public Products shoppingList(ShoppingList shoppingList) {
+        this.setShoppingList(shoppingList);
         return this;
     }
 

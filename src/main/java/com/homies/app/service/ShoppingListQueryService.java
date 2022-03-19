@@ -91,6 +91,15 @@ public class ShoppingListQueryService extends QueryService<ShoppingList> {
             if (criteria.getNameShopList() != null) {
                 specification = specification.and(buildStringSpecification(criteria.getNameShopList(), ShoppingList_.nameShopList));
             }
+            if (criteria.getProductsId() != null) {
+                specification =
+                    specification.and(
+                        buildSpecification(
+                            criteria.getProductsId(),
+                            root -> root.join(ShoppingList_.products, JoinType.LEFT).get(Products_.id)
+                        )
+                    );
+            }
         }
         return specification;
     }

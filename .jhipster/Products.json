@@ -61,6 +61,12 @@
       "otherEntityName": "userData",
       "relationshipName": "userCreator",
       "relationshipType": "many-to-one"
+    },
+    {
+      "otherEntityField": "nameShopList",
+      "otherEntityName": "shoppingList",
+      "relationshipName": "shoppingList",
+      "relationshipType": "many-to-one"
     }
   ],
   "service": "serviceImpl"

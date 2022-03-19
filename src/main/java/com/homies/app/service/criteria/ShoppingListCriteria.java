@@ -32,6 +32,8 @@ public class ShoppingListCriteria implements Serializable, Criteria {
 
     private StringFilter nameShopList;
 
+    private LongFilter productsId;
+
     private Boolean distinct;
 
     public ShoppingListCriteria() {}
@@ -40,6 +42,7 @@ public class ShoppingListCriteria implements Serializable, Criteria {
         this.id = other.id == null ? null : other.id.copy();
         this.total = other.total == null ? null : other.total.copy();
         this.nameShopList = other.nameShopList == null ? null : other.nameShopList.copy();
+        this.productsId = other.productsId == null ? null : other.productsId.copy();
         this.distinct = other.distinct;
     }
 
@@ -93,6 +96,21 @@ public class ShoppingListCriteria implements Serializable, Criteria {
         this.nameShopList = nameShopList;
     }
 
+    public LongFilter getProductsId() {
+        return productsId;
+    }
+
+    public LongFilter productsId() {
+        if (productsId == null) {
+            productsId = new LongFilter();
+        }
+        return productsId;
+    }
+
+    public void setProductsId(LongFilter productsId) {
+        this.productsId = productsId;
+    }
+
     public Boolean getDistinct() {
         return distinct;
     }
@@ -114,13 +132,14 @@ public class ShoppingListCriteria implements Serializable, Criteria {
             Objects.equals(id, that.id) &&
             Objects.equals(total, that.total) &&
             Objects.equals(nameShopList, that.nameShopList) &&
+            Objects.equals(productsId, that.productsId) &&
             Objects.equals(distinct, that.distinct)
         );
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, total, nameShopList, distinct);
+        return Objects.hash(id, total, nameShopList, productsId, distinct);
     }
 
     // prettier-ignore
@@ -130,6 +149,7 @@ public class ShoppingListCriteria implements Serializable, Criteria {
             (id != null ? "id=" + id + ", " : "") +
             (total != null ? "total=" + total + ", " : "") +
             (nameShopList != null ? "nameShopList=" + nameShopList + ", " : "") +
+            (productsId != null ? "productsId=" + productsId + ", " : "") +
             (distinct != null ? "distinct=" + distinct + ", " : "") +
             "}";
     }

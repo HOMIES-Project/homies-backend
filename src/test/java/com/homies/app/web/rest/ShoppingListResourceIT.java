@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.homies.app.IntegrationTest;
+import com.homies.app.domain.Products;
 import com.homies.app.domain.ShoppingList;
 import com.homies.app.repository.ShoppingListRepository;
 import com.homies.app.service.criteria.ShoppingListCriteria;
@@ -363,6 +364,32 @@ class ShoppingListResourceIT {
 
         // Get all the shoppingListList where nameShopList does not contain UPDATED_NAME_SHOP_LIST
         defaultShoppingListShouldBeFound("nameShopList.doesNotContain=" + UPDATED_NAME_SHOP_LIST);
+    }
+
+    @Test
+    @Transactional
+    void getAllShoppingListsByProductsIsEqualToSomething() throws Exception {
+        // Initialize the database
+        shoppingListRepository.saveAndFlush(shoppingList);
+        Products products;
+        if (TestUtil.findAll(em, Products.class).isEmpty()) {
+            products = ProductsResourceIT.createEntity(em);
+            em.persist(products);
+            em.flush();
+        } else {
+            products = TestUtil.findAll(em, Products.class).get(0);
+        }
+        em.persist(products);
+        em.flush();
+        shoppingList.addProducts(products);
+        shoppingListRepository.saveAndFlush(shoppingList);
+        Long productsId = products.getId();
+
+        // Get all the shoppingListList where products equals to productsId
+        defaultShoppingListShouldBeFound("productsId.equals=" + productsId);
+
+        // Get all the shoppingListList where products equals to (productsId + 1)
+        defaultShoppingListShouldNotBeFound("productsId.equals=" + (productsId + 1));
     }
 
     /**

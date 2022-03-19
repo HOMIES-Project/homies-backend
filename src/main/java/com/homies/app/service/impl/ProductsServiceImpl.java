@@ -85,11 +85,15 @@ public class ProductsServiceImpl implements ProductsService {
         return productsRepository.findAll(pageable);
     }
 
+    public Page<Products> findAllWithEagerRelationships(Pageable pageable) {
+        return productsRepository.findAllWithEagerRelationships(pageable);
+    }
+
     @Override
     @Transactional(readOnly = true)
     public Optional<Products> findOne(Long id) {
         log.debug("Request to get Products : {}", id);
-        return productsRepository.findById(id);
+        return productsRepository.findOneWithEagerRelationships(id);
     }
 
     @Override

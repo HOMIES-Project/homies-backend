@@ -12,6 +12,8 @@ import { EventManager, EventWithContent } from 'app/core/util/event-manager.serv
 import { DataUtils, FileLoadError } from 'app/core/util/data-util.service';
 import { IUserData } from 'app/entities/Homies/user-data/user-data.model';
 import { UserDataService } from 'app/entities/Homies/user-data/service/user-data.service';
+import { IShoppingList } from 'app/entities/shopping-list/shopping-list.model';
+import { ShoppingListService } from 'app/entities/shopping-list/service/shopping-list.service';
 
 @Component({
   selector: 'jhi-products-update',
@@ -21,6 +23,7 @@ export class ProductsUpdateComponent implements OnInit {
   isSaving = false;
 
   userDataSharedCollection: IUserData[] = [];
+  shoppingListsSharedCollection: IShoppingList[] = [];
 
   editForm = this.fb.group({
     id: [],
@@ -36,6 +39,7 @@ export class ProductsUpdateComponent implements OnInit {
     purchased: [],
     userCreated: [],
     userCreator: [],
+    shoppingList: [],
   });
 
   constructor(
@@ -43,6 +47,7 @@ export class ProductsUpdateComponent implements OnInit {
     protected eventManager: EventManager,
     protected productsService: ProductsService,
     protected userDataService: UserDataService,
+    protected shoppingListService: ShoppingListService,
     protected elementRef: ElementRef,
     protected activatedRoute: ActivatedRoute,
     protected fb: FormBuilder
@@ -99,6 +104,10 @@ export class ProductsUpdateComponent implements OnInit {
     return item.id!;
   }
 
+  trackShoppingListById(index: number, item: IShoppingList): number {
+    return item.id!;
+  }
+
   protected subscribeToSaveResponse(result: Observable<HttpResponse<IProducts>>): void {
     result.pipe(finalize(() => this.onSaveFinalize())).subscribe({
       next: () => this.onSaveSuccess(),
@@ -133,11 +142,16 @@ export class ProductsUpdateComponent implements OnInit {
       purchased: products.purchased,
       userCreated: products.userCreated,
       userCreator: products.userCreator,
+      shoppingList: products.shoppingList,
     });
 
     this.userDataSharedCollection = this.userDataService.addUserDataToCollectionIfMissing(
       this.userDataSharedCollection,
       products.userCreator
+    );
+    this.shoppingListsSharedCollection = this.shoppingListService.addShoppingListToCollectionIfMissing(
+      this.shoppingListsSharedCollection,
+      products.shoppingList
     );
   }
 
@@ -151,6 +165,16 @@ export class ProductsUpdateComponent implements OnInit {
         )
       )
       .subscribe((userData: IUserData[]) => (this.userDataSharedCollection = userData));
+
+    this.shoppingListService
+      .query()
+      .pipe(map((res: HttpResponse<IShoppingList[]>) => res.body ?? []))
+      .pipe(
+        map((shoppingLists: IShoppingList[]) =>
+          this.shoppingListService.addShoppingListToCollectionIfMissing(shoppingLists, this.editForm.get('shoppingList')!.value)
+        )
+      )
+      .subscribe((shoppingLists: IShoppingList[]) => (this.shoppingListsSharedCollection = shoppingLists));
   }
 
   protected createFromForm(): IProducts {
@@ -169,6 +193,7 @@ export class ProductsUpdateComponent implements OnInit {
       purchased: this.editForm.get(['purchased'])!.value,
       userCreated: this.editForm.get(['userCreated'])!.value,
       userCreator: this.editForm.get(['userCreator'])!.value,
+      shoppingList: this.editForm.get(['shoppingList'])!.value,
     };
   }
 }
