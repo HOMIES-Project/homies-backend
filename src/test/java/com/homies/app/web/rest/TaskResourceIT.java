@@ -7,6 +7,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.homies.app.IntegrationTest;
 import com.homies.app.domain.Task;
+import com.homies.app.domain.TaskList;
+import com.homies.app.domain.UserData;
 import com.homies.app.repository.TaskRepository;
 import com.homies.app.service.criteria.TaskCriteria;
 import java.time.LocalDate;
@@ -747,6 +749,110 @@ class TaskResourceIT {
 
         // Get all the taskList where puntuacion does not contain UPDATED_PUNTUACION
         defaultTaskShouldBeFound("puntuacion.doesNotContain=" + UPDATED_PUNTUACION);
+    }
+
+    @Test
+    @Transactional
+    void getAllTasksByTaskListIsEqualToSomething() throws Exception {
+        // Initialize the database
+        taskRepository.saveAndFlush(task);
+        TaskList taskList;
+        if (TestUtil.findAll(em, TaskList.class).isEmpty()) {
+            taskList = TaskListResourceIT.createEntity(em);
+            em.persist(taskList);
+            em.flush();
+        } else {
+            taskList = TestUtil.findAll(em, TaskList.class).get(0);
+        }
+        em.persist(taskList);
+        em.flush();
+        task.setTaskList(taskList);
+        taskRepository.saveAndFlush(task);
+        Long taskListId = taskList.getId();
+
+        // Get all the taskList where taskList equals to taskListId
+        defaultTaskShouldBeFound("taskListId.equals=" + taskListId);
+
+        // Get all the taskList where taskList equals to (taskListId + 1)
+        defaultTaskShouldNotBeFound("taskListId.equals=" + (taskListId + 1));
+    }
+
+    @Test
+    @Transactional
+    void getAllTasksByUserDataIsEqualToSomething() throws Exception {
+        // Initialize the database
+        taskRepository.saveAndFlush(task);
+        UserData userData;
+        if (TestUtil.findAll(em, UserData.class).isEmpty()) {
+            userData = UserDataResourceIT.createEntity(em);
+            em.persist(userData);
+            em.flush();
+        } else {
+            userData = TestUtil.findAll(em, UserData.class).get(0);
+        }
+        em.persist(userData);
+        em.flush();
+        task.setUserData(userData);
+        taskRepository.saveAndFlush(task);
+        Long userDataId = userData.getId();
+
+        // Get all the taskList where userData equals to userDataId
+        defaultTaskShouldBeFound("userDataId.equals=" + userDataId);
+
+        // Get all the taskList where userData equals to (userDataId + 1)
+        defaultTaskShouldNotBeFound("userDataId.equals=" + (userDataId + 1));
+    }
+
+    @Test
+    @Transactional
+    void getAllTasksByUserCreatorIsEqualToSomething() throws Exception {
+        // Initialize the database
+        taskRepository.saveAndFlush(task);
+        UserData userCreator;
+        if (TestUtil.findAll(em, UserData.class).isEmpty()) {
+            userCreator = UserDataResourceIT.createEntity(em);
+            em.persist(userCreator);
+            em.flush();
+        } else {
+            userCreator = TestUtil.findAll(em, UserData.class).get(0);
+        }
+        em.persist(userCreator);
+        em.flush();
+        task.setUserCreator(userCreator);
+        taskRepository.saveAndFlush(task);
+        Long userCreatorId = userCreator.getId();
+
+        // Get all the taskList where userCreator equals to userCreatorId
+        defaultTaskShouldBeFound("userCreatorId.equals=" + userCreatorId);
+
+        // Get all the taskList where userCreator equals to (userCreatorId + 1)
+        defaultTaskShouldNotBeFound("userCreatorId.equals=" + (userCreatorId + 1));
+    }
+
+    @Test
+    @Transactional
+    void getAllTasksByUserAssignedIsEqualToSomething() throws Exception {
+        // Initialize the database
+        taskRepository.saveAndFlush(task);
+        UserData userAssigned;
+        if (TestUtil.findAll(em, UserData.class).isEmpty()) {
+            userAssigned = UserDataResourceIT.createEntity(em);
+            em.persist(userAssigned);
+            em.flush();
+        } else {
+            userAssigned = TestUtil.findAll(em, UserData.class).get(0);
+        }
+        em.persist(userAssigned);
+        em.flush();
+        task.addUserAssigned(userAssigned);
+        taskRepository.saveAndFlush(task);
+        Long userAssignedId = userAssigned.getId();
+
+        // Get all the taskList where userAssigned equals to userAssignedId
+        defaultTaskShouldBeFound("userAssignedId.equals=" + userAssignedId);
+
+        // Get all the taskList where userAssigned equals to (userAssignedId + 1)
+        defaultTaskShouldNotBeFound("userAssignedId.equals=" + (userAssignedId + 1));
     }
 
     /**

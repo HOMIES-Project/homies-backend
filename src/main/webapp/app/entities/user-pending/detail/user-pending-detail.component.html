@@ -22,6 +22,25 @@
         <dd>
           <span>{{ userPending.paid }}</span>
         </dd>
+        <dt><span>Spending List</span></dt>
+        <dd>
+          <div *ngIf="userPending.spendingList">
+            <a [routerLink]="['/spending-list', userPending.spendingList?.id, 'view']">{{ userPending.spendingList?.nameSpendList }}</a>
+          </div>
+        </dd>
+        <dt><span>Spending</span></dt>
+        <dd>
+          <span *ngFor="let spending of userPending.spendings; let last = last">
+            <a [routerLink]="['/spending', spending?.id, 'view']">{{ spending.id }}</a
+            >{{ last ? '' : ', ' }}
+          </span>
+        </dd>
+        <dt><span>Settings List</span></dt>
+        <dd>
+          <div *ngIf="userPending.settingsList">
+            <a [routerLink]="['/settings-list', userPending.settingsList?.id, 'view']">{{ userPending.settingsList?.id }}</a>
+          </div>
+        </dd>
       </dl>
 
       <button type="submit" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">

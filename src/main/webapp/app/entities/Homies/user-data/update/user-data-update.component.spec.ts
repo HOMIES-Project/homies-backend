@@ -9,6 +9,11 @@ import { of, Subject, from } from 'rxjs';
 import { UserDataService } from '../service/user-data.service';
 import { IUserData, UserData } from '../user-data.model';
 
+import { IUser } from 'app/entities/user/user.model';
+import { UserService } from 'app/entities/user/user.service';
+import { ITask } from 'app/entities/task/task.model';
+import { TaskService } from 'app/entities/task/service/task.service';
+
 import { UserDataUpdateComponent } from './user-data-update.component';
 
 describe('UserData Management Update Component', () => {
@@ -16,6 +21,8 @@ describe('UserData Management Update Component', () => {
   let fixture: ComponentFixture<UserDataUpdateComponent>;
   let activatedRoute: ActivatedRoute;
   let userDataService: UserDataService;
+  let userService: UserService;
+  let taskService: TaskService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -37,18 +44,64 @@ describe('UserData Management Update Component', () => {
     fixture = TestBed.createComponent(UserDataUpdateComponent);
     activatedRoute = TestBed.inject(ActivatedRoute);
     userDataService = TestBed.inject(UserDataService);
+    userService = TestBed.inject(UserService);
+    taskService = TestBed.inject(TaskService);
 
     comp = fixture.componentInstance;
   });
 
   describe('ngOnInit', () => {
+    it('Should call User query and add missing value', () => {
+      const userData: IUserData = { id: 456 };
+      const user: IUser = { id: 92568 };
+      userData.user = user;
+
+      const userCollection: IUser[] = [{ id: 39630 }];
+      jest.spyOn(userService, 'query').mockReturnValue(of(new HttpResponse({ body: userCollection })));
+      const additionalUsers = [user];
+      const expectedCollection: IUser[] = [...additionalUsers, ...userCollection];
+      jest.spyOn(userService, 'addUserToCollectionIfMissing').mockReturnValue(expectedCollection);
+
+      activatedRoute.data = of({ userData });
+      comp.ngOnInit();
+
+      expect(userService.query).toHaveBeenCalled();
+      expect(userService.addUserToCollectionIfMissing).toHaveBeenCalledWith(userCollection, ...additionalUsers);
+      expect(comp.usersSharedCollection).toEqual(expectedCollection);
+    });
+
+    it('Should call Task query and add missing value', () => {
+      const userData: IUserData = { id: 456 };
+      const taskAsigneds: ITask[] = [{ id: 32302 }];
+      userData.taskAsigneds = taskAsigneds;
+
+      const taskCollection: ITask[] = [{ id: 56974 }];
+      jest.spyOn(taskService, 'query').mockReturnValue(of(new HttpResponse({ body: taskCollection })));
+      const additionalTasks = [...taskAsigneds];
+      const expectedCollection: ITask[] = [...additionalTasks, ...taskCollection];
+      jest.spyOn(taskService, 'addTaskToCollectionIfMissing').mockReturnValue(expectedCollection);
+
+      activatedRoute.data = of({ userData });
+      comp.ngOnInit();
+
+      expect(taskService.query).toHaveBeenCalled();
+      expect(taskService.addTaskToCollectionIfMissing).toHaveBeenCalledWith(taskCollection, ...additionalTasks);
+      expect(comp.tasksSharedCollection).toEqual(expectedCollection);
+    });
+
     it('Should update editForm', () => {
       const userData: IUserData = { id: 456 };
+      const user: IUser = { id: 53371 };
+      userData.user = user;
+      const taskAsigneds: ITask = { id: 75914 };
+      userData.taskAsigneds = [taskAsigneds];
 
       activatedRoute.data = of({ userData });
       comp.ngOnInit();
 
       expect(comp.editForm.value).toEqual(expect.objectContaining(userData));
+      expect(comp.usersSharedCollection).toContain(user);
+      expect(comp.tasksSharedCollection).toContain(taskAsigneds);
     });
   });
 
@@ -113,6 +166,52 @@ describe('UserData Management Update Component', () => {
       expect(userDataService.update).toHaveBeenCalledWith(userData);
       expect(comp.isSaving).toEqual(false);
       expect(comp.previousState).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('Tracking relationships identifiers', () => {
+    describe('trackUserById', () => {
+      it('Should return tracked User primary key', () => {
+        const entity = { id: 123 };
+        const trackResult = comp.trackUserById(0, entity);
+        expect(trackResult).toEqual(entity.id);
+      });
+    });
+
+    describe('trackTaskById', () => {
+      it('Should return tracked Task primary key', () => {
+        const entity = { id: 123 };
+        const trackResult = comp.trackTaskById(0, entity);
+        expect(trackResult).toEqual(entity.id);
+      });
+    });
+  });
+
+  describe('Getting selected relationships', () => {
+    describe('getSelectedTask', () => {
+      it('Should return option if no Task is selected', () => {
+        const option = { id: 123 };
+        const result = comp.getSelectedTask(option);
+        expect(result === option).toEqual(true);
+      });
+
+      it('Should return selected Task for according option', () => {
+        const option = { id: 123 };
+        const selected = { id: 123 };
+        const selected2 = { id: 456 };
+        const result = comp.getSelectedTask(option, [selected2, selected]);
+        expect(result === selected).toEqual(true);
+        expect(result === selected2).toEqual(false);
+        expect(result === option).toEqual(false);
+      });
+
+      it('Should return option if this Task is not selected', () => {
+        const option = { id: 123 };
+        const selected = { id: 456 };
+        const result = comp.getSelectedTask(option, [selected]);
+        expect(result === option).toEqual(true);
+        expect(result === selected).toEqual(false);
+      });
     });
   });
 });

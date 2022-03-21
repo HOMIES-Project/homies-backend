@@ -97,6 +97,45 @@ public class UserDataQueryService extends QueryService<UserData> {
             if (criteria.getAddDate() != null) {
                 specification = specification.and(buildRangeSpecification(criteria.getAddDate(), UserData_.addDate));
             }
+            if (criteria.getGroupId() != null) {
+                specification =
+                    specification.and(
+                        buildSpecification(criteria.getGroupId(), root -> root.join(UserData_.groups, JoinType.LEFT).get(Group_.id))
+                    );
+            }
+            if (criteria.getUserId() != null) {
+                specification =
+                    specification.and(
+                        buildSpecification(criteria.getUserId(), root -> root.join(UserData_.user, JoinType.LEFT).get(User_.id))
+                    );
+            }
+            if (criteria.getAdminGroupsId() != null) {
+                specification =
+                    specification.and(
+                        buildSpecification(
+                            criteria.getAdminGroupsId(),
+                            root -> root.join(UserData_.adminGroups, JoinType.LEFT).get(Group_.id)
+                        )
+                    );
+            }
+            if (criteria.getTaskAsignedId() != null) {
+                specification =
+                    specification.and(
+                        buildSpecification(
+                            criteria.getTaskAsignedId(),
+                            root -> root.join(UserData_.taskAsigneds, JoinType.LEFT).get(Task_.id)
+                        )
+                    );
+            }
+            if (criteria.getProductCreatedId() != null) {
+                specification =
+                    specification.and(
+                        buildSpecification(
+                            criteria.getProductCreatedId(),
+                            root -> root.join(UserData_.productCreateds, JoinType.LEFT).get(Products_.id)
+                        )
+                    );
+            }
         }
         return specification;
     }

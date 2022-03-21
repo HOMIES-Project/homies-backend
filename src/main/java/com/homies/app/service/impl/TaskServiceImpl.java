@@ -76,11 +76,15 @@ public class TaskServiceImpl implements TaskService {
         return taskRepository.findAll(pageable);
     }
 
+    public Page<Task> findAllWithEagerRelationships(Pageable pageable) {
+        return taskRepository.findAllWithEagerRelationships(pageable);
+    }
+
     @Override
     @Transactional(readOnly = true)
     public Optional<Task> findOne(Long id) {
         log.debug("Request to get Task : {}", id);
-        return taskRepository.findById(id);
+        return taskRepository.findOneWithEagerRelationships(id);
     }
 
     @Override

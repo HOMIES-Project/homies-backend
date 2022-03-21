@@ -21,8 +21,8 @@ describe('SpendingList Service', () => {
 
     elemDefault = {
       id: 0,
-      name: 'AAAAAAA',
       total: 0,
+      nameSpendList: 'AAAAAAA',
     };
   });
 
@@ -58,8 +58,8 @@ describe('SpendingList Service', () => {
       const returnedFromService = Object.assign(
         {
           id: 1,
-          name: 'BBBBBB',
           total: 1,
+          nameSpendList: 'BBBBBB',
         },
         elemDefault
       );
@@ -91,8 +91,8 @@ describe('SpendingList Service', () => {
       const returnedFromService = Object.assign(
         {
           id: 1,
-          name: 'BBBBBB',
           total: 1,
+          nameSpendList: 'BBBBBB',
         },
         elemDefault
       );

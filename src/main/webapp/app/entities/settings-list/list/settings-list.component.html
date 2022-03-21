@@ -1,0 +1,114 @@
+<div>
+  <h2 id="page-heading" data-cy="SettingsListHeading">
+    <span>Settings Lists</span>
+
+    <div class="d-flex justify-content-end">
+      <button class="btn btn-info me-2" (click)="loadPage()" [disabled]="isLoading">
+        <fa-icon icon="sync" [spin]="isLoading"></fa-icon>
+        <span>Refresh List</span>
+      </button>
+
+      <button
+        id="jh-create-entity"
+        data-cy="entityCreateButton"
+        class="btn btn-primary jh-create-entity create-settings-list"
+        [routerLink]="['/settings-list/new']"
+      >
+        <fa-icon icon="plus"></fa-icon>
+        <span> Create a new Settings List </span>
+      </button>
+    </div>
+  </h2>
+
+  <jhi-alert-error></jhi-alert-error>
+
+  <jhi-alert></jhi-alert>
+
+  <div class="alert alert-warning" id="no-result" *ngIf="settingsLists?.length === 0">
+    <span>No settingsLists found</span>
+  </div>
+
+  <div class="table-responsive" id="entities" *ngIf="settingsLists && settingsLists.length > 0">
+    <table class="table table-striped" aria-describedby="page-heading">
+      <thead>
+        <tr jhiSort [(predicate)]="predicate" [(ascending)]="ascending" (sortChange)="loadPage()">
+          <th scope="col" jhiSortBy="id"><span>ID</span> <fa-icon icon="sort"></fa-icon></th>
+          <th scope="col" jhiSortBy="settingOne"><span>Setting One</span> <fa-icon icon="sort"></fa-icon></th>
+          <th scope="col" jhiSortBy="settingTwo"><span>Setting Two</span> <fa-icon icon="sort"></fa-icon></th>
+          <th scope="col" jhiSortBy="settingThree"><span>Setting Three</span> <fa-icon icon="sort"></fa-icon></th>
+          <th scope="col" jhiSortBy="settingFour"><span>Setting Four</span> <fa-icon icon="sort"></fa-icon></th>
+          <th scope="col" jhiSortBy="settingFive"><span>Setting Five</span> <fa-icon icon="sort"></fa-icon></th>
+          <th scope="col" jhiSortBy="settingSix"><span>Setting Six</span> <fa-icon icon="sort"></fa-icon></th>
+          <th scope="col" jhiSortBy="settingSeven"><span>Setting Seven</span> <fa-icon icon="sort"></fa-icon></th>
+          <th scope="col" jhiSortBy="spendingList.id"><span>Spending List</span> <fa-icon icon="sort"></fa-icon></th>
+          <th scope="col"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let settingsList of settingsLists; trackBy: trackId" data-cy="entityTable">
+          <td>
+            <a [routerLink]="['/settings-list', settingsList.id, 'view']">{{ settingsList.id }}</a>
+          </td>
+          <td>{{ settingsList.settingOne }}</td>
+          <td>{{ settingsList.settingTwo }}</td>
+          <td>{{ settingsList.settingThree }}</td>
+          <td>{{ settingsList.settingFour }}</td>
+          <td>{{ settingsList.settingFive }}</td>
+          <td>{{ settingsList.settingSix }}</td>
+          <td>{{ settingsList.settingSeven }}</td>
+          <td>
+            <div *ngIf="settingsList.spendingList">
+              <a [routerLink]="['/spending-list', settingsList.spendingList?.id, 'view']">{{ settingsList.spendingList?.id }}</a>
+            </div>
+          </td>
+          <td class="text-end">
+            <div class="btn-group">
+              <button
+                type="submit"
+                [routerLink]="['/settings-list', settingsList.id, 'view']"
+                class="btn btn-info btn-sm"
+                data-cy="entityDetailsButton"
+              >
+                <fa-icon icon="eye"></fa-icon>
+                <span class="d-none d-md-inline">View</span>
+              </button>
+
+              <button
+                type="submit"
+                [routerLink]="['/settings-list', settingsList.id, 'edit']"
+                class="btn btn-primary btn-sm"
+                data-cy="entityEditButton"
+              >
+                <fa-icon icon="pencil-alt"></fa-icon>
+                <span class="d-none d-md-inline">Edit</span>
+              </button>
+
+              <button type="submit" (click)="delete(settingsList)" class="btn btn-danger btn-sm" data-cy="entityDeleteButton">
+                <fa-icon icon="times"></fa-icon>
+                <span class="d-none d-md-inline">Delete</span>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div *ngIf="settingsLists && settingsLists.length > 0">
+    <div class="d-flex justify-content-center">
+      <jhi-item-count [params]="{ page: page, totalItems: totalItems, itemsPerPage: itemsPerPage }"></jhi-item-count>
+    </div>
+
+    <div class="d-flex justify-content-center">
+      <ngb-pagination
+        [collectionSize]="totalItems"
+        [(page)]="ngbPaginationPage"
+        [pageSize]="itemsPerPage"
+        [maxSize]="5"
+        [rotate]="true"
+        [boundaryLinks]="true"
+        (pageChange)="loadPage($event)"
+      ></ngb-pagination>
+    </div>
+  </div>
+</div>

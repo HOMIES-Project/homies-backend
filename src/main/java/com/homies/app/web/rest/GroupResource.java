@@ -65,6 +65,9 @@ public class GroupResource {
         if (group.getId() != null) {
             throw new BadRequestAlertException("A new group cannot already have an ID", ENTITY_NAME, "idexists");
         }
+        if (Objects.isNull(group.getTaskList())) {
+            throw new BadRequestAlertException("Invalid association value provided", ENTITY_NAME, "null");
+        }
         Group result = groupService.save(group);
         return ResponseEntity
             .created(new URI("/api/groups/" + result.getId()))

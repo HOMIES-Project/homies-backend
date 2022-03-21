@@ -3,13 +3,17 @@ import { HttpResponse } from '@angular/common/http';
 import { FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs';
-import { finalize } from 'rxjs/operators';
+import { finalize, map } from 'rxjs/operators';
 
 import { ITask, Task } from '../task.model';
 import { TaskService } from '../service/task.service';
 import { AlertError } from 'app/shared/alert/alert-error.model';
 import { EventManager, EventWithContent } from 'app/core/util/event-manager.service';
 import { DataUtils, FileLoadError } from 'app/core/util/data-util.service';
+import { ITaskList } from 'app/entities/task-list/task-list.model';
+import { TaskListService } from 'app/entities/task-list/service/task-list.service';
+import { IUserData } from 'app/entities/Homies/user-data/user-data.model';
+import { UserDataService } from 'app/entities/Homies/user-data/service/user-data.service';
 
 @Component({
   selector: 'jhi-task-update',
@@ -17,6 +21,9 @@ import { DataUtils, FileLoadError } from 'app/core/util/data-util.service';
 })
 export class TaskUpdateComponent implements OnInit {
   isSaving = false;
+
+  taskListsSharedCollection: ITaskList[] = [];
+  userDataSharedCollection: IUserData[] = [];
 
   editForm = this.fb.group({
     id: [],
@@ -28,12 +35,17 @@ export class TaskUpdateComponent implements OnInit {
     photo: [],
     photoContentType: [],
     puntuacion: [],
+    taskList: [],
+    userData: [],
+    userCreator: [],
   });
 
   constructor(
     protected dataUtils: DataUtils,
     protected eventManager: EventManager,
     protected taskService: TaskService,
+    protected taskListService: TaskListService,
+    protected userDataService: UserDataService,
     protected elementRef: ElementRef,
     protected activatedRoute: ActivatedRoute,
     protected fb: FormBuilder
@@ -42,6 +54,8 @@ export class TaskUpdateComponent implements OnInit {
   ngOnInit(): void {
     this.activatedRoute.data.subscribe(({ task }) => {
       this.updateForm(task);
+
+      this.loadRelationshipsOptions();
     });
   }
 
@@ -84,6 +98,14 @@ export class TaskUpdateComponent implements OnInit {
     }
   }
 
+  trackTaskListById(index: number, item: ITaskList): number {
+    return item.id!;
+  }
+
+  trackUserDataById(index: number, item: IUserData): number {
+    return item.id!;
+  }
+
   protected subscribeToSaveResponse(result: Observable<HttpResponse<ITask>>): void {
     result.pipe(finalize(() => this.onSaveFinalize())).subscribe({
       next: () => this.onSaveSuccess(),
@@ -114,7 +136,43 @@ export class TaskUpdateComponent implements OnInit {
       photo: task.photo,
       photoContentType: task.photoContentType,
       puntuacion: task.puntuacion,
+      taskList: task.taskList,
+      userData: task.userData,
+      userCreator: task.userCreator,
     });
+
+    this.taskListsSharedCollection = this.taskListService.addTaskListToCollectionIfMissing(this.taskListsSharedCollection, task.taskList);
+    this.userDataSharedCollection = this.userDataService.addUserDataToCollectionIfMissing(
+      this.userDataSharedCollection,
+      task.userData,
+      task.userCreator
+    );
+  }
+
+  protected loadRelationshipsOptions(): void {
+    this.taskListService
+      .query()
+      .pipe(map((res: HttpResponse<ITaskList[]>) => res.body ?? []))
+      .pipe(
+        map((taskLists: ITaskList[]) =>
+          this.taskListService.addTaskListToCollectionIfMissing(taskLists, this.editForm.get('taskList')!.value)
+        )
+      )
+      .subscribe((taskLists: ITaskList[]) => (this.taskListsSharedCollection = taskLists));
+
+    this.userDataService
+      .query()
+      .pipe(map((res: HttpResponse<IUserData[]>) => res.body ?? []))
+      .pipe(
+        map((userData: IUserData[]) =>
+          this.userDataService.addUserDataToCollectionIfMissing(
+            userData,
+            this.editForm.get('userData')!.value,
+            this.editForm.get('userCreator')!.value
+          )
+        )
+      )
+      .subscribe((userData: IUserData[]) => (this.userDataSharedCollection = userData));
   }
 
   protected createFromForm(): ITask {
@@ -129,6 +187,9 @@ export class TaskUpdateComponent implements OnInit {
       photoContentType: this.editForm.get(['photoContentType'])!.value,
       photo: this.editForm.get(['photo'])!.value,
       puntuacion: this.editForm.get(['puntuacion'])!.value,
+      taskList: this.editForm.get(['taskList'])!.value,
+      userData: this.editForm.get(['userData'])!.value,
+      userCreator: this.editForm.get(['userCreator'])!.value,
     };
   }
 }

@@ -3,13 +3,17 @@ import { HttpResponse } from '@angular/common/http';
 import { FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs';
-import { finalize } from 'rxjs/operators';
+import { finalize, map } from 'rxjs/operators';
 
 import { IUserData, UserData } from '../user-data.model';
 import { UserDataService } from '../service/user-data.service';
 import { AlertError } from 'app/shared/alert/alert-error.model';
 import { EventManager, EventWithContent } from 'app/core/util/event-manager.service';
 import { DataUtils, FileLoadError } from 'app/core/util/data-util.service';
+import { IUser } from 'app/entities/user/user.model';
+import { UserService } from 'app/entities/user/user.service';
+import { ITask } from 'app/entities/task/task.model';
+import { TaskService } from 'app/entities/task/service/task.service';
 
 @Component({
   selector: 'jhi-user-data-update',
@@ -17,6 +21,9 @@ import { DataUtils, FileLoadError } from 'app/core/util/data-util.service';
 })
 export class UserDataUpdateComponent implements OnInit {
   isSaving = false;
+
+  usersSharedCollection: IUser[] = [];
+  tasksSharedCollection: ITask[] = [];
 
   editForm = this.fb.group({
     id: [],
@@ -26,12 +33,16 @@ export class UserDataUpdateComponent implements OnInit {
     premium: [null, [Validators.required]],
     birthDate: [],
     addDate: [],
+    user: [],
+    taskAsigneds: [],
   });
 
   constructor(
     protected dataUtils: DataUtils,
     protected eventManager: EventManager,
     protected userDataService: UserDataService,
+    protected userService: UserService,
+    protected taskService: TaskService,
     protected elementRef: ElementRef,
     protected activatedRoute: ActivatedRoute,
     protected fb: FormBuilder
@@ -40,6 +51,8 @@ export class UserDataUpdateComponent implements OnInit {
   ngOnInit(): void {
     this.activatedRoute.data.subscribe(({ userData }) => {
       this.updateForm(userData);
+
+      this.loadRelationshipsOptions();
     });
   }
 
@@ -82,6 +95,25 @@ export class UserDataUpdateComponent implements OnInit {
     }
   }
 
+  trackUserById(index: number, item: IUser): number {
+    return item.id!;
+  }
+
+  trackTaskById(index: number, item: ITask): number {
+    return item.id!;
+  }
+
+  getSelectedTask(option: ITask, selectedVals?: ITask[]): ITask {
+    if (selectedVals) {
+      for (const selectedVal of selectedVals) {
+        if (option.id === selectedVal.id) {
+          return selectedVal;
+        }
+      }
+    }
+    return option;
+  }
+
   protected subscribeToSaveResponse(result: Observable<HttpResponse<IUserData>>): void {
     result.pipe(finalize(() => this.onSaveFinalize())).subscribe({
       next: () => this.onSaveSuccess(),
@@ -110,7 +142,31 @@ export class UserDataUpdateComponent implements OnInit {
       premium: userData.premium,
       birthDate: userData.birthDate,
       addDate: userData.addDate,
+      user: userData.user,
+      taskAsigneds: userData.taskAsigneds,
     });
+
+    this.usersSharedCollection = this.userService.addUserToCollectionIfMissing(this.usersSharedCollection, userData.user);
+    this.tasksSharedCollection = this.taskService.addTaskToCollectionIfMissing(
+      this.tasksSharedCollection,
+      ...(userData.taskAsigneds ?? [])
+    );
+  }
+
+  protected loadRelationshipsOptions(): void {
+    this.userService
+      .query()
+      .pipe(map((res: HttpResponse<IUser[]>) => res.body ?? []))
+      .pipe(map((users: IUser[]) => this.userService.addUserToCollectionIfMissing(users, this.editForm.get('user')!.value)))
+      .subscribe((users: IUser[]) => (this.usersSharedCollection = users));
+
+    this.taskService
+      .query()
+      .pipe(map((res: HttpResponse<ITask[]>) => res.body ?? []))
+      .pipe(
+        map((tasks: ITask[]) => this.taskService.addTaskToCollectionIfMissing(tasks, ...(this.editForm.get('taskAsigneds')!.value ?? [])))
+      )
+      .subscribe((tasks: ITask[]) => (this.tasksSharedCollection = tasks));
   }
 
   protected createFromForm(): IUserData {
@@ -123,6 +179,8 @@ export class UserDataUpdateComponent implements OnInit {
       premium: this.editForm.get(['premium'])!.value,
       birthDate: this.editForm.get(['birthDate'])!.value,
       addDate: this.editForm.get(['addDate'])!.value,
+      user: this.editForm.get(['user'])!.value,
+      taskAsigneds: this.editForm.get(['taskAsigneds'])!.value,
     };
   }
 }

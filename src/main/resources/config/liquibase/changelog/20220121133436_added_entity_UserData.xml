@@ -11,7 +11,7 @@
     -->
     <changeSet id="20220121133436-1" author="jhipster">
         <createTable tableName="user_data">
-            <column name="id" type="bigint" autoIncrement="true">
+            <column name="id" type="bigint">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="photo" type="longblob">
@@ -34,6 +34,20 @@
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
+    </changeSet>
+
+    <changeSet id="20220121133436-1-relations" author="jhipster">
+
+        <createTable tableName="rel_user_data__task_asigned">
+            <column name="task_asigned_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_data_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addPrimaryKey columnNames="user_data_id, task_asigned_id" tableName="rel_user_data__task_asigned"/>
     </changeSet>
 
     <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->

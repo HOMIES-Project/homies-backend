@@ -39,6 +39,17 @@
         <dd>
           <span>{{ userData.addDate | formatMediumDate }}</span>
         </dd>
+        <dt><span>User</span></dt>
+        <dd>
+          <span>{{ userData.user?.login }}</span>
+        </dd>
+        <dt><span>Task Asigned</span></dt>
+        <dd>
+          <span *ngFor="let taskAsigned of userData.taskAsigneds; let last = last">
+            <a [routerLink]="['/task', taskAsigned?.id, 'view']">{{ taskAsigned.id }}</a
+            >{{ last ? '' : ', ' }}
+          </span>
+        </dd>
       </dl>
 
       <button type="submit" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">

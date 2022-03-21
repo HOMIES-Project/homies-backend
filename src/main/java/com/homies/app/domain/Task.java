@@ -1,7 +1,10 @@
 package com.homies.app.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 import org.hibernate.annotations.Cache;
@@ -50,6 +53,23 @@ public class Task implements Serializable {
 
     @Column(name = "puntuacion")
     private String puntuacion;
+
+    @ManyToOne
+    @JsonIgnoreProperties(value = { "group", "tasks" }, allowSetters = true)
+    private TaskList taskList;
+
+    @ManyToOne
+    @JsonIgnoreProperties(value = { "groups", "user", "adminGroups", "taskAsigneds", "productCreateds" }, allowSetters = true)
+    private UserData userData;
+
+    @ManyToOne
+    @JsonIgnoreProperties(value = { "groups", "user", "adminGroups", "taskAsigneds", "productCreateds" }, allowSetters = true)
+    private UserData userCreator;
+
+    @ManyToMany(mappedBy = "taskAsigneds")
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    @JsonIgnoreProperties(value = { "groups", "user", "adminGroups", "taskAsigneds", "productCreateds" }, allowSetters = true)
+    private Set<UserData> userAssigneds = new HashSet<>();
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -168,6 +188,76 @@ public class Task implements Serializable {
 
     public void setPuntuacion(String puntuacion) {
         this.puntuacion = puntuacion;
+    }
+
+    public TaskList getTaskList() {
+        return this.taskList;
+    }
+
+    public void setTaskList(TaskList taskList) {
+        this.taskList = taskList;
+    }
+
+    public Task taskList(TaskList taskList) {
+        this.setTaskList(taskList);
+        return this;
+    }
+
+    public UserData getUserData() {
+        return this.userData;
+    }
+
+    public void setUserData(UserData userData) {
+        this.userData = userData;
+    }
+
+    public Task userData(UserData userData) {
+        this.setUserData(userData);
+        return this;
+    }
+
+    public UserData getUserCreator() {
+        return this.userCreator;
+    }
+
+    public void setUserCreator(UserData userData) {
+        this.userCreator = userData;
+    }
+
+    public Task userCreator(UserData userData) {
+        this.setUserCreator(userData);
+        return this;
+    }
+
+    public Set<UserData> getUserAssigneds() {
+        return this.userAssigneds;
+    }
+
+    public void setUserAssigneds(Set<UserData> userData) {
+        if (this.userAssigneds != null) {
+            this.userAssigneds.forEach(i -> i.removeTaskAsigned(this));
+        }
+        if (userData != null) {
+            userData.forEach(i -> i.addTaskAsigned(this));
+        }
+        this.userAssigneds = userData;
+    }
+
+    public Task userAssigneds(Set<UserData> userData) {
+        this.setUserAssigneds(userData);
+        return this;
+    }
+
+    public Task addUserAssigned(UserData userData) {
+        this.userAssigneds.add(userData);
+        userData.getTaskAsigneds().add(this);
+        return this;
+    }
+
+    public Task removeUserAssigned(UserData userData) {
+        this.userAssigneds.remove(userData);
+        userData.getTaskAsigneds().remove(this);
+        return this;
     }
 
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here

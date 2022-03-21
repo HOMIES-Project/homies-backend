@@ -40,6 +40,9 @@
           <th scope="col" jhiSortBy="cancel"><span>Cancel</span> <fa-icon icon="sort"></fa-icon></th>
           <th scope="col" jhiSortBy="photo"><span>Photo</span> <fa-icon icon="sort"></fa-icon></th>
           <th scope="col" jhiSortBy="puntuacion"><span>Puntuacion</span> <fa-icon icon="sort"></fa-icon></th>
+          <th scope="col" jhiSortBy="taskList.nameList"><span>Task List</span> <fa-icon icon="sort"></fa-icon></th>
+          <th scope="col" jhiSortBy="userData.id"><span>User Data</span> <fa-icon icon="sort"></fa-icon></th>
+          <th scope="col" jhiSortBy="userCreator.id"><span>User Creator</span> <fa-icon icon="sort"></fa-icon></th>
           <th scope="col"></th>
         </tr>
       </thead>
@@ -60,6 +63,21 @@
             <span *ngIf="task.photo">{{ task.photoContentType }}, {{ byteSize(task.photo) }}</span>
           </td>
           <td>{{ task.puntuacion }}</td>
+          <td>
+            <div *ngIf="task.taskList">
+              <a [routerLink]="['/task-list', task.taskList?.id, 'view']">{{ task.taskList?.nameList }}</a>
+            </div>
+          </td>
+          <td>
+            <div *ngIf="task.userData">
+              <a [routerLink]="['/user-data', task.userData?.id, 'view']">{{ task.userData?.id }}</a>
+            </div>
+          </td>
+          <td>
+            <div *ngIf="task.userCreator">
+              <a [routerLink]="['/user-data', task.userCreator?.id, 'view']">{{ task.userCreator?.id }}</a>
+            </div>
+          </td>
           <td class="text-end">
             <div class="btn-group">
               <button type="submit" [routerLink]="['/task', task.id, 'view']" class="btn btn-info btn-sm" data-cy="entityDetailsButton">

@@ -39,11 +39,11 @@ public class ShoppingListServiceImpl implements ShoppingListService {
         return shoppingListRepository
             .findById(shoppingList.getId())
             .map(existingShoppingList -> {
-                if (shoppingList.getName() != null) {
-                    existingShoppingList.setName(shoppingList.getName());
-                }
                 if (shoppingList.getTotal() != null) {
                     existingShoppingList.setTotal(shoppingList.getTotal());
+                }
+                if (shoppingList.getNameShopList() != null) {
+                    existingShoppingList.setNameShopList(shoppingList.getNameShopList());
                 }
 
                 return existingShoppingList;

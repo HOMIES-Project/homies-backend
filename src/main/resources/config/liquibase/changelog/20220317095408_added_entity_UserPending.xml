@@ -20,8 +20,28 @@
             <column name="paid" type="boolean">
                 <constraints nullable="true" />
             </column>
+            <column name="spending_list_id" type="bigint">
+                <constraints nullable="true" />
+            </column>
+            <column name="settings_list_id" type="bigint">
+                <constraints nullable="true" />
+            </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
+    </changeSet>
+
+    <changeSet id="20220317095408-1-relations" author="jhipster">
+
+        <createTable tableName="rel_user_pending__spending">
+            <column name="spending_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_pending_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addPrimaryKey columnNames="user_pending_id, spending_id" tableName="rel_user_pending__spending"/>
     </changeSet>
 
     <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->

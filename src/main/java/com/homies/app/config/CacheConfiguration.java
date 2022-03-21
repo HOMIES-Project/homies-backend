@@ -57,6 +57,20 @@ public class CacheConfiguration {
             createCache(cm, com.homies.app.domain.SpendingList.class.getName());
             createCache(cm, com.homies.app.domain.UserData.class.getName());
             createCache(cm, com.homies.app.domain.Group.class.getName());
+            createCache(cm, com.homies.app.domain.Group.class.getName() + ".userData");
+            createCache(cm, com.homies.app.domain.UserData.class.getName() + ".groups");
+            createCache(cm, com.homies.app.domain.UserData.class.getName() + ".adminGroups");
+            createCache(cm, com.homies.app.domain.TaskList.class.getName() + ".tasks");
+            createCache(cm, com.homies.app.domain.UserData.class.getName() + ".taskAsigneds");
+            createCache(cm, com.homies.app.domain.Task.class.getName() + ".userAssigneds");
+            createCache(cm, com.homies.app.domain.UserData.class.getName() + ".productCreateds");
+            createCache(cm, com.homies.app.domain.ShoppingList.class.getName() + ".products");
+            createCache(cm, com.homies.app.domain.SpendingList.class.getName() + ".spendings");
+            createCache(cm, com.homies.app.domain.SettingsList.class.getName());
+            createCache(cm, com.homies.app.domain.UserPending.class.getName() + ".spendings");
+            createCache(cm, com.homies.app.domain.Spending.class.getName() + ".userPendings");
+            createCache(cm, com.homies.app.domain.SpendingList.class.getName() + ".settingsLists");
+            createCache(cm, com.homies.app.domain.SettingsList.class.getName() + ".userPendings");
             // jhipster-needle-ehcache-add-entry
         };
     }

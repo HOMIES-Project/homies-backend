@@ -34,6 +34,14 @@ public interface GroupService {
     Page<Group> findAll(Pageable pageable);
 
     /**
+     * Get all the groups with eager load of many-to-many relationships.
+     *
+     * @param pageable the pagination information.
+     * @return the list of entities.
+     */
+    Page<Group> findAllWithEagerRelationships(Pageable pageable);
+
+    /**
      * Get the "id" group.
      *
      * @param id the id of the entity.

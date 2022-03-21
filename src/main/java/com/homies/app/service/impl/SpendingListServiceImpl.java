@@ -39,11 +39,11 @@ public class SpendingListServiceImpl implements SpendingListService {
         return spendingListRepository
             .findById(spendingList.getId())
             .map(existingSpendingList -> {
-                if (spendingList.getName() != null) {
-                    existingSpendingList.setName(spendingList.getName());
-                }
                 if (spendingList.getTotal() != null) {
                     existingSpendingList.setTotal(spendingList.getTotal());
+                }
+                if (spendingList.getNameSpendList() != null) {
+                    existingSpendingList.setNameSpendList(spendingList.getNameSpendList());
                 }
 
                 return existingSpendingList;

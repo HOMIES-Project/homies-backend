@@ -2,23 +2,35 @@ package com.homies.app.web.rest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.homies.app.IntegrationTest;
+import com.homies.app.domain.Group;
+import com.homies.app.domain.Products;
+import com.homies.app.domain.Task;
+import com.homies.app.domain.User;
 import com.homies.app.domain.UserData;
 import com.homies.app.repository.UserDataRepository;
+import com.homies.app.service.UserDataService;
 import com.homies.app.service.criteria.UserDataCriteria;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
 import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -29,6 +41,7 @@ import org.springframework.util.Base64Utils;
  * Integration tests for the {@link UserDataResource} REST controller.
  */
 @IntegrationTest
+@ExtendWith(MockitoExtension.class)
 @AutoConfigureMockMvc
 @WithMockUser
 class UserDataResourceIT {
@@ -61,6 +74,12 @@ class UserDataResourceIT {
     @Autowired
     private UserDataRepository userDataRepository;
 
+    @Mock
+    private UserDataRepository userDataRepositoryMock;
+
+    @Mock
+    private UserDataService userDataServiceMock;
+
     @Autowired
     private EntityManager em;
 
@@ -83,6 +102,11 @@ class UserDataResourceIT {
             .premium(DEFAULT_PREMIUM)
             .birthDate(DEFAULT_BIRTH_DATE)
             .addDate(DEFAULT_ADD_DATE);
+        // Add required entity
+        User user = UserResourceIT.createEntity(em);
+        em.persist(user);
+        em.flush();
+        userData.setUser(user);
         return userData;
     }
 
@@ -100,6 +124,11 @@ class UserDataResourceIT {
             .premium(UPDATED_PREMIUM)
             .birthDate(UPDATED_BIRTH_DATE)
             .addDate(UPDATED_ADD_DATE);
+        // Add required entity
+        User user = UserResourceIT.createEntity(em);
+        em.persist(user);
+        em.flush();
+        userData.setUser(user);
         return userData;
     }
 
@@ -127,6 +156,9 @@ class UserDataResourceIT {
         assertThat(testUserData.getPremium()).isEqualTo(DEFAULT_PREMIUM);
         assertThat(testUserData.getBirthDate()).isEqualTo(DEFAULT_BIRTH_DATE);
         assertThat(testUserData.getAddDate()).isEqualTo(DEFAULT_ADD_DATE);
+
+        // Validate the id for MapsId, the ids must be same
+        assertThat(testUserData.getId()).isEqualTo(testUserData.getUser().getId());
     }
 
     @Test
@@ -145,6 +177,41 @@ class UserDataResourceIT {
         // Validate the UserData in the database
         List<UserData> userDataList = userDataRepository.findAll();
         assertThat(userDataList).hasSize(databaseSizeBeforeCreate);
+    }
+
+    @Test
+    @Transactional
+    void updateUserDataMapsIdAssociationWithNewId() throws Exception {
+        // Initialize the database
+        userDataRepository.saveAndFlush(userData);
+        int databaseSizeBeforeCreate = userDataRepository.findAll().size();
+
+        // Load the userData
+        UserData updatedUserData = userDataRepository.findById(userData.getId()).get();
+        assertThat(updatedUserData).isNotNull();
+        // Disconnect from session so that the updates on updatedUserData are not directly saved in db
+        em.detach(updatedUserData);
+
+        // Update the User with new association value
+        updatedUserData.setUser(userData.getUser());
+
+        // Update the entity
+        restUserDataMockMvc
+            .perform(
+                put(ENTITY_API_URL_ID, updatedUserData.getId())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(updatedUserData))
+            )
+            .andExpect(status().isOk());
+
+        // Validate the UserData in the database
+        List<UserData> userDataList = userDataRepository.findAll();
+        assertThat(userDataList).hasSize(databaseSizeBeforeCreate);
+        UserData testUserData = userDataList.get(userDataList.size() - 1);
+        // Validate the id for MapsId, the ids must be same
+        // Uncomment the following line for assertion. However, please note that there is a known issue and uncommenting will fail the test.
+        // Please look at https://github.com/jhipster/generator-jhipster/issues/9100. You can modify this test as necessary.
+        // assertThat(testUserData.getId()).isEqualTo(testUserData.getUser().getId());
     }
 
     @Test
@@ -182,6 +249,24 @@ class UserDataResourceIT {
             .andExpect(jsonPath("$.[*].premium").value(hasItem(DEFAULT_PREMIUM.booleanValue())))
             .andExpect(jsonPath("$.[*].birthDate").value(hasItem(DEFAULT_BIRTH_DATE.toString())))
             .andExpect(jsonPath("$.[*].addDate").value(hasItem(DEFAULT_ADD_DATE.toString())));
+    }
+
+    @SuppressWarnings({ "unchecked" })
+    void getAllUserDataWithEagerRelationshipsIsEnabled() throws Exception {
+        when(userDataServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
+
+        restUserDataMockMvc.perform(get(ENTITY_API_URL + "?eagerload=true")).andExpect(status().isOk());
+
+        verify(userDataServiceMock, times(1)).findAllWithEagerRelationships(any());
+    }
+
+    @SuppressWarnings({ "unchecked" })
+    void getAllUserDataWithEagerRelationshipsIsNotEnabled() throws Exception {
+        when(userDataServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
+
+        restUserDataMockMvc.perform(get(ENTITY_API_URL + "?eagerload=true")).andExpect(status().isOk());
+
+        verify(userDataServiceMock, times(1)).findAllWithEagerRelationships(any());
     }
 
     @Test
@@ -558,6 +643,125 @@ class UserDataResourceIT {
 
         // Get all the userDataList where addDate is greater than SMALLER_ADD_DATE
         defaultUserDataShouldBeFound("addDate.greaterThan=" + SMALLER_ADD_DATE);
+    }
+
+    @Test
+    @Transactional
+    void getAllUserDataByGroupIsEqualToSomething() throws Exception {
+        // Initialize the database
+        userDataRepository.saveAndFlush(userData);
+        Group group;
+        if (TestUtil.findAll(em, Group.class).isEmpty()) {
+            group = GroupResourceIT.createEntity(em);
+            em.persist(group);
+            em.flush();
+        } else {
+            group = TestUtil.findAll(em, Group.class).get(0);
+        }
+        em.persist(group);
+        em.flush();
+        userData.addGroup(group);
+        userDataRepository.saveAndFlush(userData);
+        Long groupId = group.getId();
+
+        // Get all the userDataList where group equals to groupId
+        defaultUserDataShouldBeFound("groupId.equals=" + groupId);
+
+        // Get all the userDataList where group equals to (groupId + 1)
+        defaultUserDataShouldNotBeFound("groupId.equals=" + (groupId + 1));
+    }
+
+    @Test
+    @Transactional
+    void getAllUserDataByUserIsEqualToSomething() throws Exception {
+        // Get already existing entity
+        User user = userData.getUser();
+        userDataRepository.saveAndFlush(userData);
+        Long userId = user.getId();
+
+        // Get all the userDataList where user equals to userId
+        defaultUserDataShouldBeFound("userId.equals=" + userId);
+
+        // Get all the userDataList where user equals to (userId + 1)
+        defaultUserDataShouldNotBeFound("userId.equals=" + (userId + 1));
+    }
+
+    @Test
+    @Transactional
+    void getAllUserDataByAdminGroupsIsEqualToSomething() throws Exception {
+        // Initialize the database
+        userDataRepository.saveAndFlush(userData);
+        Group adminGroups;
+        if (TestUtil.findAll(em, Group.class).isEmpty()) {
+            adminGroups = GroupResourceIT.createEntity(em);
+            em.persist(adminGroups);
+            em.flush();
+        } else {
+            adminGroups = TestUtil.findAll(em, Group.class).get(0);
+        }
+        em.persist(adminGroups);
+        em.flush();
+        userData.addAdminGroups(adminGroups);
+        userDataRepository.saveAndFlush(userData);
+        Long adminGroupsId = adminGroups.getId();
+
+        // Get all the userDataList where adminGroups equals to adminGroupsId
+        defaultUserDataShouldBeFound("adminGroupsId.equals=" + adminGroupsId);
+
+        // Get all the userDataList where adminGroups equals to (adminGroupsId + 1)
+        defaultUserDataShouldNotBeFound("adminGroupsId.equals=" + (adminGroupsId + 1));
+    }
+
+    @Test
+    @Transactional
+    void getAllUserDataByTaskAsignedIsEqualToSomething() throws Exception {
+        // Initialize the database
+        userDataRepository.saveAndFlush(userData);
+        Task taskAsigned;
+        if (TestUtil.findAll(em, Task.class).isEmpty()) {
+            taskAsigned = TaskResourceIT.createEntity(em);
+            em.persist(taskAsigned);
+            em.flush();
+        } else {
+            taskAsigned = TestUtil.findAll(em, Task.class).get(0);
+        }
+        em.persist(taskAsigned);
+        em.flush();
+        userData.addTaskAsigned(taskAsigned);
+        userDataRepository.saveAndFlush(userData);
+        Long taskAsignedId = taskAsigned.getId();
+
+        // Get all the userDataList where taskAsigned equals to taskAsignedId
+        defaultUserDataShouldBeFound("taskAsignedId.equals=" + taskAsignedId);
+
+        // Get all the userDataList where taskAsigned equals to (taskAsignedId + 1)
+        defaultUserDataShouldNotBeFound("taskAsignedId.equals=" + (taskAsignedId + 1));
+    }
+
+    @Test
+    @Transactional
+    void getAllUserDataByProductCreatedIsEqualToSomething() throws Exception {
+        // Initialize the database
+        userDataRepository.saveAndFlush(userData);
+        Products productCreated;
+        if (TestUtil.findAll(em, Products.class).isEmpty()) {
+            productCreated = ProductsResourceIT.createEntity(em);
+            em.persist(productCreated);
+            em.flush();
+        } else {
+            productCreated = TestUtil.findAll(em, Products.class).get(0);
+        }
+        em.persist(productCreated);
+        em.flush();
+        userData.addProductCreated(productCreated);
+        userDataRepository.saveAndFlush(userData);
+        Long productCreatedId = productCreated.getId();
+
+        // Get all the userDataList where productCreated equals to productCreatedId
+        defaultUserDataShouldBeFound("productCreatedId.equals=" + productCreatedId);
+
+        // Get all the userDataList where productCreated equals to (productCreatedId + 1)
+        defaultUserDataShouldNotBeFound("productCreatedId.equals=" + (productCreatedId + 1));
     }
 
     /**

@@ -1,7 +1,10 @@
 package com.homies.app.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 import org.hibernate.annotations.Cache;
@@ -18,7 +21,6 @@ public class Group implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
 
@@ -38,6 +40,26 @@ public class Group implements Serializable {
 
     @Column(name = "add_group_date")
     private LocalDate addGroupDate;
+
+    @ManyToMany
+    @JoinTable(
+        name = "rel_jhi_group__user_data",
+        joinColumns = @JoinColumn(name = "jhi_group_id"),
+        inverseJoinColumns = @JoinColumn(name = "user_data_id")
+    )
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    @JsonIgnoreProperties(value = { "groups", "user", "adminGroups", "taskAsigneds", "productCreateds" }, allowSetters = true)
+    private Set<UserData> userData = new HashSet<>();
+
+    @ManyToOne
+    @JsonIgnoreProperties(value = { "groups", "user", "adminGroups", "taskAsigneds", "productCreateds" }, allowSetters = true)
+    private UserData userAdmin;
+
+    @JsonIgnoreProperties(value = { "group", "tasks" }, allowSetters = true)
+    @OneToOne
+    @MapsId
+    @JoinColumn(name = "id")
+    private TaskList taskList;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -104,6 +126,57 @@ public class Group implements Serializable {
 
     public void setAddGroupDate(LocalDate addGroupDate) {
         this.addGroupDate = addGroupDate;
+    }
+
+    public Set<UserData> getUserData() {
+        return this.userData;
+    }
+
+    public void setUserData(Set<UserData> userData) {
+        this.userData = userData;
+    }
+
+    public Group userData(Set<UserData> userData) {
+        this.setUserData(userData);
+        return this;
+    }
+
+    public Group addUserData(UserData userData) {
+        this.userData.add(userData);
+        userData.getGroups().add(this);
+        return this;
+    }
+
+    public Group removeUserData(UserData userData) {
+        this.userData.remove(userData);
+        userData.getGroups().remove(this);
+        return this;
+    }
+
+    public UserData getUserAdmin() {
+        return this.userAdmin;
+    }
+
+    public void setUserAdmin(UserData userData) {
+        this.userAdmin = userData;
+    }
+
+    public Group userAdmin(UserData userData) {
+        this.setUserAdmin(userData);
+        return this;
+    }
+
+    public TaskList getTaskList() {
+        return this.taskList;
+    }
+
+    public void setTaskList(TaskList taskList) {
+        this.taskList = taskList;
+    }
+
+    public Group taskList(TaskList taskList) {
+        this.setTaskList(taskList);
+        return this;
     }
 
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here

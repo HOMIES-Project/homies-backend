@@ -30,6 +30,10 @@ public class TaskListCriteria implements Serializable, Criteria {
 
     private StringFilter nameList;
 
+    private LongFilter groupId;
+
+    private LongFilter taskId;
+
     private Boolean distinct;
 
     public TaskListCriteria() {}
@@ -37,6 +41,8 @@ public class TaskListCriteria implements Serializable, Criteria {
     public TaskListCriteria(TaskListCriteria other) {
         this.id = other.id == null ? null : other.id.copy();
         this.nameList = other.nameList == null ? null : other.nameList.copy();
+        this.groupId = other.groupId == null ? null : other.groupId.copy();
+        this.taskId = other.taskId == null ? null : other.taskId.copy();
         this.distinct = other.distinct;
     }
 
@@ -75,6 +81,36 @@ public class TaskListCriteria implements Serializable, Criteria {
         this.nameList = nameList;
     }
 
+    public LongFilter getGroupId() {
+        return groupId;
+    }
+
+    public LongFilter groupId() {
+        if (groupId == null) {
+            groupId = new LongFilter();
+        }
+        return groupId;
+    }
+
+    public void setGroupId(LongFilter groupId) {
+        this.groupId = groupId;
+    }
+
+    public LongFilter getTaskId() {
+        return taskId;
+    }
+
+    public LongFilter taskId() {
+        if (taskId == null) {
+            taskId = new LongFilter();
+        }
+        return taskId;
+    }
+
+    public void setTaskId(LongFilter taskId) {
+        this.taskId = taskId;
+    }
+
     public Boolean getDistinct() {
         return distinct;
     }
@@ -92,12 +128,18 @@ public class TaskListCriteria implements Serializable, Criteria {
             return false;
         }
         final TaskListCriteria that = (TaskListCriteria) o;
-        return Objects.equals(id, that.id) && Objects.equals(nameList, that.nameList) && Objects.equals(distinct, that.distinct);
+        return (
+            Objects.equals(id, that.id) &&
+            Objects.equals(nameList, that.nameList) &&
+            Objects.equals(groupId, that.groupId) &&
+            Objects.equals(taskId, that.taskId) &&
+            Objects.equals(distinct, that.distinct)
+        );
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, nameList, distinct);
+        return Objects.hash(id, nameList, groupId, taskId, distinct);
     }
 
     // prettier-ignore
@@ -106,6 +148,8 @@ public class TaskListCriteria implements Serializable, Criteria {
         return "TaskListCriteria{" +
             (id != null ? "id=" + id + ", " : "") +
             (nameList != null ? "nameList=" + nameList + ", " : "") +
+            (groupId != null ? "groupId=" + groupId + ", " : "") +
+            (taskId != null ? "taskId=" + taskId + ", " : "") +
             (distinct != null ? "distinct=" + distinct + ", " : "") +
             "}";
     }

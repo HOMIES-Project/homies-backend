@@ -112,6 +112,24 @@ public class ProductsQueryService extends QueryService<Products> {
             if (criteria.getUserCreated() != null) {
                 specification = specification.and(buildRangeSpecification(criteria.getUserCreated(), Products_.userCreated));
             }
+            if (criteria.getUserCreatorId() != null) {
+                specification =
+                    specification.and(
+                        buildSpecification(
+                            criteria.getUserCreatorId(),
+                            root -> root.join(Products_.userCreator, JoinType.LEFT).get(UserData_.id)
+                        )
+                    );
+            }
+            if (criteria.getShoppingListId() != null) {
+                specification =
+                    specification.and(
+                        buildSpecification(
+                            criteria.getShoppingListId(),
+                            root -> root.join(Products_.shoppingList, JoinType.LEFT).get(ShoppingList_.id)
+                        )
+                    );
+            }
         }
         return specification;
     }

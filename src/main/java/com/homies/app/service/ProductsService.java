@@ -34,6 +34,14 @@ public interface ProductsService {
     Page<Products> findAll(Pageable pageable);
 
     /**
+     * Get all the products with eager load of many-to-many relationships.
+     *
+     * @param pageable the pagination information.
+     * @return the list of entities.
+     */
+    Page<Products> findAllWithEagerRelationships(Pageable pageable);
+
+    /**
      * Get the "id" products.
      *
      * @param id the id of the entity.

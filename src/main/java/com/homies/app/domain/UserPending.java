@@ -1,6 +1,9 @@
 package com.homies.app.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 import org.hibernate.annotations.Cache;
@@ -27,6 +30,24 @@ public class UserPending implements Serializable {
 
     @Column(name = "paid")
     private Boolean paid;
+
+    @ManyToOne
+    @JsonIgnoreProperties(value = { "spendings", "settingsLists" }, allowSetters = true)
+    private SpendingList spendingList;
+
+    @ManyToMany
+    @JoinTable(
+        name = "rel_user_pending__spending",
+        joinColumns = @JoinColumn(name = "user_pending_id"),
+        inverseJoinColumns = @JoinColumn(name = "spending_id")
+    )
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    @JsonIgnoreProperties(value = { "userPendings" }, allowSetters = true)
+    private Set<Spending> spendings = new HashSet<>();
+
+    @ManyToOne
+    @JsonIgnoreProperties(value = { "spendingList", "userPendings" }, allowSetters = true)
+    private SettingsList settingsList;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -67,6 +88,57 @@ public class UserPending implements Serializable {
 
     public void setPaid(Boolean paid) {
         this.paid = paid;
+    }
+
+    public SpendingList getSpendingList() {
+        return this.spendingList;
+    }
+
+    public void setSpendingList(SpendingList spendingList) {
+        this.spendingList = spendingList;
+    }
+
+    public UserPending spendingList(SpendingList spendingList) {
+        this.setSpendingList(spendingList);
+        return this;
+    }
+
+    public Set<Spending> getSpendings() {
+        return this.spendings;
+    }
+
+    public void setSpendings(Set<Spending> spendings) {
+        this.spendings = spendings;
+    }
+
+    public UserPending spendings(Set<Spending> spendings) {
+        this.setSpendings(spendings);
+        return this;
+    }
+
+    public UserPending addSpending(Spending spending) {
+        this.spendings.add(spending);
+        spending.getUserPendings().add(this);
+        return this;
+    }
+
+    public UserPending removeSpending(Spending spending) {
+        this.spendings.remove(spending);
+        spending.getUserPendings().remove(this);
+        return this;
+    }
+
+    public SettingsList getSettingsList() {
+        return this.settingsList;
+    }
+
+    public void setSettingsList(SettingsList settingsList) {
+        this.settingsList = settingsList;
+    }
+
+    public UserPending settingsList(SettingsList settingsList) {
+        this.setSettingsList(settingsList);
+        return this;
     }
 
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here

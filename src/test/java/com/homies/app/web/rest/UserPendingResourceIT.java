@@ -2,21 +2,32 @@ package com.homies.app.web.rest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.homies.app.IntegrationTest;
+import com.homies.app.domain.SettingsList;
+import com.homies.app.domain.Spending;
+import com.homies.app.domain.SpendingList;
 import com.homies.app.domain.UserPending;
 import com.homies.app.repository.UserPendingRepository;
+import com.homies.app.service.UserPendingService;
 import com.homies.app.service.criteria.UserPendingCriteria;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
 import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -26,6 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
  * Integration tests for the {@link UserPendingResource} REST controller.
  */
 @IntegrationTest
+@ExtendWith(MockitoExtension.class)
 @AutoConfigureMockMvc
 @WithMockUser
 class UserPendingResourceIT {
@@ -45,6 +57,12 @@ class UserPendingResourceIT {
 
     @Autowired
     private UserPendingRepository userPendingRepository;
+
+    @Mock
+    private UserPendingRepository userPendingRepositoryMock;
+
+    @Mock
+    private UserPendingService userPendingServiceMock;
 
     @Autowired
     private EntityManager em;
@@ -130,6 +148,24 @@ class UserPendingResourceIT {
             .andExpect(jsonPath("$.[*].id").value(hasItem(userPending.getId().intValue())))
             .andExpect(jsonPath("$.[*].pending").value(hasItem(DEFAULT_PENDING.doubleValue())))
             .andExpect(jsonPath("$.[*].paid").value(hasItem(DEFAULT_PAID.booleanValue())));
+    }
+
+    @SuppressWarnings({ "unchecked" })
+    void getAllUserPendingsWithEagerRelationshipsIsEnabled() throws Exception {
+        when(userPendingServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
+
+        restUserPendingMockMvc.perform(get(ENTITY_API_URL + "?eagerload=true")).andExpect(status().isOk());
+
+        verify(userPendingServiceMock, times(1)).findAllWithEagerRelationships(any());
+    }
+
+    @SuppressWarnings({ "unchecked" })
+    void getAllUserPendingsWithEagerRelationshipsIsNotEnabled() throws Exception {
+        when(userPendingServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
+
+        restUserPendingMockMvc.perform(get(ENTITY_API_URL + "?eagerload=true")).andExpect(status().isOk());
+
+        verify(userPendingServiceMock, times(1)).findAllWithEagerRelationships(any());
     }
 
     @Test
@@ -320,6 +356,84 @@ class UserPendingResourceIT {
 
         // Get all the userPendingList where paid is null
         defaultUserPendingShouldNotBeFound("paid.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllUserPendingsBySpendingListIsEqualToSomething() throws Exception {
+        // Initialize the database
+        userPendingRepository.saveAndFlush(userPending);
+        SpendingList spendingList;
+        if (TestUtil.findAll(em, SpendingList.class).isEmpty()) {
+            spendingList = SpendingListResourceIT.createEntity(em);
+            em.persist(spendingList);
+            em.flush();
+        } else {
+            spendingList = TestUtil.findAll(em, SpendingList.class).get(0);
+        }
+        em.persist(spendingList);
+        em.flush();
+        userPending.setSpendingList(spendingList);
+        userPendingRepository.saveAndFlush(userPending);
+        Long spendingListId = spendingList.getId();
+
+        // Get all the userPendingList where spendingList equals to spendingListId
+        defaultUserPendingShouldBeFound("spendingListId.equals=" + spendingListId);
+
+        // Get all the userPendingList where spendingList equals to (spendingListId + 1)
+        defaultUserPendingShouldNotBeFound("spendingListId.equals=" + (spendingListId + 1));
+    }
+
+    @Test
+    @Transactional
+    void getAllUserPendingsBySpendingIsEqualToSomething() throws Exception {
+        // Initialize the database
+        userPendingRepository.saveAndFlush(userPending);
+        Spending spending;
+        if (TestUtil.findAll(em, Spending.class).isEmpty()) {
+            spending = SpendingResourceIT.createEntity(em);
+            em.persist(spending);
+            em.flush();
+        } else {
+            spending = TestUtil.findAll(em, Spending.class).get(0);
+        }
+        em.persist(spending);
+        em.flush();
+        userPending.addSpending(spending);
+        userPendingRepository.saveAndFlush(userPending);
+        Long spendingId = spending.getId();
+
+        // Get all the userPendingList where spending equals to spendingId
+        defaultUserPendingShouldBeFound("spendingId.equals=" + spendingId);
+
+        // Get all the userPendingList where spending equals to (spendingId + 1)
+        defaultUserPendingShouldNotBeFound("spendingId.equals=" + (spendingId + 1));
+    }
+
+    @Test
+    @Transactional
+    void getAllUserPendingsBySettingsListIsEqualToSomething() throws Exception {
+        // Initialize the database
+        userPendingRepository.saveAndFlush(userPending);
+        SettingsList settingsList;
+        if (TestUtil.findAll(em, SettingsList.class).isEmpty()) {
+            settingsList = SettingsListResourceIT.createEntity(em);
+            em.persist(settingsList);
+            em.flush();
+        } else {
+            settingsList = TestUtil.findAll(em, SettingsList.class).get(0);
+        }
+        em.persist(settingsList);
+        em.flush();
+        userPending.setSettingsList(settingsList);
+        userPendingRepository.saveAndFlush(userPending);
+        Long settingsListId = settingsList.getId();
+
+        // Get all the userPendingList where settingsList equals to settingsListId
+        defaultUserPendingShouldBeFound("settingsListId.equals=" + settingsListId);
+
+        // Get all the userPendingList where settingsList equals to (settingsListId + 1)
+        defaultUserPendingShouldNotBeFound("settingsListId.equals=" + (settingsListId + 1));
     }
 
     /**

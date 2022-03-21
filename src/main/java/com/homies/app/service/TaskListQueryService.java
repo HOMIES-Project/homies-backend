@@ -88,6 +88,18 @@ public class TaskListQueryService extends QueryService<TaskList> {
             if (criteria.getNameList() != null) {
                 specification = specification.and(buildStringSpecification(criteria.getNameList(), TaskList_.nameList));
             }
+            if (criteria.getGroupId() != null) {
+                specification =
+                    specification.and(
+                        buildSpecification(criteria.getGroupId(), root -> root.join(TaskList_.group, JoinType.LEFT).get(Group_.id))
+                    );
+            }
+            if (criteria.getTaskId() != null) {
+                specification =
+                    specification.and(
+                        buildSpecification(criteria.getTaskId(), root -> root.join(TaskList_.tasks, JoinType.LEFT).get(Task_.id))
+                    );
+            }
         }
         return specification;
     }

@@ -14,6 +14,20 @@
   "name": "TaskList",
   "pagination": "pagination",
   "readOnly": false,
-  "relationships": [],
+  "relationships": [
+    {
+      "otherEntityName": "group",
+      "otherEntityRelationshipName": "taskList",
+      "ownerSide": false,
+      "relationshipName": "group",
+      "relationshipType": "one-to-one"
+    },
+    {
+      "otherEntityName": "task",
+      "otherEntityRelationshipName": "taskList",
+      "relationshipName": "task",
+      "relationshipType": "one-to-many"
+    }
+  ],
   "service": "serviceImpl"
 }

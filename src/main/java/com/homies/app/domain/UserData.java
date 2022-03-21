@@ -1,7 +1,10 @@
 package com.homies.app.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 import org.hibernate.annotations.Cache;
@@ -18,7 +21,6 @@ public class UserData implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
 
@@ -42,6 +44,36 @@ public class UserData implements Serializable {
 
     @Column(name = "add_date")
     private LocalDate addDate;
+
+    @ManyToMany(mappedBy = "userData")
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    @JsonIgnoreProperties(value = { "userData", "userAdmin", "taskList" }, allowSetters = true)
+    private Set<Group> groups = new HashSet<>();
+
+    @OneToOne
+    @MapsId
+    @JoinColumn(name = "id")
+    private User user;
+
+    @OneToMany(mappedBy = "userAdmin")
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    @JsonIgnoreProperties(value = { "userData", "userAdmin", "taskList" }, allowSetters = true)
+    private Set<Group> adminGroups = new HashSet<>();
+
+    @ManyToMany
+    @JoinTable(
+        name = "rel_user_data__task_asigned",
+        joinColumns = @JoinColumn(name = "user_data_id"),
+        inverseJoinColumns = @JoinColumn(name = "task_asigned_id")
+    )
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    @JsonIgnoreProperties(value = { "taskList", "userData", "userCreator", "userAssigneds" }, allowSetters = true)
+    private Set<Task> taskAsigneds = new HashSet<>();
+
+    @OneToMany(mappedBy = "userCreator")
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    @JsonIgnoreProperties(value = { "userCreator", "shoppingList" }, allowSetters = true)
+    private Set<Products> productCreateds = new HashSet<>();
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -134,6 +166,137 @@ public class UserData implements Serializable {
 
     public void setAddDate(LocalDate addDate) {
         this.addDate = addDate;
+    }
+
+    public Set<Group> getGroups() {
+        return this.groups;
+    }
+
+    public void setGroups(Set<Group> groups) {
+        if (this.groups != null) {
+            this.groups.forEach(i -> i.removeUserData(this));
+        }
+        if (groups != null) {
+            groups.forEach(i -> i.addUserData(this));
+        }
+        this.groups = groups;
+    }
+
+    public UserData groups(Set<Group> groups) {
+        this.setGroups(groups);
+        return this;
+    }
+
+    public UserData addGroup(Group group) {
+        this.groups.add(group);
+        group.getUserData().add(this);
+        return this;
+    }
+
+    public UserData removeGroup(Group group) {
+        this.groups.remove(group);
+        group.getUserData().remove(this);
+        return this;
+    }
+
+    public User getUser() {
+        return this.user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public UserData user(User user) {
+        this.setUser(user);
+        return this;
+    }
+
+    public Set<Group> getAdminGroups() {
+        return this.adminGroups;
+    }
+
+    public void setAdminGroups(Set<Group> groups) {
+        if (this.adminGroups != null) {
+            this.adminGroups.forEach(i -> i.setUserAdmin(null));
+        }
+        if (groups != null) {
+            groups.forEach(i -> i.setUserAdmin(this));
+        }
+        this.adminGroups = groups;
+    }
+
+    public UserData adminGroups(Set<Group> groups) {
+        this.setAdminGroups(groups);
+        return this;
+    }
+
+    public UserData addAdminGroups(Group group) {
+        this.adminGroups.add(group);
+        group.setUserAdmin(this);
+        return this;
+    }
+
+    public UserData removeAdminGroups(Group group) {
+        this.adminGroups.remove(group);
+        group.setUserAdmin(null);
+        return this;
+    }
+
+    public Set<Task> getTaskAsigneds() {
+        return this.taskAsigneds;
+    }
+
+    public void setTaskAsigneds(Set<Task> tasks) {
+        this.taskAsigneds = tasks;
+    }
+
+    public UserData taskAsigneds(Set<Task> tasks) {
+        this.setTaskAsigneds(tasks);
+        return this;
+    }
+
+    public UserData addTaskAsigned(Task task) {
+        this.taskAsigneds.add(task);
+        task.getUserAssigneds().add(this);
+        return this;
+    }
+
+    public UserData removeTaskAsigned(Task task) {
+        this.taskAsigneds.remove(task);
+        task.getUserAssigneds().remove(this);
+        return this;
+    }
+
+    public Set<Products> getProductCreateds() {
+        return this.productCreateds;
+    }
+
+    public void setProductCreateds(Set<Products> products) {
+        if (this.productCreateds != null) {
+            this.productCreateds.forEach(i -> i.setUserCreator(null));
+        }
+        if (products != null) {
+            products.forEach(i -> i.setUserCreator(this));
+        }
+        this.productCreateds = products;
+    }
+
+    public UserData productCreateds(Set<Products> products) {
+        this.setProductCreateds(products);
+        return this;
+    }
+
+    public UserData addProductCreated(Products products) {
+        this.productCreateds.add(products);
+        products.setUserCreator(this);
+        return this;
+    }
+
+    public UserData removeProductCreated(Products products) {
+        this.productCreateds.remove(products);
+        products.setUserCreator(null);
+        return this;
     }
 
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here

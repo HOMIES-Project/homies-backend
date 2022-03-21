@@ -32,6 +32,12 @@ public class UserPendingCriteria implements Serializable, Criteria {
 
     private BooleanFilter paid;
 
+    private LongFilter spendingListId;
+
+    private LongFilter spendingId;
+
+    private LongFilter settingsListId;
+
     private Boolean distinct;
 
     public UserPendingCriteria() {}
@@ -40,6 +46,9 @@ public class UserPendingCriteria implements Serializable, Criteria {
         this.id = other.id == null ? null : other.id.copy();
         this.pending = other.pending == null ? null : other.pending.copy();
         this.paid = other.paid == null ? null : other.paid.copy();
+        this.spendingListId = other.spendingListId == null ? null : other.spendingListId.copy();
+        this.spendingId = other.spendingId == null ? null : other.spendingId.copy();
+        this.settingsListId = other.settingsListId == null ? null : other.settingsListId.copy();
         this.distinct = other.distinct;
     }
 
@@ -93,6 +102,51 @@ public class UserPendingCriteria implements Serializable, Criteria {
         this.paid = paid;
     }
 
+    public LongFilter getSpendingListId() {
+        return spendingListId;
+    }
+
+    public LongFilter spendingListId() {
+        if (spendingListId == null) {
+            spendingListId = new LongFilter();
+        }
+        return spendingListId;
+    }
+
+    public void setSpendingListId(LongFilter spendingListId) {
+        this.spendingListId = spendingListId;
+    }
+
+    public LongFilter getSpendingId() {
+        return spendingId;
+    }
+
+    public LongFilter spendingId() {
+        if (spendingId == null) {
+            spendingId = new LongFilter();
+        }
+        return spendingId;
+    }
+
+    public void setSpendingId(LongFilter spendingId) {
+        this.spendingId = spendingId;
+    }
+
+    public LongFilter getSettingsListId() {
+        return settingsListId;
+    }
+
+    public LongFilter settingsListId() {
+        if (settingsListId == null) {
+            settingsListId = new LongFilter();
+        }
+        return settingsListId;
+    }
+
+    public void setSettingsListId(LongFilter settingsListId) {
+        this.settingsListId = settingsListId;
+    }
+
     public Boolean getDistinct() {
         return distinct;
     }
@@ -114,13 +168,16 @@ public class UserPendingCriteria implements Serializable, Criteria {
             Objects.equals(id, that.id) &&
             Objects.equals(pending, that.pending) &&
             Objects.equals(paid, that.paid) &&
+            Objects.equals(spendingListId, that.spendingListId) &&
+            Objects.equals(spendingId, that.spendingId) &&
+            Objects.equals(settingsListId, that.settingsListId) &&
             Objects.equals(distinct, that.distinct)
         );
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, pending, paid, distinct);
+        return Objects.hash(id, pending, paid, spendingListId, spendingId, settingsListId, distinct);
     }
 
     // prettier-ignore
@@ -130,6 +187,9 @@ public class UserPendingCriteria implements Serializable, Criteria {
             (id != null ? "id=" + id + ", " : "") +
             (pending != null ? "pending=" + pending + ", " : "") +
             (paid != null ? "paid=" + paid + ", " : "") +
+            (spendingListId != null ? "spendingListId=" + spendingListId + ", " : "") +
+            (spendingId != null ? "spendingId=" + spendingId + ", " : "") +
+            (settingsListId != null ? "settingsListId=" + settingsListId + ", " : "") +
             (distinct != null ? "distinct=" + distinct + ", " : "") +
             "}";
     }

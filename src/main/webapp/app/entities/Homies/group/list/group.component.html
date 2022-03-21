@@ -37,6 +37,8 @@
           <th scope="col" jhiSortBy="groupName"><span>Group Name</span> <fa-icon icon="sort"></fa-icon></th>
           <th scope="col" jhiSortBy="groupRelationName"><span>Group Relation Name</span> <fa-icon icon="sort"></fa-icon></th>
           <th scope="col" jhiSortBy="addGroupDate"><span>Add Group Date</span> <fa-icon icon="sort"></fa-icon></th>
+          <th scope="col" jhiSortBy="userAdmin.id"><span>User Admin</span> <fa-icon icon="sort"></fa-icon></th>
+          <th scope="col" jhiSortBy="taskList.nameList"><span>Task List</span> <fa-icon icon="sort"></fa-icon></th>
           <th scope="col"></th>
         </tr>
       </thead>
@@ -49,6 +51,16 @@
           <td>{{ group.groupName }}</td>
           <td>{{ group.groupRelationName }}</td>
           <td>{{ group.addGroupDate | formatMediumDate }}</td>
+          <td>
+            <div *ngIf="group.userAdmin">
+              <a [routerLink]="['/user-data', group.userAdmin?.id, 'view']">{{ group.userAdmin?.id }}</a>
+            </div>
+          </td>
+          <td>
+            <div *ngIf="group.taskList">
+              <a [routerLink]="['/task-list', group.taskList?.id, 'view']">{{ group.taskList?.nameList }}</a>
+            </div>
+          </td>
           <td class="text-end">
             <div class="btn-group">
               <button type="submit" [routerLink]="['/group', group.id, 'view']" class="btn btn-info btn-sm" data-cy="entityDetailsButton">

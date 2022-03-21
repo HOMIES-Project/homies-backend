@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.homies.app.IntegrationTest;
+import com.homies.app.domain.Products;
 import com.homies.app.domain.ShoppingList;
 import com.homies.app.repository.ShoppingListRepository;
 import com.homies.app.service.criteria.ShoppingListCriteria;
@@ -30,12 +31,12 @@ import org.springframework.transaction.annotation.Transactional;
 @WithMockUser
 class ShoppingListResourceIT {
 
-    private static final String DEFAULT_NAME = "AAAAAAAAAA";
-    private static final String UPDATED_NAME = "BBBBBBBBBB";
-
     private static final Float DEFAULT_TOTAL = 1F;
     private static final Float UPDATED_TOTAL = 2F;
     private static final Float SMALLER_TOTAL = 1F - 1F;
+
+    private static final String DEFAULT_NAME_SHOP_LIST = "AAAAAAAAAA";
+    private static final String UPDATED_NAME_SHOP_LIST = "BBBBBBBBBB";
 
     private static final String ENTITY_API_URL = "/api/shopping-lists";
     private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
@@ -61,7 +62,7 @@ class ShoppingListResourceIT {
      * if they test an entity which requires the current entity.
      */
     public static ShoppingList createEntity(EntityManager em) {
-        ShoppingList shoppingList = new ShoppingList().name(DEFAULT_NAME).total(DEFAULT_TOTAL);
+        ShoppingList shoppingList = new ShoppingList().total(DEFAULT_TOTAL).nameShopList(DEFAULT_NAME_SHOP_LIST);
         return shoppingList;
     }
 
@@ -72,7 +73,7 @@ class ShoppingListResourceIT {
      * if they test an entity which requires the current entity.
      */
     public static ShoppingList createUpdatedEntity(EntityManager em) {
-        ShoppingList shoppingList = new ShoppingList().name(UPDATED_NAME).total(UPDATED_TOTAL);
+        ShoppingList shoppingList = new ShoppingList().total(UPDATED_TOTAL).nameShopList(UPDATED_NAME_SHOP_LIST);
         return shoppingList;
     }
 
@@ -94,8 +95,8 @@ class ShoppingListResourceIT {
         List<ShoppingList> shoppingListList = shoppingListRepository.findAll();
         assertThat(shoppingListList).hasSize(databaseSizeBeforeCreate + 1);
         ShoppingList testShoppingList = shoppingListList.get(shoppingListList.size() - 1);
-        assertThat(testShoppingList.getName()).isEqualTo(DEFAULT_NAME);
         assertThat(testShoppingList.getTotal()).isEqualTo(DEFAULT_TOTAL);
+        assertThat(testShoppingList.getNameShopList()).isEqualTo(DEFAULT_NAME_SHOP_LIST);
     }
 
     @Test
@@ -118,10 +119,10 @@ class ShoppingListResourceIT {
 
     @Test
     @Transactional
-    void checkNameIsRequired() throws Exception {
+    void checkNameShopListIsRequired() throws Exception {
         int databaseSizeBeforeTest = shoppingListRepository.findAll().size();
         // set the field null
-        shoppingList.setName(null);
+        shoppingList.setNameShopList(null);
 
         // Create the ShoppingList, which fails.
 
@@ -145,8 +146,8 @@ class ShoppingListResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(shoppingList.getId().intValue())))
-            .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
-            .andExpect(jsonPath("$.[*].total").value(hasItem(DEFAULT_TOTAL.doubleValue())));
+            .andExpect(jsonPath("$.[*].total").value(hasItem(DEFAULT_TOTAL.doubleValue())))
+            .andExpect(jsonPath("$.[*].nameShopList").value(hasItem(DEFAULT_NAME_SHOP_LIST)));
     }
 
     @Test
@@ -161,8 +162,8 @@ class ShoppingListResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.id").value(shoppingList.getId().intValue()))
-            .andExpect(jsonPath("$.name").value(DEFAULT_NAME))
-            .andExpect(jsonPath("$.total").value(DEFAULT_TOTAL.doubleValue()));
+            .andExpect(jsonPath("$.total").value(DEFAULT_TOTAL.doubleValue()))
+            .andExpect(jsonPath("$.nameShopList").value(DEFAULT_NAME_SHOP_LIST));
     }
 
     @Test
@@ -181,84 +182,6 @@ class ShoppingListResourceIT {
 
         defaultShoppingListShouldBeFound("id.lessThanOrEqual=" + id);
         defaultShoppingListShouldNotBeFound("id.lessThan=" + id);
-    }
-
-    @Test
-    @Transactional
-    void getAllShoppingListsByNameIsEqualToSomething() throws Exception {
-        // Initialize the database
-        shoppingListRepository.saveAndFlush(shoppingList);
-
-        // Get all the shoppingListList where name equals to DEFAULT_NAME
-        defaultShoppingListShouldBeFound("name.equals=" + DEFAULT_NAME);
-
-        // Get all the shoppingListList where name equals to UPDATED_NAME
-        defaultShoppingListShouldNotBeFound("name.equals=" + UPDATED_NAME);
-    }
-
-    @Test
-    @Transactional
-    void getAllShoppingListsByNameIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        shoppingListRepository.saveAndFlush(shoppingList);
-
-        // Get all the shoppingListList where name not equals to DEFAULT_NAME
-        defaultShoppingListShouldNotBeFound("name.notEquals=" + DEFAULT_NAME);
-
-        // Get all the shoppingListList where name not equals to UPDATED_NAME
-        defaultShoppingListShouldBeFound("name.notEquals=" + UPDATED_NAME);
-    }
-
-    @Test
-    @Transactional
-    void getAllShoppingListsByNameIsInShouldWork() throws Exception {
-        // Initialize the database
-        shoppingListRepository.saveAndFlush(shoppingList);
-
-        // Get all the shoppingListList where name in DEFAULT_NAME or UPDATED_NAME
-        defaultShoppingListShouldBeFound("name.in=" + DEFAULT_NAME + "," + UPDATED_NAME);
-
-        // Get all the shoppingListList where name equals to UPDATED_NAME
-        defaultShoppingListShouldNotBeFound("name.in=" + UPDATED_NAME);
-    }
-
-    @Test
-    @Transactional
-    void getAllShoppingListsByNameIsNullOrNotNull() throws Exception {
-        // Initialize the database
-        shoppingListRepository.saveAndFlush(shoppingList);
-
-        // Get all the shoppingListList where name is not null
-        defaultShoppingListShouldBeFound("name.specified=true");
-
-        // Get all the shoppingListList where name is null
-        defaultShoppingListShouldNotBeFound("name.specified=false");
-    }
-
-    @Test
-    @Transactional
-    void getAllShoppingListsByNameContainsSomething() throws Exception {
-        // Initialize the database
-        shoppingListRepository.saveAndFlush(shoppingList);
-
-        // Get all the shoppingListList where name contains DEFAULT_NAME
-        defaultShoppingListShouldBeFound("name.contains=" + DEFAULT_NAME);
-
-        // Get all the shoppingListList where name contains UPDATED_NAME
-        defaultShoppingListShouldNotBeFound("name.contains=" + UPDATED_NAME);
-    }
-
-    @Test
-    @Transactional
-    void getAllShoppingListsByNameNotContainsSomething() throws Exception {
-        // Initialize the database
-        shoppingListRepository.saveAndFlush(shoppingList);
-
-        // Get all the shoppingListList where name does not contain DEFAULT_NAME
-        defaultShoppingListShouldNotBeFound("name.doesNotContain=" + DEFAULT_NAME);
-
-        // Get all the shoppingListList where name does not contain UPDATED_NAME
-        defaultShoppingListShouldBeFound("name.doesNotContain=" + UPDATED_NAME);
     }
 
     @Test
@@ -365,6 +288,110 @@ class ShoppingListResourceIT {
         defaultShoppingListShouldBeFound("total.greaterThan=" + SMALLER_TOTAL);
     }
 
+    @Test
+    @Transactional
+    void getAllShoppingListsByNameShopListIsEqualToSomething() throws Exception {
+        // Initialize the database
+        shoppingListRepository.saveAndFlush(shoppingList);
+
+        // Get all the shoppingListList where nameShopList equals to DEFAULT_NAME_SHOP_LIST
+        defaultShoppingListShouldBeFound("nameShopList.equals=" + DEFAULT_NAME_SHOP_LIST);
+
+        // Get all the shoppingListList where nameShopList equals to UPDATED_NAME_SHOP_LIST
+        defaultShoppingListShouldNotBeFound("nameShopList.equals=" + UPDATED_NAME_SHOP_LIST);
+    }
+
+    @Test
+    @Transactional
+    void getAllShoppingListsByNameShopListIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        shoppingListRepository.saveAndFlush(shoppingList);
+
+        // Get all the shoppingListList where nameShopList not equals to DEFAULT_NAME_SHOP_LIST
+        defaultShoppingListShouldNotBeFound("nameShopList.notEquals=" + DEFAULT_NAME_SHOP_LIST);
+
+        // Get all the shoppingListList where nameShopList not equals to UPDATED_NAME_SHOP_LIST
+        defaultShoppingListShouldBeFound("nameShopList.notEquals=" + UPDATED_NAME_SHOP_LIST);
+    }
+
+    @Test
+    @Transactional
+    void getAllShoppingListsByNameShopListIsInShouldWork() throws Exception {
+        // Initialize the database
+        shoppingListRepository.saveAndFlush(shoppingList);
+
+        // Get all the shoppingListList where nameShopList in DEFAULT_NAME_SHOP_LIST or UPDATED_NAME_SHOP_LIST
+        defaultShoppingListShouldBeFound("nameShopList.in=" + DEFAULT_NAME_SHOP_LIST + "," + UPDATED_NAME_SHOP_LIST);
+
+        // Get all the shoppingListList where nameShopList equals to UPDATED_NAME_SHOP_LIST
+        defaultShoppingListShouldNotBeFound("nameShopList.in=" + UPDATED_NAME_SHOP_LIST);
+    }
+
+    @Test
+    @Transactional
+    void getAllShoppingListsByNameShopListIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        shoppingListRepository.saveAndFlush(shoppingList);
+
+        // Get all the shoppingListList where nameShopList is not null
+        defaultShoppingListShouldBeFound("nameShopList.specified=true");
+
+        // Get all the shoppingListList where nameShopList is null
+        defaultShoppingListShouldNotBeFound("nameShopList.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllShoppingListsByNameShopListContainsSomething() throws Exception {
+        // Initialize the database
+        shoppingListRepository.saveAndFlush(shoppingList);
+
+        // Get all the shoppingListList where nameShopList contains DEFAULT_NAME_SHOP_LIST
+        defaultShoppingListShouldBeFound("nameShopList.contains=" + DEFAULT_NAME_SHOP_LIST);
+
+        // Get all the shoppingListList where nameShopList contains UPDATED_NAME_SHOP_LIST
+        defaultShoppingListShouldNotBeFound("nameShopList.contains=" + UPDATED_NAME_SHOP_LIST);
+    }
+
+    @Test
+    @Transactional
+    void getAllShoppingListsByNameShopListNotContainsSomething() throws Exception {
+        // Initialize the database
+        shoppingListRepository.saveAndFlush(shoppingList);
+
+        // Get all the shoppingListList where nameShopList does not contain DEFAULT_NAME_SHOP_LIST
+        defaultShoppingListShouldNotBeFound("nameShopList.doesNotContain=" + DEFAULT_NAME_SHOP_LIST);
+
+        // Get all the shoppingListList where nameShopList does not contain UPDATED_NAME_SHOP_LIST
+        defaultShoppingListShouldBeFound("nameShopList.doesNotContain=" + UPDATED_NAME_SHOP_LIST);
+    }
+
+    @Test
+    @Transactional
+    void getAllShoppingListsByProductsIsEqualToSomething() throws Exception {
+        // Initialize the database
+        shoppingListRepository.saveAndFlush(shoppingList);
+        Products products;
+        if (TestUtil.findAll(em, Products.class).isEmpty()) {
+            products = ProductsResourceIT.createEntity(em);
+            em.persist(products);
+            em.flush();
+        } else {
+            products = TestUtil.findAll(em, Products.class).get(0);
+        }
+        em.persist(products);
+        em.flush();
+        shoppingList.addProducts(products);
+        shoppingListRepository.saveAndFlush(shoppingList);
+        Long productsId = products.getId();
+
+        // Get all the shoppingListList where products equals to productsId
+        defaultShoppingListShouldBeFound("productsId.equals=" + productsId);
+
+        // Get all the shoppingListList where products equals to (productsId + 1)
+        defaultShoppingListShouldNotBeFound("productsId.equals=" + (productsId + 1));
+    }
+
     /**
      * Executes the search, and checks that the default entity is returned.
      */
@@ -374,8 +401,8 @@ class ShoppingListResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(shoppingList.getId().intValue())))
-            .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
-            .andExpect(jsonPath("$.[*].total").value(hasItem(DEFAULT_TOTAL.doubleValue())));
+            .andExpect(jsonPath("$.[*].total").value(hasItem(DEFAULT_TOTAL.doubleValue())))
+            .andExpect(jsonPath("$.[*].nameShopList").value(hasItem(DEFAULT_NAME_SHOP_LIST)));
 
         // Check, that the count call also returns 1
         restShoppingListMockMvc
@@ -423,7 +450,7 @@ class ShoppingListResourceIT {
         ShoppingList updatedShoppingList = shoppingListRepository.findById(shoppingList.getId()).get();
         // Disconnect from session so that the updates on updatedShoppingList are not directly saved in db
         em.detach(updatedShoppingList);
-        updatedShoppingList.name(UPDATED_NAME).total(UPDATED_TOTAL);
+        updatedShoppingList.total(UPDATED_TOTAL).nameShopList(UPDATED_NAME_SHOP_LIST);
 
         restShoppingListMockMvc
             .perform(
@@ -437,8 +464,8 @@ class ShoppingListResourceIT {
         List<ShoppingList> shoppingListList = shoppingListRepository.findAll();
         assertThat(shoppingListList).hasSize(databaseSizeBeforeUpdate);
         ShoppingList testShoppingList = shoppingListList.get(shoppingListList.size() - 1);
-        assertThat(testShoppingList.getName()).isEqualTo(UPDATED_NAME);
         assertThat(testShoppingList.getTotal()).isEqualTo(UPDATED_TOTAL);
+        assertThat(testShoppingList.getNameShopList()).isEqualTo(UPDATED_NAME_SHOP_LIST);
     }
 
     @Test
@@ -509,7 +536,7 @@ class ShoppingListResourceIT {
         ShoppingList partialUpdatedShoppingList = new ShoppingList();
         partialUpdatedShoppingList.setId(shoppingList.getId());
 
-        partialUpdatedShoppingList.name(UPDATED_NAME);
+        partialUpdatedShoppingList.total(UPDATED_TOTAL);
 
         restShoppingListMockMvc
             .perform(
@@ -523,8 +550,8 @@ class ShoppingListResourceIT {
         List<ShoppingList> shoppingListList = shoppingListRepository.findAll();
         assertThat(shoppingListList).hasSize(databaseSizeBeforeUpdate);
         ShoppingList testShoppingList = shoppingListList.get(shoppingListList.size() - 1);
-        assertThat(testShoppingList.getName()).isEqualTo(UPDATED_NAME);
-        assertThat(testShoppingList.getTotal()).isEqualTo(DEFAULT_TOTAL);
+        assertThat(testShoppingList.getTotal()).isEqualTo(UPDATED_TOTAL);
+        assertThat(testShoppingList.getNameShopList()).isEqualTo(DEFAULT_NAME_SHOP_LIST);
     }
 
     @Test
@@ -539,7 +566,7 @@ class ShoppingListResourceIT {
         ShoppingList partialUpdatedShoppingList = new ShoppingList();
         partialUpdatedShoppingList.setId(shoppingList.getId());
 
-        partialUpdatedShoppingList.name(UPDATED_NAME).total(UPDATED_TOTAL);
+        partialUpdatedShoppingList.total(UPDATED_TOTAL).nameShopList(UPDATED_NAME_SHOP_LIST);
 
         restShoppingListMockMvc
             .perform(
@@ -553,8 +580,8 @@ class ShoppingListResourceIT {
         List<ShoppingList> shoppingListList = shoppingListRepository.findAll();
         assertThat(shoppingListList).hasSize(databaseSizeBeforeUpdate);
         ShoppingList testShoppingList = shoppingListList.get(shoppingListList.size() - 1);
-        assertThat(testShoppingList.getName()).isEqualTo(UPDATED_NAME);
         assertThat(testShoppingList.getTotal()).isEqualTo(UPDATED_TOTAL);
+        assertThat(testShoppingList.getNameShopList()).isEqualTo(UPDATED_NAME_SHOP_LIST);
     }
 
     @Test

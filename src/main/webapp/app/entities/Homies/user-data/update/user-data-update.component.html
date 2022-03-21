@@ -96,6 +96,38 @@
             <button type="button" class="btn btn-secondary" (click)="addDateDp.toggle()"><fa-icon icon="calendar-alt"></fa-icon></button>
           </div>
         </div>
+
+        <div class="row mb-3">
+          <label class="form-label" for="field_user">User</label>
+          <select class="form-control" id="field_user" data-cy="user" name="user" formControlName="user">
+            <option [ngValue]="null"></option>
+            <option
+              [ngValue]="userOption.id === editForm.get('user')!.value?.id ? editForm.get('user')!.value : userOption"
+              *ngFor="let userOption of usersSharedCollection; trackBy: trackUserById"
+            >
+              {{ userOption.login }}
+            </option>
+          </select>
+        </div>
+
+        <div class="row mb-3">
+          <label for="field_taskAsigneds">Task Asigned</label>
+          <select
+            class="form-control"
+            id="field_taskAsigneds"
+            data-cy="taskAsigned"
+            multiple
+            name="taskAsigneds"
+            formControlName="taskAsigneds"
+          >
+            <option
+              [ngValue]="getSelectedTask(taskOption, editForm.get('taskAsigneds')!.value)"
+              *ngFor="let taskOption of tasksSharedCollection; trackBy: trackTaskById"
+            >
+              {{ taskOption.id }}
+            </option>
+          </select>
+        </div>
       </div>
 
       <div>

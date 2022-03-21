@@ -30,6 +30,25 @@
         <dd>
           <span>{{ group.addGroupDate | formatMediumDate }}</span>
         </dd>
+        <dt><span>User Data</span></dt>
+        <dd>
+          <span *ngFor="let userData of group.userData; let last = last">
+            <a [routerLink]="['/user-data', userData?.id, 'view']">{{ userData.id }}</a
+            >{{ last ? '' : ', ' }}
+          </span>
+        </dd>
+        <dt><span>User Admin</span></dt>
+        <dd>
+          <div *ngIf="group.userAdmin">
+            <a [routerLink]="['/user-data', group.userAdmin?.id, 'view']">{{ group.userAdmin?.id }}</a>
+          </div>
+        </dd>
+        <dt><span>Task List</span></dt>
+        <dd>
+          <div *ngIf="group.taskList">
+            <a [routerLink]="['/task-list', group.taskList?.id, 'view']">{{ group.taskList?.nameList }}</a>
+          </div>
+        </dd>
       </dl>
 
       <button type="submit" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">

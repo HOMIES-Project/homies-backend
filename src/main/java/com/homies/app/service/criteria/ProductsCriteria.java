@@ -47,6 +47,10 @@ public class ProductsCriteria implements Serializable, Criteria {
 
     private IntegerFilter userCreated;
 
+    private LongFilter userCreatorId;
+
+    private LongFilter shoppingListId;
+
     private Boolean distinct;
 
     public ProductsCriteria() {}
@@ -62,6 +66,8 @@ public class ProductsCriteria implements Serializable, Criteria {
         this.shoppingDate = other.shoppingDate == null ? null : other.shoppingDate.copy();
         this.purchased = other.purchased == null ? null : other.purchased.copy();
         this.userCreated = other.userCreated == null ? null : other.userCreated.copy();
+        this.userCreatorId = other.userCreatorId == null ? null : other.userCreatorId.copy();
+        this.shoppingListId = other.shoppingListId == null ? null : other.shoppingListId.copy();
         this.distinct = other.distinct;
     }
 
@@ -220,6 +226,36 @@ public class ProductsCriteria implements Serializable, Criteria {
         this.userCreated = userCreated;
     }
 
+    public LongFilter getUserCreatorId() {
+        return userCreatorId;
+    }
+
+    public LongFilter userCreatorId() {
+        if (userCreatorId == null) {
+            userCreatorId = new LongFilter();
+        }
+        return userCreatorId;
+    }
+
+    public void setUserCreatorId(LongFilter userCreatorId) {
+        this.userCreatorId = userCreatorId;
+    }
+
+    public LongFilter getShoppingListId() {
+        return shoppingListId;
+    }
+
+    public LongFilter shoppingListId() {
+        if (shoppingListId == null) {
+            shoppingListId = new LongFilter();
+        }
+        return shoppingListId;
+    }
+
+    public void setShoppingListId(LongFilter shoppingListId) {
+        this.shoppingListId = shoppingListId;
+    }
+
     public Boolean getDistinct() {
         return distinct;
     }
@@ -248,13 +284,29 @@ public class ProductsCriteria implements Serializable, Criteria {
             Objects.equals(shoppingDate, that.shoppingDate) &&
             Objects.equals(purchased, that.purchased) &&
             Objects.equals(userCreated, that.userCreated) &&
+            Objects.equals(userCreatorId, that.userCreatorId) &&
+            Objects.equals(shoppingListId, that.shoppingListId) &&
             Objects.equals(distinct, that.distinct)
         );
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, price, units, typeUnit, note, dataCreated, shoppingDate, purchased, userCreated, distinct);
+        return Objects.hash(
+            id,
+            name,
+            price,
+            units,
+            typeUnit,
+            note,
+            dataCreated,
+            shoppingDate,
+            purchased,
+            userCreated,
+            userCreatorId,
+            shoppingListId,
+            distinct
+        );
     }
 
     // prettier-ignore
@@ -271,6 +323,8 @@ public class ProductsCriteria implements Serializable, Criteria {
             (shoppingDate != null ? "shoppingDate=" + shoppingDate + ", " : "") +
             (purchased != null ? "purchased=" + purchased + ", " : "") +
             (userCreated != null ? "userCreated=" + userCreated + ", " : "") +
+            (userCreatorId != null ? "userCreatorId=" + userCreatorId + ", " : "") +
+            (shoppingListId != null ? "shoppingListId=" + shoppingListId + ", " : "") +
             (distinct != null ? "distinct=" + distinct + ", " : "") +
             "}";
     }

@@ -52,6 +52,14 @@
   "name": "Spending",
   "pagination": "pagination",
   "readOnly": false,
-  "relationships": [],
+  "relationships": [
+    {
+      "otherEntityName": "userPending",
+      "otherEntityRelationshipName": "spending",
+      "ownerSide": false,
+      "relationshipName": "userPending",
+      "relationshipType": "many-to-many"
+    }
+  ],
   "service": "serviceImpl"
 }

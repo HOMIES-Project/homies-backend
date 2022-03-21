@@ -1,6 +1,9 @@
 package com.homies.app.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 import org.hibernate.annotations.Cache;
@@ -21,13 +24,18 @@ public class ShoppingList implements Serializable {
     @Column(name = "id")
     private Long id;
 
-    @NotNull
-    @Size(min = 3, max = 20)
-    @Column(name = "name", length = 20, nullable = false)
-    private String name;
-
     @Column(name = "total")
     private Float total;
+
+    @NotNull
+    @Size(min = 3, max = 20)
+    @Column(name = "name_shop_list", length = 20, nullable = false)
+    private String nameShopList;
+
+    @OneToMany(mappedBy = "shoppingList")
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    @JsonIgnoreProperties(value = { "userCreator", "shoppingList" }, allowSetters = true)
+    private Set<Products> products = new HashSet<>();
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -44,19 +52,6 @@ public class ShoppingList implements Serializable {
         this.id = id;
     }
 
-    public String getName() {
-        return this.name;
-    }
-
-    public ShoppingList name(String name) {
-        this.setName(name);
-        return this;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public Float getTotal() {
         return this.total;
     }
@@ -68,6 +63,50 @@ public class ShoppingList implements Serializable {
 
     public void setTotal(Float total) {
         this.total = total;
+    }
+
+    public String getNameShopList() {
+        return this.nameShopList;
+    }
+
+    public ShoppingList nameShopList(String nameShopList) {
+        this.setNameShopList(nameShopList);
+        return this;
+    }
+
+    public void setNameShopList(String nameShopList) {
+        this.nameShopList = nameShopList;
+    }
+
+    public Set<Products> getProducts() {
+        return this.products;
+    }
+
+    public void setProducts(Set<Products> products) {
+        if (this.products != null) {
+            this.products.forEach(i -> i.setShoppingList(null));
+        }
+        if (products != null) {
+            products.forEach(i -> i.setShoppingList(this));
+        }
+        this.products = products;
+    }
+
+    public ShoppingList products(Set<Products> products) {
+        this.setProducts(products);
+        return this;
+    }
+
+    public ShoppingList addProducts(Products products) {
+        this.products.add(products);
+        products.setShoppingList(this);
+        return this;
+    }
+
+    public ShoppingList removeProducts(Products products) {
+        this.products.remove(products);
+        products.setShoppingList(null);
+        return this;
     }
 
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
@@ -94,8 +133,8 @@ public class ShoppingList implements Serializable {
     public String toString() {
         return "ShoppingList{" +
             "id=" + getId() +
-            ", name='" + getName() + "'" +
             ", total=" + getTotal() +
+            ", nameShopList='" + getNameShopList() + "'" +
             "}";
     }
 }

@@ -1,6 +1,9 @@
 package com.homies.app.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 import org.hibernate.annotations.Cache;
@@ -24,6 +27,15 @@ public class TaskList implements Serializable {
     @Size(min = 3, max = 20)
     @Column(name = "name_list", length = 20)
     private String nameList;
+
+    @JsonIgnoreProperties(value = { "userData", "userAdmin", "taskList" }, allowSetters = true)
+    @OneToOne(mappedBy = "taskList")
+    private Group group;
+
+    @OneToMany(mappedBy = "taskList")
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    @JsonIgnoreProperties(value = { "taskList", "userData", "userCreator", "userAssigneds" }, allowSetters = true)
+    private Set<Task> tasks = new HashSet<>();
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -51,6 +63,56 @@ public class TaskList implements Serializable {
 
     public void setNameList(String nameList) {
         this.nameList = nameList;
+    }
+
+    public Group getGroup() {
+        return this.group;
+    }
+
+    public void setGroup(Group group) {
+        if (this.group != null) {
+            this.group.setTaskList(null);
+        }
+        if (group != null) {
+            group.setTaskList(this);
+        }
+        this.group = group;
+    }
+
+    public TaskList group(Group group) {
+        this.setGroup(group);
+        return this;
+    }
+
+    public Set<Task> getTasks() {
+        return this.tasks;
+    }
+
+    public void setTasks(Set<Task> tasks) {
+        if (this.tasks != null) {
+            this.tasks.forEach(i -> i.setTaskList(null));
+        }
+        if (tasks != null) {
+            tasks.forEach(i -> i.setTaskList(this));
+        }
+        this.tasks = tasks;
+    }
+
+    public TaskList tasks(Set<Task> tasks) {
+        this.setTasks(tasks);
+        return this;
+    }
+
+    public TaskList addTask(Task task) {
+        this.tasks.add(task);
+        task.setTaskList(this);
+        return this;
+    }
+
+    public TaskList removeTask(Task task) {
+        this.tasks.remove(task);
+        task.setTaskList(null);
+        return this;
     }
 
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
