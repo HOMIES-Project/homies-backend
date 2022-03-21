@@ -27,6 +27,7 @@ import tech.jhipster.web.util.ResponseUtil;
 /**
  * REST controller for managing {@link com.homies.app.domain.SettingsList}.
  */
+@CrossOrigin(origins = "/localhost:4200", maxAge = 3600)
 @RestController
 @RequestMapping("/api")
 public class SettingsListResource {

@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 /**
  * Controller to authenticate users.
  */
+@CrossOrigin(origins = "/localhost:4200", maxAge = 3600)
 @RestController
 @RequestMapping("/api")
 public class UserJWTController {

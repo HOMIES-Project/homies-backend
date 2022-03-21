@@ -56,6 +56,7 @@ import tech.jhipster.web.util.ResponseUtil;
  * <p>
  * Another option would be to have a specific JPA entity graph to handle this case.
  */
+@CrossOrigin(origins = "/localhost:4200", maxAge = 3600)
 @RestController
 @RequestMapping("/api/admin")
 public class UserResource {
