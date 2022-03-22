@@ -14,9 +14,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import static com.homies.app.config.Constants.CROSS_ORIGIN;
+
 /**
  * Controller to authenticate users.
  */
+@CrossOrigin(origins = CROSS_ORIGIN, maxAge = 3600)
 @RestController
 @RequestMapping("/api")
 public class UserJWTController {

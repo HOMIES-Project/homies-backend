@@ -1,5 +1,6 @@
 package com.homies.app.config;
 
+import static com.homies.app.config.Constants.CROSS_ORIGIN;
 import static java.net.URLDecoder.decode;
 
 import java.io.File;
@@ -93,6 +94,7 @@ public class WebConfigurer implements ServletContextInitializer, WebServerFactor
             source.registerCorsConfiguration("/management/**", config);
             source.registerCorsConfiguration("/v3/api-docs", config);
             source.registerCorsConfiguration("/swagger-ui/**", config);
+            source.registerCorsConfiguration(CROSS_ORIGIN +"/**", config);
         }
         return new CorsFilter(source);
     }

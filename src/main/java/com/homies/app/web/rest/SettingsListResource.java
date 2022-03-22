@@ -24,9 +24,12 @@ import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.PaginationUtil;
 import tech.jhipster.web.util.ResponseUtil;
 
+import static com.homies.app.config.Constants.CROSS_ORIGIN;
+
 /**
  * REST controller for managing {@link com.homies.app.domain.SettingsList}.
  */
+@CrossOrigin(origins = CROSS_ORIGIN, maxAge = 3600)
 @RestController
 @RequestMapping("/api")
 public class SettingsListResource {
