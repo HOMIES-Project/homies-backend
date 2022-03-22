@@ -32,6 +32,8 @@ import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.PaginationUtil;
 import tech.jhipster.web.util.ResponseUtil;
 
+import static com.homies.app.config.Constants.CROSS_ORIGIN;
+
 /**
  * REST controller for managing users.
  * <p>
@@ -56,7 +58,7 @@ import tech.jhipster.web.util.ResponseUtil;
  * <p>
  * Another option would be to have a specific JPA entity graph to handle this case.
  */
-@CrossOrigin(origins = "/localhost:4200", maxAge = 3600)
+@CrossOrigin(origins = CROSS_ORIGIN, maxAge = 3600)
 @RestController
 @RequestMapping("/api/admin")
 public class UserResource {

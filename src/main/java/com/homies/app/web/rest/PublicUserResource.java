@@ -16,7 +16,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import tech.jhipster.web.util.PaginationUtil;
 
-@CrossOrigin(origins = "/localhost:4200", maxAge = 3600)
+import static com.homies.app.config.Constants.CROSS_ORIGIN;
+
+@CrossOrigin(origins = CROSS_ORIGIN, maxAge = 3600)
 @RestController
 @RequestMapping("/api")
 public class PublicUserResource {

@@ -19,10 +19,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import static com.homies.app.config.Constants.CROSS_ORIGIN;
+
 /**
  * REST controller for managing the current user's account.
  */
-@CrossOrigin(origins = "/localhost:4200", maxAge = 3600)
+@CrossOrigin(origins = CROSS_ORIGIN, maxAge = 3600)
 @RestController
 @RequestMapping("/api")
 public class AccountResource {

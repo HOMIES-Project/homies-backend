@@ -19,6 +19,8 @@ import org.springframework.web.filter.CorsFilter;
 import org.zalando.problem.spring.web.advice.security.SecurityProblemSupport;
 import tech.jhipster.config.JHipsterProperties;
 
+import static com.homies.app.config.Constants.CROSS_ORIGIN;
+
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
 @Import(SecurityProblemSupport.class)
@@ -58,7 +60,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             .antMatchers("/content/**")
             .antMatchers("/swagger-ui/**")
             .antMatchers("/test/**")
-            .antMatchers("/localhost:4200/**");
+            .antMatchers( CROSS_ORIGIN + "/**");
     }
 
     @Override
