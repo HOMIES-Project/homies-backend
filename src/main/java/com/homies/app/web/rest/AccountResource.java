@@ -8,6 +8,8 @@ import com.homies.app.service.UserService;
 import com.homies.app.service.dto.AdminUserDTO;
 import com.homies.app.service.dto.PasswordChangeDTO;
 import com.homies.app.web.rest.errors.*;
+import com.homies.app.web.rest.vm.FusionUserAndUserData;
+import com.homies.app.web.rest.vm.JSONResetPassword;
 import com.homies.app.web.rest.vm.KeyAndPasswordVM;
 import com.homies.app.web.rest.vm.ManagedUserVM;
 import java.util.*;
@@ -17,9 +19,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import static com.homies.app.config.Constants.CROSS_ORIGIN;
+import static com.homies.app.web.rest.errors.ErrorConstants.EMAIL_NOT_EXIST_TYPE;
 
 /**
  * REST controller for managing the current user's account.
@@ -44,10 +48,16 @@ public class AccountResource {
 
     private final MailService mailService;
 
-    public AccountResource(UserRepository userRepository, UserService userService, MailService mailService) {
+    private final FusionUserAndUserData fusionUserAndUserData;
+
+    public AccountResource(UserRepository userRepository,
+                           UserService userService,
+                           MailService mailService,
+                           FusionUserAndUserData fusionUserAndUserData) {
         this.userRepository = userRepository;
         this.userService = userService;
         this.mailService = mailService;
+        this.fusionUserAndUserData = fusionUserAndUserData;
     }
 
     /**
@@ -157,14 +167,18 @@ public class AccountResource {
      * @param mail the mail of the user.
      */
     @PostMapping(path = "/account/reset-password/init")
-    public void requestPasswordReset(@RequestBody String mail) {
+    public ResponseEntity<JSONResetPassword> requestPasswordReset(@RequestBody String mail) {
         Optional<User> user = userService.requestPasswordReset(mail);
+
         if (user.isPresent()) {
+            log.warn(mail);
+            JSONResetPassword key = new JSONResetPassword(user.get().getResetKey());
+            log.warn("key= " + key);
             mailService.sendPasswordResetMail(user.get());
+            return new ResponseEntity(key, HttpStatus.OK);
         } else {
-            // Pretend the request has been successful to prevent checking which emails really exist
-            // but log that an invalid attempt has been made
-            log.warn("Password reset requested for non existing mail");
+            log.warn(EMAIL_NOT_EXIST_TYPE.toString());
+            throw new EmailNotExistException();
         }
     }
 
@@ -182,7 +196,7 @@ public class AccountResource {
         }
         Optional<User> user = userService.completePasswordReset(keyAndPassword.getNewPassword(), keyAndPassword.getKey());
 
-        if (!user.isPresent()) {
+        if (user.isEmpty()) {
             throw new AccountResourceException("No user was found for this reset key");
         }
     }
