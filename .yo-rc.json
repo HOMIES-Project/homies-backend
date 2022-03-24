@@ -32,6 +32,9 @@
       "SettingsList"
     ],
     "entitySuffix": "",
+    "herokuAppName": "homies-back-app",
+    "herokuDeployType": "git",
+    "herokuJavaVersion": "11",
     "jhiPrefix": "jhi",
     "jhipsterVersion": "7.7.0",
     "jwtSecretKey": "OWZmZGQ4MTNiNzA1NGU5ZjAzY2I0NDZlYjc2Zjg4ZDVmNTg1MTE4MDYyODlkNmYzMmFhYTc2YzNiNGI4NTBjYmVmY2I5NjRkNjcyMDAwN2JkYzk1MTEyOTlkN2MwYWZkZTY2MzQ1YjI0ZTljN2Y5MGY4Mjk3NDA0MWUzYzlmMzE=",
