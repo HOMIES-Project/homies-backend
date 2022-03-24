@@ -50,7 +50,7 @@ spring:
 mail:
   host: smtp-mail.outlook.com
   port: 587
-  username: homies_app@outlook.es  #Replace this field with your Outlook username.
+  username: homies_app@outlook.com  #Replace this field with your Outlook username.
   password: Homies12345!          #Replace this field with your Outlook password.
   protocol: smtp
   tls: true
