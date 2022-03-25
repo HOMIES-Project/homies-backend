@@ -1,0 +1,21 @@
+name: Pre merge
+
+on:
+  pull_request:
+    branches:
+      - develop
+      - master
+
+jobs:
+  pre-merge-ci:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📚 Git Checkout
+        uses: actions/checkout@master
+
+      - name: 📦 Install Dependencies
+        run: npm install
+
+      - name: 🔨 Build JHipster
+        run: ./mvnw
