@@ -13,12 +13,15 @@ import java.util.Objects;
 import java.util.Optional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+
+import com.homies.app.web.rest.vm.CreateGroupVM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -63,20 +66,17 @@ public class GroupResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/groups")
-    public ResponseEntity<Group> createGroup(@Valid @RequestBody Group group) throws URISyntaxException {
+    public ResponseEntity<CreateGroupVM> createGroup(@Valid @RequestBody CreateGroupVM group) throws URISyntaxException {
         log.debug("REST request to save Group : {}", group);
-        if (group.getId() != null) {
-            throw new BadRequestAlertException("A new group cannot already have an ID", ENTITY_NAME, "idexists");
-        }
-        if (Objects.isNull(group.getTaskList())) {
-            throw new BadRequestAlertException("Invalid association value provided", ENTITY_NAME, "null");
-        }
-        Group result = groupService.save(group);
+
+        /*return new ResponseEntity("group", HttpStatus.CREATED);
+*/
         return ResponseEntity
-            .created(new URI("/api/groups/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(applicationName, false, ENTITY_NAME, result.getId().toString()))
-            .body(result);
+            .created(new URI("/api/groups/" + group.getUser()))
+            .headers(HeaderUtil.createEntityCreationAlert(applicationName, false, ENTITY_NAME, group.getUser().toString()))
+            .body(group);
     }
+
 
     /**
      * {@code PUT  /groups/:id} : Updates an existing group.

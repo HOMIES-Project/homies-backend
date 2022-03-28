@@ -8,8 +8,8 @@ import com.homies.app.service.UserService;
 import com.homies.app.service.dto.AdminUserDTO;
 import com.homies.app.service.dto.PasswordChangeDTO;
 import com.homies.app.web.rest.errors.*;
-import com.homies.app.web.rest.vm.FusionUserAndUserData;
-import com.homies.app.web.rest.vm.JSONResetPassword;
+import com.homies.app.web.rest.auxiliary.FusionUserAndUserDataAux;
+import com.homies.app.web.rest.auxiliary.JSONResetPasswordAux;
 import com.homies.app.web.rest.vm.KeyAndPasswordVM;
 import com.homies.app.web.rest.vm.ManagedUserVM;
 import java.util.*;
@@ -48,12 +48,12 @@ public class AccountResource {
 
     private final MailService mailService;
 
-    private final FusionUserAndUserData fusionUserAndUserData;
+    private final FusionUserAndUserDataAux fusionUserAndUserData;
 
     public AccountResource(UserRepository userRepository,
                            UserService userService,
                            MailService mailService,
-                           FusionUserAndUserData fusionUserAndUserData) {
+                           FusionUserAndUserDataAux fusionUserAndUserData) {
         this.userRepository = userRepository;
         this.userService = userService;
         this.mailService = mailService;
@@ -167,12 +167,12 @@ public class AccountResource {
      * @param mail the mail of the user.
      */
     @PostMapping(path = "/account/reset-password/init")
-    public ResponseEntity<JSONResetPassword> requestPasswordReset(@RequestBody String mail) {
+    public ResponseEntity<JSONResetPasswordAux> requestPasswordReset(@RequestBody String mail) {
         Optional<User> user = userService.requestPasswordReset(mail);
 
         if (user.isPresent()) {
             log.warn(mail);
-            JSONResetPassword key = new JSONResetPassword(user.get().getResetKey());
+            JSONResetPasswordAux key = new JSONResetPasswordAux(user.get().getResetKey());
             log.warn("key= " + key);
             mailService.sendPasswordResetMail(user.get());
             return new ResponseEntity(key, HttpStatus.OK);
