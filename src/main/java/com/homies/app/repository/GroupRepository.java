@@ -26,6 +26,10 @@ public interface GroupRepository extends GroupRepositoryWithBagRelationships, Jp
         return this.fetchBagRelationships(this.findAllWithToOneRelationships(pageable));
     }
 
+    boolean existsByGroupName(String groupName);
+
+
+
     @Query(
         value = "select distinct jhiGroup from Group jhiGroup left join fetch jhiGroup.taskList",
         countQuery = "select count(distinct jhiGroup) from Group jhiGroup"

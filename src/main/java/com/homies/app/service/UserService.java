@@ -322,4 +322,25 @@ public class UserService {
             Objects.requireNonNull(cacheManager.getCache(UserRepository.USERS_BY_EMAIL_CACHE)).evict(user.getEmail());
         }
     }
+
+    /**
+     * Get user id if is present
+     * @param id
+     * @return boolean
+     */
+    @Transactional(readOnly = true)
+    public boolean userExist(Long id) {
+        Optional<User> userId = userRepository.findById(id);
+        return userId.isPresent();
+    }
+
+    /**
+     * Find user by id
+     * @param id
+     * @return Optional<User>
+     */
+    @Transactional(readOnly = true)
+    public Optional<User> findUserById(Long id) {
+        return userRepository.findById(id);
+    }
 }

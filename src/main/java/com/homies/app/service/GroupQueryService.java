@@ -34,6 +34,16 @@ public class GroupQueryService extends QueryService<Group> {
     }
 
     /**
+     * find group by name
+     * @param nameGroup
+     * @return boolean
+     */
+    @Transactional(readOnly = true)
+    public boolean findOneByName(String nameGroup) {
+        return groupRepository.existsByGroupName(nameGroup);
+    }
+
+    /**
      * Return a {@link List} of {@link Group} which matches the criteria from the database.
      * @param criteria The object which holds all the filters, which the entities should match.
      * @return the matching entities.
