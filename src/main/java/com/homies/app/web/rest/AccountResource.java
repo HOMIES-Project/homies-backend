@@ -168,7 +168,7 @@ public class AccountResource {
      */
     @PostMapping(path = "/account/reset-password/init")
     public ResponseEntity<JSONResetPasswordAux> requestPasswordReset(@RequestBody String mail) {
-        log.warn(mail);
+        log.warn(mail + " " + mail.getClass().getSimpleName());
         Optional<User> user = userService.requestPasswordReset(mail);
 
         if (user.isPresent()) {
