@@ -1,5 +1,6 @@
 package com.homies.app.web.rest;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.homies.app.domain.User;
 import com.homies.app.repository.UserRepository;
 import com.homies.app.security.SecurityUtils;
@@ -10,6 +11,7 @@ import com.homies.app.service.dto.PasswordChangeDTO;
 import com.homies.app.web.rest.errors.*;
 import com.homies.app.web.rest.auxiliary.FusionUserAndUserDataAux;
 import com.homies.app.web.rest.auxiliary.JSONResetPasswordAux;
+import com.homies.app.web.rest.vm.JSONEmailVM;
 import com.homies.app.web.rest.vm.KeyAndPasswordVM;
 import com.homies.app.web.rest.vm.ManagedUserVM;
 import java.util.*;
@@ -164,24 +166,23 @@ public class AccountResource {
     /**
      * {@code POST   /account/reset-password/init} : Send an email to reset the password of the user.
      *
-     * @param mail the mail of the user.
+     * @param email the mail of the user.
      */
     @PostMapping(path = "/account/reset-password/init")
-    public ResponseEntity<JSONResetPasswordAux> requestPasswordReset(@RequestBody String mail) {
-        log.warn(mail + " " + mail.getClass().getSimpleName());
-        if (mail.startsWith("\"")) {
-            mail = mail.replace("\"", "");
-        }
+    public ResponseEntity<String> requestPasswordReset(@Valid @RequestBody JSONEmailVM email) {
+        log.warn(email.getEmail());
 
-        Optional<User> user = userService.requestPasswordReset(mail);
+        Optional<User> user = userService.requestPasswordReset(email.getEmail());
 
         if (user.isPresent()) {
-            log.warn(mail);
+            log.warn(email.getEmail());
             JSONResetPasswordAux key = new JSONResetPasswordAux(user.get().getResetKey());
             log.warn("key= " + key);
             mailService.sendPasswordResetMail(user.get());
-            return new ResponseEntity(key, HttpStatus.OK);
+
+            return new ResponseEntity(HttpStatus.ACCEPTED, HttpStatus.OK);
         } else {
+
             log.warn(EMAIL_NOT_EXIST_TYPE.toString());
             throw new EmailNotExistException();
         }
