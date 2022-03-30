@@ -1,11 +1,11 @@
-package com.homies.app.web.rest.vm;
+package com.homies.app.web.rest.auxiliary;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class JSONResetPassword {
+public class JSONResetPasswordAux {
     private String restKey;
 
-    public JSONResetPassword(String restKey) {
+    public JSONResetPasswordAux(String restKey) {
         this.restKey = restKey;
     }
 
