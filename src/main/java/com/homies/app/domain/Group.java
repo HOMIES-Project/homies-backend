@@ -61,6 +61,18 @@ public class Group implements Serializable {
     @JoinColumn(name = "id")
     private TaskList taskList;
 
+    @JsonIgnoreProperties(value = { "group", "shoppingList" }, allowSetters = true)
+    @OneToOne
+    @MapsId
+    @JoinColumn(name = "nameShopList")
+    private ShoppingList shoppingList;
+
+    @JsonIgnoreProperties(value = { "group", "spendingList" }, allowSetters = true)
+    @OneToOne
+    @MapsId
+    @JoinColumn(name = "nameSpendList")
+    private SpendingList spendingList;
+
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
     public Long getId() {

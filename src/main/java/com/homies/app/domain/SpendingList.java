@@ -43,6 +43,12 @@ public class SpendingList implements Serializable {
     @JsonIgnoreProperties(value = { "spendingList", "userPendings" }, allowSetters = true)
     private Set<SettingsList> settingsLists = new HashSet<>();
 
+    @JsonIgnoreProperties(value = { "spendingList", "group" }, allowSetters = true)
+    @OneToOne
+    @MapsId
+    @JoinColumn(name = "id")
+    private Group group;
+
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
     public Long getId() {

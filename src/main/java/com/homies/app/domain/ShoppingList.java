@@ -37,6 +37,12 @@ public class ShoppingList implements Serializable {
     @JsonIgnoreProperties(value = { "userCreator", "shoppingList" }, allowSetters = true)
     private Set<Products> products = new HashSet<>();
 
+    @JsonIgnoreProperties(value = { "shoppingList", "group" }, allowSetters = true)
+    @OneToOne
+    @MapsId
+    @JoinColumn(name = "id")
+    private Group group;
+
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
     public Long getId() {
