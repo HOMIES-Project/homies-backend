@@ -333,14 +333,4 @@ public class UserService {
         Optional<User> userId = userRepository.findById(id);
         return userId.isPresent();
     }
-
-    /**
-     * Find user by id
-     * @param id
-     * @return Optional<User>
-     */
-    @Transactional(readOnly = true)
-    public Optional<User> findUserById(Long id) {
-        return userRepository.findById(id);
-    }
 }

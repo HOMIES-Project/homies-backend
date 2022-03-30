@@ -50,6 +50,14 @@ public interface GroupService {
     Optional<Group> findOne(Long id);
 
     /**
+     * Get the "name" group.
+     *
+     * @param groupName the name of entity.
+     * @return the entity.
+     */
+    Optional<Group> findOne(String groupName);
+
+    /**
      * Delete the "id" group.
      *
      * @param id the id of the entity.

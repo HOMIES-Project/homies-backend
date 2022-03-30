@@ -5,8 +5,9 @@ import com.homies.app.repository.GroupRepository;
 import com.homies.app.service.GroupQueryService;
 import com.homies.app.service.GroupService;
 import com.homies.app.service.criteria.GroupCriteria;
+import com.homies.app.web.rest.auxiliary.CreateGroupsAux;
 import com.homies.app.web.rest.errors.BadRequestAlertException;
-import java.net.URI;
+
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Objects;
@@ -52,10 +53,16 @@ public class GroupResource {
 
     private final GroupQueryService groupQueryService;
 
-    public GroupResource(GroupService groupService, GroupRepository groupRepository, GroupQueryService groupQueryService) {
+    private final CreateGroupsAux createGroupsAux;
+
+    public GroupResource(GroupService groupService,
+                         GroupRepository groupRepository,
+                         GroupQueryService groupQueryService,
+                         CreateGroupsAux createGroupsAux) {
         this.groupService = groupService;
         this.groupRepository = groupRepository;
         this.groupQueryService = groupQueryService;
+        this.createGroupsAux = createGroupsAux;
     }
 
     /**
@@ -66,15 +73,15 @@ public class GroupResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/groups")
-    public ResponseEntity<CreateGroupVM> createGroup(@Valid @RequestBody CreateGroupVM group) throws URISyntaxException {
+    public ResponseEntity<Group> createGroup(@Valid @RequestBody CreateGroupVM group) throws URISyntaxException {
         log.debug("REST request to save Group : {}", group);
 
-        /*return new ResponseEntity("group", HttpStatus.CREATED);
-*/
-        return ResponseEntity
-            .created(new URI("/api/groups/" + group.getUser()))
-            .headers(HeaderUtil.createEntityCreationAlert(applicationName, false, ENTITY_NAME, group.getUser().toString()))
-            .body(group);
+        Group newGrop = createGroupsAux.createNewGroup(group);
+
+        if (newGrop != null)
+            return new ResponseEntity<>(newGrop, HttpStatus.CREATED);
+
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
 

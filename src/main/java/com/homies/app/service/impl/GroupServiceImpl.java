@@ -82,6 +82,11 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
+    public Optional<Group> findOne(String groupName) {
+        return groupRepository.findByGroupName(groupName);
+    }
+
+    @Override
     public void delete(Long id) {
         log.debug("Request to delete Group : {}", id);
         groupRepository.deleteById(id);

@@ -65,6 +65,7 @@ public class GroupQueryService extends QueryService<Group> {
     public Page<Group> findByCriteria(GroupCriteria criteria, Pageable page) {
         log.debug("find by criteria : {}, page: {}", criteria, page);
         final Specification<Group> specification = createSpecification(criteria);
+        //return groupRepository.findAll(specification, page);
         return groupRepository.findAll(specification, page);
     }
 
