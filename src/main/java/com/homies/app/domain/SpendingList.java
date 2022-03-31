@@ -46,6 +46,7 @@ public class SpendingList implements Serializable {
         value = { "userAdmin", "taskList", "spendingList", "shoppingList", "settingsList", "userData" },
         allowSetters = true
     )
+
     @OneToOne
     @MapsId
     @JoinColumn(name = "id")
