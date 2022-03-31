@@ -1,7 +1,6 @@
 package com.homies.app.web.rest.auxiliary;
 
-import com.homies.app.domain.User;
-import com.homies.app.domain.UserData;
+import com.homies.app.domain.*;
 import com.homies.app.repository.UserDataRepository;
 import com.homies.app.repository.UserRepository;
 import org.slf4j.Logger;
@@ -10,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Optional;
 
 @Service
@@ -26,6 +26,37 @@ public class FusionUserAndUserDataAux {
         this.userRepository = userRepository;
         this.userDataRepository = userDataRepository;
     }
+
+    public boolean create(User user) {
+        log.warn("User: " + user.getLogin() + ", Id: " + user.getId() + ", User: " + user);
+
+        UserData newUserData = new UserData();
+        newUserData.setId(null);
+        newUserData.setPhoto(null);
+        newUserData.setPhotoContentType(null);
+        newUserData.setPhone(null);
+        newUserData.setPremium(false);
+        newUserData.setBirthDate(null);
+        newUserData.setAddDate(LocalDate.now());
+        newUserData.setUser(user);
+
+
+        HashSet groupSet = new HashSet<Group>();
+        newUserData.setGroups(groupSet);
+
+        HashSet ProductsSet = new HashSet<Products>();
+        newUserData.setProductCreateds(ProductsSet);
+
+        HashSet TaskSet = new HashSet<Task>();
+        newUserData.setTaskAsigneds(TaskSet);
+
+
+        userDataRepository.save(newUserData);
+        log.warn("newUserData is save: " + newUserData.getUser());
+        return true;
+
+    }
+
 
     public boolean createUserData(Long id) {
         Optional<User> user = userRepository.findById(id);
