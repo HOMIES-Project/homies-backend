@@ -1,6 +1,7 @@
 package com.homies.app.service.impl;
 
 import com.homies.app.domain.ShoppingList;
+import com.homies.app.repository.GroupRepository;
 import com.homies.app.repository.ShoppingListRepository;
 import com.homies.app.service.ShoppingListService;
 import java.util.Optional;
@@ -22,13 +23,18 @@ public class ShoppingListServiceImpl implements ShoppingListService {
 
     private final ShoppingListRepository shoppingListRepository;
 
-    public ShoppingListServiceImpl(ShoppingListRepository shoppingListRepository) {
+    private final GroupRepository groupRepository;
+
+    public ShoppingListServiceImpl(ShoppingListRepository shoppingListRepository, GroupRepository groupRepository) {
         this.shoppingListRepository = shoppingListRepository;
+        this.groupRepository = groupRepository;
     }
 
     @Override
     public ShoppingList save(ShoppingList shoppingList) {
         log.debug("Request to save ShoppingList : {}", shoppingList);
+        Long groupId = shoppingList.getGroup().getId();
+        groupRepository.findById(groupId).ifPresent(shoppingList::group);
         return shoppingListRepository.save(shoppingList);
     }
 

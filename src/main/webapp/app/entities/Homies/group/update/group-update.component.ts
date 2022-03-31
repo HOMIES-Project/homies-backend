@@ -28,7 +28,6 @@ export class GroupUpdateComponent implements OnInit {
     groupName: [null, [Validators.required, Validators.minLength(3), Validators.maxLength(50)]],
     groupRelationName: [null, [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
     addGroupDate: [],
-    userData: [],
     userAdmin: [],
     taskList: [],
   });
@@ -71,17 +70,6 @@ export class GroupUpdateComponent implements OnInit {
     return item.id!;
   }
 
-  getSelectedUserData(option: IUserData, selectedVals?: IUserData[]): IUserData {
-    if (selectedVals) {
-      for (const selectedVal of selectedVals) {
-        if (option.id === selectedVal.id) {
-          return selectedVal;
-        }
-      }
-    }
-    return option;
-  }
-
   protected subscribeToSaveResponse(result: Observable<HttpResponse<IGroup>>): void {
     result.pipe(finalize(() => this.onSaveFinalize())).subscribe({
       next: () => this.onSaveSuccess(),
@@ -108,16 +96,11 @@ export class GroupUpdateComponent implements OnInit {
       groupName: group.groupName,
       groupRelationName: group.groupRelationName,
       addGroupDate: group.addGroupDate,
-      userData: group.userData,
       userAdmin: group.userAdmin,
       taskList: group.taskList,
     });
 
-    this.userDataSharedCollection = this.userDataService.addUserDataToCollectionIfMissing(
-      this.userDataSharedCollection,
-      ...(group.userData ?? []),
-      group.userAdmin
-    );
+    this.userDataSharedCollection = this.userDataService.addUserDataToCollectionIfMissing(this.userDataSharedCollection, group.userAdmin);
     this.taskListsCollection = this.taskListService.addTaskListToCollectionIfMissing(this.taskListsCollection, group.taskList);
   }
 
@@ -127,11 +110,7 @@ export class GroupUpdateComponent implements OnInit {
       .pipe(map((res: HttpResponse<IUserData[]>) => res.body ?? []))
       .pipe(
         map((userData: IUserData[]) =>
-          this.userDataService.addUserDataToCollectionIfMissing(
-            userData,
-            ...(this.editForm.get('userData')!.value ?? []),
-            this.editForm.get('userAdmin')!.value
-          )
+          this.userDataService.addUserDataToCollectionIfMissing(userData, this.editForm.get('userAdmin')!.value)
         )
       )
       .subscribe((userData: IUserData[]) => (this.userDataSharedCollection = userData));
@@ -155,7 +134,6 @@ export class GroupUpdateComponent implements OnInit {
       groupName: this.editForm.get(['groupName'])!.value,
       groupRelationName: this.editForm.get(['groupRelationName'])!.value,
       addGroupDate: this.editForm.get(['addGroupDate'])!.value,
-      userData: this.editForm.get(['userData'])!.value,
       userAdmin: this.editForm.get(['userAdmin'])!.value,
       taskList: this.editForm.get(['taskList'])!.value,
     };

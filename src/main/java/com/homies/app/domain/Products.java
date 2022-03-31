@@ -63,11 +63,11 @@ public class Products implements Serializable {
     private Integer userCreated;
 
     @ManyToOne
-    @JsonIgnoreProperties(value = { "groups", "user", "adminGroups", "taskAsigneds", "productCreateds" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "user", "adminGroups", "taskAsigneds", "productCreateds", "groups" }, allowSetters = true)
     private UserData userCreator;
 
     @ManyToOne
-    @JsonIgnoreProperties(value = { "products" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "products", "group" }, allowSetters = true)
     private ShoppingList shoppingList;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here

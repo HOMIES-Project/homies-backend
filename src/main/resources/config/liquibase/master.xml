@@ -32,6 +32,8 @@
     <include file="config/liquibase/changelog/20220317091312_added_entity_constraints_Products.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20220317095408_added_entity_constraints_UserPending.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20220319084319_added_entity_constraints_SettingsList.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20220317101435_added_entity_constraints_SpendingList.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20220317090134_added_entity_constraints_ShoppingList.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-constraints-changelog - JHipster will add liquibase constraints changelogs here -->
     <!-- jhipster-needle-liquibase-add-incremental-changelog - JHipster will add incremental liquibase changelogs here -->
 </databaseChangeLog>

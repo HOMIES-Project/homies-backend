@@ -78,7 +78,7 @@ public class CreateGroupsAux {
         groupService.save(newGroup);
 
         //Update taskList
-        newGroup = groupService.findOne(newGroup.getGroupName()).get();
+        //newGroup = groupService.findOne(newGroup.getGroupName()).get();
         updateTaskList(newGroup.getId(), newGroup);
 
         //Group update with new taskList
@@ -97,7 +97,7 @@ public class CreateGroupsAux {
     @Transactional(readOnly = true)
     private boolean groupExist(String name) {
         log.warn(name);
-        return  groupQueryService.findOneByName(name);
+        return  false;//groupQueryService.findOneByName(name);
     }
 
     private TaskList createTaskList(String name) {

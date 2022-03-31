@@ -5,7 +5,6 @@ import com.homies.app.domain.TaskList;
 import com.homies.app.repository.TaskListRepository;
 import com.homies.app.service.criteria.TaskListCriteria;
 import java.util.List;
-import java.util.Optional;
 import javax.persistence.criteria.JoinType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,12 +31,6 @@ public class TaskListQueryService extends QueryService<TaskList> {
 
     public TaskListQueryService(TaskListRepository taskListRepository) {
         this.taskListRepository = taskListRepository;
-    }
-
-    @Transactional(readOnly = true)
-    public boolean taskListSave (TaskList taskList) {
-        taskListRepository.save(taskList);
-        return true;
     }
 
     /**

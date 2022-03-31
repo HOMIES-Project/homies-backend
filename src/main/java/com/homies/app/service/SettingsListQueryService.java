@@ -124,6 +124,12 @@ public class SettingsListQueryService extends QueryService<SettingsList> {
                         )
                     );
             }
+            if (criteria.getGroupId() != null) {
+                specification =
+                    specification.and(
+                        buildSpecification(criteria.getGroupId(), root -> root.join(SettingsList_.group, JoinType.LEFT).get(Group_.id))
+                    );
+            }
         }
         return specification;
     }

@@ -186,6 +186,11 @@ class UserDataResourceIT {
         userDataRepository.saveAndFlush(userData);
         int databaseSizeBeforeCreate = userDataRepository.findAll().size();
 
+        // Add a new parent entity
+        User user = UserResourceIT.createEntity(em);
+        em.persist(user);
+        em.flush();
+
         // Load the userData
         UserData updatedUserData = userDataRepository.findById(userData.getId()).get();
         assertThat(updatedUserData).isNotNull();
@@ -193,7 +198,7 @@ class UserDataResourceIT {
         em.detach(updatedUserData);
 
         // Update the User with new association value
-        updatedUserData.setUser(userData.getUser());
+        updatedUserData.setUser(user);
 
         // Update the entity
         restUserDataMockMvc
@@ -647,32 +652,6 @@ class UserDataResourceIT {
 
     @Test
     @Transactional
-    void getAllUserDataByGroupIsEqualToSomething() throws Exception {
-        // Initialize the database
-        userDataRepository.saveAndFlush(userData);
-        Group group;
-        if (TestUtil.findAll(em, Group.class).isEmpty()) {
-            group = GroupResourceIT.createEntity(em);
-            em.persist(group);
-            em.flush();
-        } else {
-            group = TestUtil.findAll(em, Group.class).get(0);
-        }
-        em.persist(group);
-        em.flush();
-        userData.addGroup(group);
-        userDataRepository.saveAndFlush(userData);
-        Long groupId = group.getId();
-
-        // Get all the userDataList where group equals to groupId
-        defaultUserDataShouldBeFound("groupId.equals=" + groupId);
-
-        // Get all the userDataList where group equals to (groupId + 1)
-        defaultUserDataShouldNotBeFound("groupId.equals=" + (groupId + 1));
-    }
-
-    @Test
-    @Transactional
     void getAllUserDataByUserIsEqualToSomething() throws Exception {
         // Get already existing entity
         User user = userData.getUser();
@@ -762,6 +741,32 @@ class UserDataResourceIT {
 
         // Get all the userDataList where productCreated equals to (productCreatedId + 1)
         defaultUserDataShouldNotBeFound("productCreatedId.equals=" + (productCreatedId + 1));
+    }
+
+    @Test
+    @Transactional
+    void getAllUserDataByGroupIsEqualToSomething() throws Exception {
+        // Initialize the database
+        userDataRepository.saveAndFlush(userData);
+        Group group;
+        if (TestUtil.findAll(em, Group.class).isEmpty()) {
+            group = GroupResourceIT.createEntity(em);
+            em.persist(group);
+            em.flush();
+        } else {
+            group = TestUtil.findAll(em, Group.class).get(0);
+        }
+        em.persist(group);
+        em.flush();
+        userData.addGroup(group);
+        userDataRepository.saveAndFlush(userData);
+        Long groupId = group.getId();
+
+        // Get all the userDataList where group equals to groupId
+        defaultUserDataShouldBeFound("groupId.equals=" + groupId);
+
+        // Get all the userDataList where group equals to (groupId + 1)
+        defaultUserDataShouldNotBeFound("groupId.equals=" + (groupId + 1));
     }
 
     /**

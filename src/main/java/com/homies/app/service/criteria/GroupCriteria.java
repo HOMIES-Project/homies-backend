@@ -37,11 +37,17 @@ public class GroupCriteria implements Serializable, Criteria {
 
     private LocalDateFilter addGroupDate;
 
-    private LongFilter userDataId;
-
     private LongFilter userAdminId;
 
     private LongFilter taskListId;
+
+    private LongFilter spendingListId;
+
+    private LongFilter shoppingListId;
+
+    private LongFilter settingsListId;
+
+    private LongFilter userDataId;
 
     private Boolean distinct;
 
@@ -53,9 +59,12 @@ public class GroupCriteria implements Serializable, Criteria {
         this.groupName = other.groupName == null ? null : other.groupName.copy();
         this.groupRelationName = other.groupRelationName == null ? null : other.groupRelationName.copy();
         this.addGroupDate = other.addGroupDate == null ? null : other.addGroupDate.copy();
-        this.userDataId = other.userDataId == null ? null : other.userDataId.copy();
         this.userAdminId = other.userAdminId == null ? null : other.userAdminId.copy();
         this.taskListId = other.taskListId == null ? null : other.taskListId.copy();
+        this.spendingListId = other.spendingListId == null ? null : other.spendingListId.copy();
+        this.shoppingListId = other.shoppingListId == null ? null : other.shoppingListId.copy();
+        this.settingsListId = other.settingsListId == null ? null : other.settingsListId.copy();
+        this.userDataId = other.userDataId == null ? null : other.userDataId.copy();
         this.distinct = other.distinct;
     }
 
@@ -139,21 +148,6 @@ public class GroupCriteria implements Serializable, Criteria {
         this.addGroupDate = addGroupDate;
     }
 
-    public LongFilter getUserDataId() {
-        return userDataId;
-    }
-
-    public LongFilter userDataId() {
-        if (userDataId == null) {
-            userDataId = new LongFilter();
-        }
-        return userDataId;
-    }
-
-    public void setUserDataId(LongFilter userDataId) {
-        this.userDataId = userDataId;
-    }
-
     public LongFilter getUserAdminId() {
         return userAdminId;
     }
@@ -184,6 +178,66 @@ public class GroupCriteria implements Serializable, Criteria {
         this.taskListId = taskListId;
     }
 
+    public LongFilter getSpendingListId() {
+        return spendingListId;
+    }
+
+    public LongFilter spendingListId() {
+        if (spendingListId == null) {
+            spendingListId = new LongFilter();
+        }
+        return spendingListId;
+    }
+
+    public void setSpendingListId(LongFilter spendingListId) {
+        this.spendingListId = spendingListId;
+    }
+
+    public LongFilter getShoppingListId() {
+        return shoppingListId;
+    }
+
+    public LongFilter shoppingListId() {
+        if (shoppingListId == null) {
+            shoppingListId = new LongFilter();
+        }
+        return shoppingListId;
+    }
+
+    public void setShoppingListId(LongFilter shoppingListId) {
+        this.shoppingListId = shoppingListId;
+    }
+
+    public LongFilter getSettingsListId() {
+        return settingsListId;
+    }
+
+    public LongFilter settingsListId() {
+        if (settingsListId == null) {
+            settingsListId = new LongFilter();
+        }
+        return settingsListId;
+    }
+
+    public void setSettingsListId(LongFilter settingsListId) {
+        this.settingsListId = settingsListId;
+    }
+
+    public LongFilter getUserDataId() {
+        return userDataId;
+    }
+
+    public LongFilter userDataId() {
+        if (userDataId == null) {
+            userDataId = new LongFilter();
+        }
+        return userDataId;
+    }
+
+    public void setUserDataId(LongFilter userDataId) {
+        this.userDataId = userDataId;
+    }
+
     public Boolean getDistinct() {
         return distinct;
     }
@@ -207,16 +261,32 @@ public class GroupCriteria implements Serializable, Criteria {
             Objects.equals(groupName, that.groupName) &&
             Objects.equals(groupRelationName, that.groupRelationName) &&
             Objects.equals(addGroupDate, that.addGroupDate) &&
-            Objects.equals(userDataId, that.userDataId) &&
             Objects.equals(userAdminId, that.userAdminId) &&
             Objects.equals(taskListId, that.taskListId) &&
+            Objects.equals(spendingListId, that.spendingListId) &&
+            Objects.equals(shoppingListId, that.shoppingListId) &&
+            Objects.equals(settingsListId, that.settingsListId) &&
+            Objects.equals(userDataId, that.userDataId) &&
             Objects.equals(distinct, that.distinct)
         );
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, groupKey, groupName, groupRelationName, addGroupDate, userDataId, userAdminId, taskListId, distinct);
+        return Objects.hash(
+            id,
+            groupKey,
+            groupName,
+            groupRelationName,
+            addGroupDate,
+            userAdminId,
+            taskListId,
+            spendingListId,
+            shoppingListId,
+            settingsListId,
+            userDataId,
+            distinct
+        );
     }
 
     // prettier-ignore
@@ -228,9 +298,12 @@ public class GroupCriteria implements Serializable, Criteria {
             (groupName != null ? "groupName=" + groupName + ", " : "") +
             (groupRelationName != null ? "groupRelationName=" + groupRelationName + ", " : "") +
             (addGroupDate != null ? "addGroupDate=" + addGroupDate + ", " : "") +
-            (userDataId != null ? "userDataId=" + userDataId + ", " : "") +
             (userAdminId != null ? "userAdminId=" + userAdminId + ", " : "") +
             (taskListId != null ? "taskListId=" + taskListId + ", " : "") +
+            (spendingListId != null ? "spendingListId=" + spendingListId + ", " : "") +
+            (shoppingListId != null ? "shoppingListId=" + shoppingListId + ", " : "") +
+            (settingsListId != null ? "settingsListId=" + settingsListId + ", " : "") +
+            (userDataId != null ? "userDataId=" + userDataId + ", " : "") +
             (distinct != null ? "distinct=" + distinct + ", " : "") +
             "}";
     }

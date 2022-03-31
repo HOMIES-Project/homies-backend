@@ -100,6 +100,12 @@ public class ShoppingListQueryService extends QueryService<ShoppingList> {
                         )
                     );
             }
+            if (criteria.getGroupId() != null) {
+                specification =
+                    specification.and(
+                        buildSpecification(criteria.getGroupId(), root -> root.join(ShoppingList_.group, JoinType.LEFT).get(Group_.id))
+                    );
+            }
         }
         return specification;
     }

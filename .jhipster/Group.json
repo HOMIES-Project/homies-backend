@@ -39,14 +39,6 @@
     {
       "otherEntityField": "id",
       "otherEntityName": "userData",
-      "otherEntityRelationshipName": "group",
-      "ownerSide": true,
-      "relationshipName": "userData",
-      "relationshipType": "many-to-many"
-    },
-    {
-      "otherEntityField": "id",
-      "otherEntityName": "userData",
       "relationshipName": "userAdmin",
       "relationshipType": "many-to-one"
     },
@@ -58,6 +50,34 @@
       "ownerSide": true,
       "relationshipName": "taskList",
       "relationshipType": "one-to-one"
+    },
+    {
+      "otherEntityName": "spendingList",
+      "otherEntityRelationshipName": "group",
+      "ownerSide": false,
+      "relationshipName": "spendingList",
+      "relationshipType": "one-to-one"
+    },
+    {
+      "otherEntityName": "shoppingList",
+      "otherEntityRelationshipName": "group",
+      "ownerSide": false,
+      "relationshipName": "shoppingList",
+      "relationshipType": "one-to-one"
+    },
+    {
+      "otherEntityName": "settingsList",
+      "otherEntityRelationshipName": "group",
+      "ownerSide": false,
+      "relationshipName": "settingsList",
+      "relationshipType": "one-to-one"
+    },
+    {
+      "otherEntityName": "userData",
+      "otherEntityRelationshipName": "group",
+      "ownerSide": false,
+      "relationshipName": "userData",
+      "relationshipType": "many-to-many"
     }
   ],
   "service": "serviceImpl"

@@ -22,6 +22,12 @@
         <dd>
           <span>{{ spendingList.nameSpendList }}</span>
         </dd>
+        <dt><span>Group</span></dt>
+        <dd>
+          <div *ngIf="spendingList.group">
+            <a [routerLink]="['/group', spendingList.group?.id, 'view']">{{ spendingList.group?.id }}</a>
+          </div>
+        </dd>
       </dl>
 
       <button type="submit" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">

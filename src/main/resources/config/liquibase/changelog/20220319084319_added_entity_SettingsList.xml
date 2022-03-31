@@ -11,7 +11,7 @@
     -->
     <changeSet id="20220319084319-1" author="jhipster">
         <createTable tableName="settings_list">
-            <column name="id" type="bigint" autoIncrement="true">
+            <column name="id" type="bigint">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="setting_one" type="boolean">

@@ -48,6 +48,17 @@
         </createTable>
 
         <addPrimaryKey columnNames="user_data_id, task_asigned_id" tableName="rel_user_data__task_asigned"/>
+
+        <createTable tableName="rel_user_data__group">
+            <column name="group_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_data_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addPrimaryKey columnNames="user_data_id, group_id" tableName="rel_user_data__group"/>
     </changeSet>
 
     <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->

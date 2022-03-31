@@ -34,16 +34,6 @@ public class GroupQueryService extends QueryService<Group> {
     }
 
     /**
-     * find group by name
-     * @param nameGroup
-     * @return boolean
-     */
-    @Transactional(readOnly = true)
-    public boolean findOneByName(String nameGroup) {
-        return groupRepository.existsByGroupName(nameGroup);
-    }
-
-    /**
      * Return a {@link List} of {@link Group} which matches the criteria from the database.
      * @param criteria The object which holds all the filters, which the entities should match.
      * @return the matching entities.
@@ -65,7 +55,6 @@ public class GroupQueryService extends QueryService<Group> {
     public Page<Group> findByCriteria(GroupCriteria criteria, Pageable page) {
         log.debug("find by criteria : {}, page: {}", criteria, page);
         final Specification<Group> specification = createSpecification(criteria);
-        //return groupRepository.findAll(specification, page);
         return groupRepository.findAll(specification, page);
     }
 
@@ -108,12 +97,6 @@ public class GroupQueryService extends QueryService<Group> {
             if (criteria.getAddGroupDate() != null) {
                 specification = specification.and(buildRangeSpecification(criteria.getAddGroupDate(), Group_.addGroupDate));
             }
-            if (criteria.getUserDataId() != null) {
-                specification =
-                    specification.and(
-                        buildSpecification(criteria.getUserDataId(), root -> root.join(Group_.userData, JoinType.LEFT).get(UserData_.id))
-                    );
-            }
             if (criteria.getUserAdminId() != null) {
                 specification =
                     specification.and(
@@ -124,6 +107,39 @@ public class GroupQueryService extends QueryService<Group> {
                 specification =
                     specification.and(
                         buildSpecification(criteria.getTaskListId(), root -> root.join(Group_.taskList, JoinType.LEFT).get(TaskList_.id))
+                    );
+            }
+            if (criteria.getSpendingListId() != null) {
+                specification =
+                    specification.and(
+                        buildSpecification(
+                            criteria.getSpendingListId(),
+                            root -> root.join(Group_.spendingList, JoinType.LEFT).get(SpendingList_.id)
+                        )
+                    );
+            }
+            if (criteria.getShoppingListId() != null) {
+                specification =
+                    specification.and(
+                        buildSpecification(
+                            criteria.getShoppingListId(),
+                            root -> root.join(Group_.shoppingList, JoinType.LEFT).get(ShoppingList_.id)
+                        )
+                    );
+            }
+            if (criteria.getSettingsListId() != null) {
+                specification =
+                    specification.and(
+                        buildSpecification(
+                            criteria.getSettingsListId(),
+                            root -> root.join(Group_.settingsList, JoinType.LEFT).get(SettingsList_.id)
+                        )
+                    );
+            }
+            if (criteria.getUserDataId() != null) {
+                specification =
+                    specification.and(
+                        buildSpecification(criteria.getUserDataId(), root -> root.join(Group_.userData, JoinType.LEFT).get(UserData_.id))
                     );
             }
         }

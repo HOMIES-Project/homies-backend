@@ -19,7 +19,7 @@ public class UserDataRepositoryWithBagRelationshipsImpl implements UserDataRepos
 
     @Override
     public Optional<UserData> fetchBagRelationships(Optional<UserData> userData) {
-        return userData.map(this::fetchTaskAsigneds);
+        return userData.map(this::fetchTaskAsigneds).map(this::fetchGroups);
     }
 
     @Override
@@ -29,7 +29,7 @@ public class UserDataRepositoryWithBagRelationshipsImpl implements UserDataRepos
 
     @Override
     public List<UserData> fetchBagRelationships(List<UserData> userData) {
-        return Optional.of(userData).map(this::fetchTaskAsigneds).get();
+        return Optional.of(userData).map(this::fetchTaskAsigneds).map(this::fetchGroups).get();
     }
 
     UserData fetchTaskAsigneds(UserData result) {
@@ -47,6 +47,28 @@ public class UserDataRepositoryWithBagRelationshipsImpl implements UserDataRepos
         return entityManager
             .createQuery(
                 "select distinct userData from UserData userData left join fetch userData.taskAsigneds where userData in :userData",
+                UserData.class
+            )
+            .setParameter("userData", userData)
+            .setHint(QueryHints.PASS_DISTINCT_THROUGH, false)
+            .getResultList();
+    }
+
+    UserData fetchGroups(UserData result) {
+        return entityManager
+            .createQuery(
+                "select userData from UserData userData left join fetch userData.groups where userData is :userData",
+                UserData.class
+            )
+            .setParameter("userData", result)
+            .setHint(QueryHints.PASS_DISTINCT_THROUGH, false)
+            .getSingleResult();
+    }
+
+    List<UserData> fetchGroups(List<UserData> userData) {
+        return entityManager
+            .createQuery(
+                "select distinct userData from UserData userData left join fetch userData.groups where userData in :userData",
                 UserData.class
             )
             .setParameter("userData", userData)

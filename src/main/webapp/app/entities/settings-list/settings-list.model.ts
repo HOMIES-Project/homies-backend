@@ -1,5 +1,6 @@
 import { ISpendingList } from 'app/entities/spending-list/spending-list.model';
 import { IUserPending } from 'app/entities/user-pending/user-pending.model';
+import { IGroup } from 'app/entities/Homies/group/group.model';
 
 export interface ISettingsList {
   id?: number;
@@ -12,6 +13,7 @@ export interface ISettingsList {
   settingSeven?: boolean | null;
   spendingList?: ISpendingList | null;
   userPendings?: IUserPending[] | null;
+  group?: IGroup | null;
 }
 
 export class SettingsList implements ISettingsList {
@@ -25,7 +27,8 @@ export class SettingsList implements ISettingsList {
     public settingSix?: boolean | null,
     public settingSeven?: boolean | null,
     public spendingList?: ISpendingList | null,
-    public userPendings?: IUserPending[] | null
+    public userPendings?: IUserPending[] | null,
+    public group?: IGroup | null
   ) {
     this.settingOne = this.settingOne ?? false;
     this.settingTwo = this.settingTwo ?? false;

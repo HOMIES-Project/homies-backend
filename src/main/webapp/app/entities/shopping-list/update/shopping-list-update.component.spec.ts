@@ -8,6 +8,8 @@ import { of, Subject, from } from 'rxjs';
 
 import { ShoppingListService } from '../service/shopping-list.service';
 import { IShoppingList, ShoppingList } from '../shopping-list.model';
+import { IGroup } from 'app/entities/Homies/group/group.model';
+import { GroupService } from 'app/entities/Homies/group/service/group.service';
 
 import { ShoppingListUpdateComponent } from './shopping-list-update.component';
 
@@ -16,6 +18,7 @@ describe('ShoppingList Management Update Component', () => {
   let fixture: ComponentFixture<ShoppingListUpdateComponent>;
   let activatedRoute: ActivatedRoute;
   let shoppingListService: ShoppingListService;
+  let groupService: GroupService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -37,18 +40,40 @@ describe('ShoppingList Management Update Component', () => {
     fixture = TestBed.createComponent(ShoppingListUpdateComponent);
     activatedRoute = TestBed.inject(ActivatedRoute);
     shoppingListService = TestBed.inject(ShoppingListService);
+    groupService = TestBed.inject(GroupService);
 
     comp = fixture.componentInstance;
   });
 
   describe('ngOnInit', () => {
+    it('Should call group query and add missing value', () => {
+      const shoppingList: IShoppingList = { id: 456 };
+      const group: IGroup = { id: 11409 };
+      shoppingList.group = group;
+
+      const groupCollection: IGroup[] = [{ id: 49041 }];
+      jest.spyOn(groupService, 'query').mockReturnValue(of(new HttpResponse({ body: groupCollection })));
+      const expectedCollection: IGroup[] = [group, ...groupCollection];
+      jest.spyOn(groupService, 'addGroupToCollectionIfMissing').mockReturnValue(expectedCollection);
+
+      activatedRoute.data = of({ shoppingList });
+      comp.ngOnInit();
+
+      expect(groupService.query).toHaveBeenCalled();
+      expect(groupService.addGroupToCollectionIfMissing).toHaveBeenCalledWith(groupCollection, group);
+      expect(comp.groupsCollection).toEqual(expectedCollection);
+    });
+
     it('Should update editForm', () => {
       const shoppingList: IShoppingList = { id: 456 };
+      const group: IGroup = { id: 14519 };
+      shoppingList.group = group;
 
       activatedRoute.data = of({ shoppingList });
       comp.ngOnInit();
 
       expect(comp.editForm.value).toEqual(expect.objectContaining(shoppingList));
+      expect(comp.groupsCollection).toContain(group);
     });
   });
 
@@ -113,6 +138,16 @@ describe('ShoppingList Management Update Component', () => {
       expect(shoppingListService.update).toHaveBeenCalledWith(shoppingList);
       expect(comp.isSaving).toEqual(false);
       expect(comp.previousState).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('Tracking relationships identifiers', () => {
+    describe('trackGroupById', () => {
+      it('Should return tracked Group primary key', () => {
+        const entity = { id: 123 };
+        const trackResult = comp.trackGroupById(0, entity);
+        expect(trackResult).toEqual(entity.id);
+      });
     });
   });
 });

@@ -38,6 +38,19 @@
             </small>
           </div>
         </div>
+
+        <div class="row mb-3">
+          <label class="form-label" for="field_group">Group</label>
+          <select class="form-control" id="field_group" data-cy="group" name="group" formControlName="group">
+            <option [ngValue]="null"></option>
+            <option
+              [ngValue]="groupOption.id === editForm.get('group')!.value?.id ? editForm.get('group')!.value : groupOption"
+              *ngFor="let groupOption of groupsCollection; trackBy: trackGroupById"
+            >
+              {{ groupOption.id }}
+            </option>
+          </select>
+        </div>
       </div>
 
       <div>

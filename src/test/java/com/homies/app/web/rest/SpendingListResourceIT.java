@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.homies.app.IntegrationTest;
+import com.homies.app.domain.Group;
 import com.homies.app.domain.SettingsList;
 import com.homies.app.domain.SpendingList;
 import com.homies.app.domain.UserPending;
@@ -64,6 +65,16 @@ class SpendingListResourceIT {
      */
     public static SpendingList createEntity(EntityManager em) {
         SpendingList spendingList = new SpendingList().total(DEFAULT_TOTAL).nameSpendList(DEFAULT_NAME_SPEND_LIST);
+        // Add required entity
+        Group group;
+        if (TestUtil.findAll(em, Group.class).isEmpty()) {
+            group = GroupResourceIT.createEntity(em);
+            em.persist(group);
+            em.flush();
+        } else {
+            group = TestUtil.findAll(em, Group.class).get(0);
+        }
+        spendingList.setGroup(group);
         return spendingList;
     }
 
@@ -75,6 +86,16 @@ class SpendingListResourceIT {
      */
     public static SpendingList createUpdatedEntity(EntityManager em) {
         SpendingList spendingList = new SpendingList().total(UPDATED_TOTAL).nameSpendList(UPDATED_NAME_SPEND_LIST);
+        // Add required entity
+        Group group;
+        if (TestUtil.findAll(em, Group.class).isEmpty()) {
+            group = GroupResourceIT.createUpdatedEntity(em);
+            em.persist(group);
+            em.flush();
+        } else {
+            group = TestUtil.findAll(em, Group.class).get(0);
+        }
+        spendingList.setGroup(group);
         return spendingList;
     }
 
@@ -98,6 +119,9 @@ class SpendingListResourceIT {
         SpendingList testSpendingList = spendingListList.get(spendingListList.size() - 1);
         assertThat(testSpendingList.getTotal()).isEqualTo(DEFAULT_TOTAL);
         assertThat(testSpendingList.getNameSpendList()).isEqualTo(DEFAULT_NAME_SPEND_LIST);
+
+        // Validate the id for MapsId, the ids must be same
+        assertThat(testSpendingList.getId()).isEqualTo(testSpendingList.getGroup().getId());
     }
 
     @Test
@@ -116,6 +140,41 @@ class SpendingListResourceIT {
         // Validate the SpendingList in the database
         List<SpendingList> spendingListList = spendingListRepository.findAll();
         assertThat(spendingListList).hasSize(databaseSizeBeforeCreate);
+    }
+
+    @Test
+    @Transactional
+    void updateSpendingListMapsIdAssociationWithNewId() throws Exception {
+        // Initialize the database
+        spendingListRepository.saveAndFlush(spendingList);
+        int databaseSizeBeforeCreate = spendingListRepository.findAll().size();
+
+        // Load the spendingList
+        SpendingList updatedSpendingList = spendingListRepository.findById(spendingList.getId()).get();
+        assertThat(updatedSpendingList).isNotNull();
+        // Disconnect from session so that the updates on updatedSpendingList are not directly saved in db
+        em.detach(updatedSpendingList);
+
+        // Update the Group with new association value
+        updatedSpendingList.setGroup(spendingList.getGroup());
+
+        // Update the entity
+        restSpendingListMockMvc
+            .perform(
+                put(ENTITY_API_URL_ID, updatedSpendingList.getId())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(updatedSpendingList))
+            )
+            .andExpect(status().isOk());
+
+        // Validate the SpendingList in the database
+        List<SpendingList> spendingListList = spendingListRepository.findAll();
+        assertThat(spendingListList).hasSize(databaseSizeBeforeCreate);
+        SpendingList testSpendingList = spendingListList.get(spendingListList.size() - 1);
+        // Validate the id for MapsId, the ids must be same
+        // Uncomment the following line for assertion. However, please note that there is a known issue and uncommenting will fail the test.
+        // Please look at https://github.com/jhipster/generator-jhipster/issues/9100. You can modify this test as necessary.
+        // assertThat(testSpendingList.getId()).isEqualTo(testSpendingList.getGroup().getId());
     }
 
     @Test
@@ -417,6 +476,21 @@ class SpendingListResourceIT {
 
         // Get all the spendingListList where settingsList equals to (settingsListId + 1)
         defaultSpendingListShouldNotBeFound("settingsListId.equals=" + (settingsListId + 1));
+    }
+
+    @Test
+    @Transactional
+    void getAllSpendingListsByGroupIsEqualToSomething() throws Exception {
+        // Get already existing entity
+        Group group = spendingList.getGroup();
+        spendingListRepository.saveAndFlush(spendingList);
+        Long groupId = group.getId();
+
+        // Get all the spendingListList where group equals to groupId
+        defaultSpendingListShouldBeFound("groupId.equals=" + groupId);
+
+        // Get all the spendingListList where group equals to (groupId + 1)
+        defaultSpendingListShouldNotBeFound("groupId.equals=" + (groupId + 1));
     }
 
     /**

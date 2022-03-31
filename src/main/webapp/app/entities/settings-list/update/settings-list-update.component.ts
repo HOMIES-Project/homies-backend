@@ -9,6 +9,8 @@ import { ISettingsList, SettingsList } from '../settings-list.model';
 import { SettingsListService } from '../service/settings-list.service';
 import { ISpendingList } from 'app/entities/spending-list/spending-list.model';
 import { SpendingListService } from 'app/entities/spending-list/service/spending-list.service';
+import { IGroup } from 'app/entities/Homies/group/group.model';
+import { GroupService } from 'app/entities/Homies/group/service/group.service';
 
 @Component({
   selector: 'jhi-settings-list-update',
@@ -18,6 +20,7 @@ export class SettingsListUpdateComponent implements OnInit {
   isSaving = false;
 
   spendingListsSharedCollection: ISpendingList[] = [];
+  groupsCollection: IGroup[] = [];
 
   editForm = this.fb.group({
     id: [],
@@ -29,11 +32,13 @@ export class SettingsListUpdateComponent implements OnInit {
     settingSix: [],
     settingSeven: [],
     spendingList: [],
+    group: [],
   });
 
   constructor(
     protected settingsListService: SettingsListService,
     protected spendingListService: SpendingListService,
+    protected groupService: GroupService,
     protected activatedRoute: ActivatedRoute,
     protected fb: FormBuilder
   ) {}
@@ -61,6 +66,10 @@ export class SettingsListUpdateComponent implements OnInit {
   }
 
   trackSpendingListById(index: number, item: ISpendingList): number {
+    return item.id!;
+  }
+
+  trackGroupById(index: number, item: IGroup): number {
     return item.id!;
   }
 
@@ -94,12 +103,14 @@ export class SettingsListUpdateComponent implements OnInit {
       settingSix: settingsList.settingSix,
       settingSeven: settingsList.settingSeven,
       spendingList: settingsList.spendingList,
+      group: settingsList.group,
     });
 
     this.spendingListsSharedCollection = this.spendingListService.addSpendingListToCollectionIfMissing(
       this.spendingListsSharedCollection,
       settingsList.spendingList
     );
+    this.groupsCollection = this.groupService.addGroupToCollectionIfMissing(this.groupsCollection, settingsList.group);
   }
 
   protected loadRelationshipsOptions(): void {
@@ -112,6 +123,12 @@ export class SettingsListUpdateComponent implements OnInit {
         )
       )
       .subscribe((spendingLists: ISpendingList[]) => (this.spendingListsSharedCollection = spendingLists));
+
+    this.groupService
+      .query({ 'settingsListId.specified': 'false' })
+      .pipe(map((res: HttpResponse<IGroup[]>) => res.body ?? []))
+      .pipe(map((groups: IGroup[]) => this.groupService.addGroupToCollectionIfMissing(groups, this.editForm.get('group')!.value)))
+      .subscribe((groups: IGroup[]) => (this.groupsCollection = groups));
   }
 
   protected createFromForm(): ISettingsList {
@@ -126,6 +143,7 @@ export class SettingsListUpdateComponent implements OnInit {
       settingSix: this.editForm.get(['settingSix'])!.value,
       settingSeven: this.editForm.get(['settingSeven'])!.value,
       spendingList: this.editForm.get(['spendingList'])!.value,
+      group: this.editForm.get(['group'])!.value,
     };
   }
 }

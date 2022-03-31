@@ -24,12 +24,9 @@ import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.PaginationUtil;
 import tech.jhipster.web.util.ResponseUtil;
 
-import static com.homies.app.config.Constants.CROSS_ORIGIN;
-
 /**
  * REST controller for managing {@link com.homies.app.domain.SettingsList}.
  */
-@CrossOrigin(origins = CROSS_ORIGIN, maxAge = 3600)
 @RestController
 @RequestMapping("/api")
 public class SettingsListResource {
@@ -69,6 +66,9 @@ public class SettingsListResource {
         log.debug("REST request to save SettingsList : {}", settingsList);
         if (settingsList.getId() != null) {
             throw new BadRequestAlertException("A new settingsList cannot already have an ID", ENTITY_NAME, "idexists");
+        }
+        if (Objects.isNull(settingsList.getGroup())) {
+            throw new BadRequestAlertException("Invalid association value provided", ENTITY_NAME, "null");
         }
         SettingsList result = settingsListService.save(settingsList);
         return ResponseEntity

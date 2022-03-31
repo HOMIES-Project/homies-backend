@@ -48,6 +48,12 @@
             <a [routerLink]="['/spending-list', settingsList.spendingList?.id, 'view']">{{ settingsList.spendingList?.id }}</a>
           </div>
         </dd>
+        <dt><span>Group</span></dt>
+        <dd>
+          <div *ngIf="settingsList.group">
+            <a [routerLink]="['/group', settingsList.group?.id, 'view']">{{ settingsList.group?.id }}</a>
+          </div>
+        </dd>
       </dl>
 
       <button type="submit" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">

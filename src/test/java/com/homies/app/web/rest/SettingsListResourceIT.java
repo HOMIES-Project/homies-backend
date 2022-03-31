@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.homies.app.IntegrationTest;
+import com.homies.app.domain.Group;
 import com.homies.app.domain.SettingsList;
 import com.homies.app.domain.SpendingList;
 import com.homies.app.domain.UserPending;
@@ -85,6 +86,16 @@ class SettingsListResourceIT {
             .settingFive(DEFAULT_SETTING_FIVE)
             .settingSix(DEFAULT_SETTING_SIX)
             .settingSeven(DEFAULT_SETTING_SEVEN);
+        // Add required entity
+        Group group;
+        if (TestUtil.findAll(em, Group.class).isEmpty()) {
+            group = GroupResourceIT.createEntity(em);
+            em.persist(group);
+            em.flush();
+        } else {
+            group = TestUtil.findAll(em, Group.class).get(0);
+        }
+        settingsList.setGroup(group);
         return settingsList;
     }
 
@@ -103,6 +114,16 @@ class SettingsListResourceIT {
             .settingFive(UPDATED_SETTING_FIVE)
             .settingSix(UPDATED_SETTING_SIX)
             .settingSeven(UPDATED_SETTING_SEVEN);
+        // Add required entity
+        Group group;
+        if (TestUtil.findAll(em, Group.class).isEmpty()) {
+            group = GroupResourceIT.createUpdatedEntity(em);
+            em.persist(group);
+            em.flush();
+        } else {
+            group = TestUtil.findAll(em, Group.class).get(0);
+        }
+        settingsList.setGroup(group);
         return settingsList;
     }
 
@@ -131,6 +152,9 @@ class SettingsListResourceIT {
         assertThat(testSettingsList.getSettingFive()).isEqualTo(DEFAULT_SETTING_FIVE);
         assertThat(testSettingsList.getSettingSix()).isEqualTo(DEFAULT_SETTING_SIX);
         assertThat(testSettingsList.getSettingSeven()).isEqualTo(DEFAULT_SETTING_SEVEN);
+
+        // Validate the id for MapsId, the ids must be same
+        assertThat(testSettingsList.getId()).isEqualTo(testSettingsList.getGroup().getId());
     }
 
     @Test
@@ -149,6 +173,41 @@ class SettingsListResourceIT {
         // Validate the SettingsList in the database
         List<SettingsList> settingsListList = settingsListRepository.findAll();
         assertThat(settingsListList).hasSize(databaseSizeBeforeCreate);
+    }
+
+    @Test
+    @Transactional
+    void updateSettingsListMapsIdAssociationWithNewId() throws Exception {
+        // Initialize the database
+        settingsListRepository.saveAndFlush(settingsList);
+        int databaseSizeBeforeCreate = settingsListRepository.findAll().size();
+
+        // Load the settingsList
+        SettingsList updatedSettingsList = settingsListRepository.findById(settingsList.getId()).get();
+        assertThat(updatedSettingsList).isNotNull();
+        // Disconnect from session so that the updates on updatedSettingsList are not directly saved in db
+        em.detach(updatedSettingsList);
+
+        // Update the Group with new association value
+        updatedSettingsList.setGroup(settingsList.getGroup());
+
+        // Update the entity
+        restSettingsListMockMvc
+            .perform(
+                put(ENTITY_API_URL_ID, updatedSettingsList.getId())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(updatedSettingsList))
+            )
+            .andExpect(status().isOk());
+
+        // Validate the SettingsList in the database
+        List<SettingsList> settingsListList = settingsListRepository.findAll();
+        assertThat(settingsListList).hasSize(databaseSizeBeforeCreate);
+        SettingsList testSettingsList = settingsListList.get(settingsListList.size() - 1);
+        // Validate the id for MapsId, the ids must be same
+        // Uncomment the following line for assertion. However, please note that there is a known issue and uncommenting will fail the test.
+        // Please look at https://github.com/jhipster/generator-jhipster/issues/9100. You can modify this test as necessary.
+        // assertThat(testSettingsList.getId()).isEqualTo(testSettingsList.getGroup().getId());
     }
 
     @Test
@@ -625,6 +684,21 @@ class SettingsListResourceIT {
 
         // Get all the settingsListList where userPending equals to (userPendingId + 1)
         defaultSettingsListShouldNotBeFound("userPendingId.equals=" + (userPendingId + 1));
+    }
+
+    @Test
+    @Transactional
+    void getAllSettingsListsByGroupIsEqualToSomething() throws Exception {
+        // Get already existing entity
+        Group group = settingsList.getGroup();
+        settingsListRepository.saveAndFlush(settingsList);
+        Long groupId = group.getId();
+
+        // Get all the settingsListList where group equals to groupId
+        defaultSettingsListShouldBeFound("groupId.equals=" + groupId);
+
+        // Get all the settingsListList where group equals to (groupId + 1)
+        defaultSettingsListShouldNotBeFound("groupId.equals=" + (groupId + 1));
     }
 
     /**

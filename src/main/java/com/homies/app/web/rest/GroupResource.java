@@ -5,24 +5,21 @@ import com.homies.app.repository.GroupRepository;
 import com.homies.app.service.GroupQueryService;
 import com.homies.app.service.GroupService;
 import com.homies.app.service.criteria.GroupCriteria;
-import com.homies.app.web.rest.auxiliary.CreateGroupsAux;
 import com.homies.app.web.rest.errors.BadRequestAlertException;
-
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.StreamSupport;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-
-import com.homies.app.web.rest.vm.CreateGroupVM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -30,12 +27,9 @@ import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.PaginationUtil;
 import tech.jhipster.web.util.ResponseUtil;
 
-import static com.homies.app.config.Constants.CROSS_ORIGIN;
-
 /**
  * REST controller for managing {@link com.homies.app.domain.Group}.
  */
-@CrossOrigin(origins = CROSS_ORIGIN, maxAge = 3600)
 @RestController
 @RequestMapping("/api")
 public class GroupResource {
@@ -53,16 +47,10 @@ public class GroupResource {
 
     private final GroupQueryService groupQueryService;
 
-    private final CreateGroupsAux createGroupsAux;
-
-    public GroupResource(GroupService groupService,
-                         GroupRepository groupRepository,
-                         GroupQueryService groupQueryService,
-                         CreateGroupsAux createGroupsAux) {
+    public GroupResource(GroupService groupService, GroupRepository groupRepository, GroupQueryService groupQueryService) {
         this.groupService = groupService;
         this.groupRepository = groupRepository;
         this.groupQueryService = groupQueryService;
-        this.createGroupsAux = createGroupsAux;
     }
 
     /**
@@ -73,17 +61,20 @@ public class GroupResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/groups")
-    public ResponseEntity<Group> createGroup(@Valid @RequestBody CreateGroupVM group) throws URISyntaxException {
+    public ResponseEntity<Group> createGroup(@Valid @RequestBody Group group) throws URISyntaxException {
         log.debug("REST request to save Group : {}", group);
-
-        Group newGrop = createGroupsAux.createNewGroup(group);
-
-        if (newGrop != null)
-            return new ResponseEntity<>(newGrop, HttpStatus.CREATED);
-
-        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        if (group.getId() != null) {
+            throw new BadRequestAlertException("A new group cannot already have an ID", ENTITY_NAME, "idexists");
+        }
+        if (Objects.isNull(group.getTaskList())) {
+            throw new BadRequestAlertException("Invalid association value provided", ENTITY_NAME, "null");
+        }
+        Group result = groupService.save(group);
+        return ResponseEntity
+            .created(new URI("/api/groups/" + result.getId()))
+            .headers(HeaderUtil.createEntityCreationAlert(applicationName, false, ENTITY_NAME, result.getId().toString()))
+            .body(result);
     }
-
 
     /**
      * {@code PUT  /groups/:id} : Updates an existing group.

@@ -5,7 +5,6 @@ import com.homies.app.domain.UserData;
 import com.homies.app.repository.UserDataRepository;
 import com.homies.app.service.criteria.UserDataCriteria;
 import java.util.List;
-import java.util.Optional;
 import javax.persistence.criteria.JoinType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,16 +31,6 @@ public class UserDataQueryService extends QueryService<UserData> {
 
     public UserDataQueryService(UserDataRepository userDataRepository) {
         this.userDataRepository = userDataRepository;
-    }
-
-    /**
-     * Find user exist by id
-     * @param id
-     * @return user
-     */
-    @Transactional(readOnly = true)
-    public Optional<UserData> userDataExist(Long id) {
-        return userDataRepository.findById(id);
     }
 
     /**
@@ -108,12 +97,6 @@ public class UserDataQueryService extends QueryService<UserData> {
             if (criteria.getAddDate() != null) {
                 specification = specification.and(buildRangeSpecification(criteria.getAddDate(), UserData_.addDate));
             }
-            if (criteria.getGroupId() != null) {
-                specification =
-                    specification.and(
-                        buildSpecification(criteria.getGroupId(), root -> root.join(UserData_.groups, JoinType.LEFT).get(Group_.id))
-                    );
-            }
             if (criteria.getUserId() != null) {
                 specification =
                     specification.and(
@@ -145,6 +128,12 @@ public class UserDataQueryService extends QueryService<UserData> {
                             criteria.getProductCreatedId(),
                             root -> root.join(UserData_.productCreateds, JoinType.LEFT).get(Products_.id)
                         )
+                    );
+            }
+            if (criteria.getGroupId() != null) {
+                specification =
+                    specification.and(
+                        buildSpecification(criteria.getGroupId(), root -> root.join(UserData_.groups, JoinType.LEFT).get(Group_.id))
                     );
             }
         }

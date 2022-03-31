@@ -144,7 +144,7 @@ describe('ShoppingList Service', () => {
       });
 
       it('should add only unique ShoppingList to an array', () => {
-        const shoppingListArray: IShoppingList[] = [{ id: 123 }, { id: 456 }, { id: 96754 }];
+        const shoppingListArray: IShoppingList[] = [{ id: 123 }, { id: 456 }, { id: 26853 }];
         const shoppingListCollection: IShoppingList[] = [{ id: 123 }];
         expectedResult = service.addShoppingListToCollectionIfMissing(shoppingListCollection, ...shoppingListArray);
         expect(expectedResult).toHaveLength(3);

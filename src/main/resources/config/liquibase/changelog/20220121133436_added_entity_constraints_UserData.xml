@@ -25,5 +25,17 @@
                                  constraintName="fk_rel_user_data__task_asigned__task_asigned_id"
                                  referencedColumnNames="id"
                                  referencedTableName="task"/>
+
+        <addForeignKeyConstraint baseColumnNames="user_data_id"
+                                 baseTableName="rel_user_data__group"
+                                 constraintName="fk_rel_user_data__group__user_data_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="user_data"/>
+
+        <addForeignKeyConstraint baseColumnNames="group_id"
+                                 baseTableName="rel_user_data__group"
+                                 constraintName="fk_rel_user_data__group__group_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="jhi_group"/>
     </changeSet>
 </databaseChangeLog>

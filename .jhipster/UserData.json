@@ -37,13 +37,6 @@
   "readOnly": false,
   "relationships": [
     {
-      "otherEntityName": "group",
-      "otherEntityRelationshipName": "userData",
-      "ownerSide": false,
-      "relationshipName": "group",
-      "relationshipType": "many-to-many"
-    },
-    {
       "id": true,
       "otherEntityField": "login",
       "otherEntityName": "user",
@@ -71,6 +64,14 @@
       "otherEntityRelationshipName": "userCreator",
       "relationshipName": "productCreated",
       "relationshipType": "one-to-many"
+    },
+    {
+      "otherEntityField": "id",
+      "otherEntityName": "group",
+      "otherEntityRelationshipName": "userData",
+      "ownerSide": true,
+      "relationshipName": "group",
+      "relationshipType": "many-to-many"
     }
   ],
   "service": "serviceImpl"

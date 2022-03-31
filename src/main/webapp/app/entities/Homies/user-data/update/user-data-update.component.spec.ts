@@ -11,6 +11,8 @@ import { IUserData, UserData } from '../user-data.model';
 
 import { IUser } from 'app/entities/user/user.model';
 import { UserService } from 'app/entities/user/user.service';
+import { IGroup } from 'app/entities/Homies/group/group.model';
+import { GroupService } from 'app/entities/Homies/group/service/group.service';
 import { ITask } from 'app/entities/task/task.model';
 import { TaskService } from 'app/entities/task/service/task.service';
 
@@ -22,6 +24,7 @@ describe('UserData Management Update Component', () => {
   let activatedRoute: ActivatedRoute;
   let userDataService: UserDataService;
   let userService: UserService;
+  let groupService: GroupService;
   let taskService: TaskService;
 
   beforeEach(() => {
@@ -45,6 +48,7 @@ describe('UserData Management Update Component', () => {
     activatedRoute = TestBed.inject(ActivatedRoute);
     userDataService = TestBed.inject(UserDataService);
     userService = TestBed.inject(UserService);
+    groupService = TestBed.inject(GroupService);
     taskService = TestBed.inject(TaskService);
 
     comp = fixture.componentInstance;
@@ -70,6 +74,25 @@ describe('UserData Management Update Component', () => {
       expect(comp.usersSharedCollection).toEqual(expectedCollection);
     });
 
+    it('Should call Group query and add missing value', () => {
+      const userData: IUserData = { id: 456 };
+      const groups: IGroup[] = [{ id: 87186 }];
+      userData.groups = groups;
+
+      const groupCollection: IGroup[] = [{ id: 66036 }];
+      jest.spyOn(groupService, 'query').mockReturnValue(of(new HttpResponse({ body: groupCollection })));
+      const additionalGroups = [...groups];
+      const expectedCollection: IGroup[] = [...additionalGroups, ...groupCollection];
+      jest.spyOn(groupService, 'addGroupToCollectionIfMissing').mockReturnValue(expectedCollection);
+
+      activatedRoute.data = of({ userData });
+      comp.ngOnInit();
+
+      expect(groupService.query).toHaveBeenCalled();
+      expect(groupService.addGroupToCollectionIfMissing).toHaveBeenCalledWith(groupCollection, ...additionalGroups);
+      expect(comp.groupsSharedCollection).toEqual(expectedCollection);
+    });
+
     it('Should call Task query and add missing value', () => {
       const userData: IUserData = { id: 456 };
       const taskAsigneds: ITask[] = [{ id: 32302 }];
@@ -93,6 +116,8 @@ describe('UserData Management Update Component', () => {
       const userData: IUserData = { id: 456 };
       const user: IUser = { id: 53371 };
       userData.user = user;
+      const groups: IGroup = { id: 17419 };
+      userData.groups = [groups];
       const taskAsigneds: ITask = { id: 75914 };
       userData.taskAsigneds = [taskAsigneds];
 
@@ -101,6 +126,7 @@ describe('UserData Management Update Component', () => {
 
       expect(comp.editForm.value).toEqual(expect.objectContaining(userData));
       expect(comp.usersSharedCollection).toContain(user);
+      expect(comp.groupsSharedCollection).toContain(groups);
       expect(comp.tasksSharedCollection).toContain(taskAsigneds);
     });
   });
@@ -178,6 +204,14 @@ describe('UserData Management Update Component', () => {
       });
     });
 
+    describe('trackGroupById', () => {
+      it('Should return tracked Group primary key', () => {
+        const entity = { id: 123 };
+        const trackResult = comp.trackGroupById(0, entity);
+        expect(trackResult).toEqual(entity.id);
+      });
+    });
+
     describe('trackTaskById', () => {
       it('Should return tracked Task primary key', () => {
         const entity = { id: 123 };
@@ -188,6 +222,32 @@ describe('UserData Management Update Component', () => {
   });
 
   describe('Getting selected relationships', () => {
+    describe('getSelectedGroup', () => {
+      it('Should return option if no Group is selected', () => {
+        const option = { id: 123 };
+        const result = comp.getSelectedGroup(option);
+        expect(result === option).toEqual(true);
+      });
+
+      it('Should return selected Group for according option', () => {
+        const option = { id: 123 };
+        const selected = { id: 123 };
+        const selected2 = { id: 456 };
+        const result = comp.getSelectedGroup(option, [selected2, selected]);
+        expect(result === selected).toEqual(true);
+        expect(result === selected2).toEqual(false);
+        expect(result === option).toEqual(false);
+      });
+
+      it('Should return option if this Group is not selected', () => {
+        const option = { id: 123 };
+        const selected = { id: 456 };
+        const result = comp.getSelectedGroup(option, [selected]);
+        expect(result === option).toEqual(true);
+        expect(result === selected).toEqual(false);
+      });
+    });
+
     describe('getSelectedTask', () => {
       it('Should return option if no Task is selected', () => {
         const option = { id: 123 };

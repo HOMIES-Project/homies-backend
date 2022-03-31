@@ -128,6 +128,18 @@
             </option>
           </select>
         </div>
+
+        <div class="row mb-3">
+          <label for="field_groups">Group</label>
+          <select class="form-control" id="field_groups" data-cy="group" multiple name="groups" formControlName="groups">
+            <option
+              [ngValue]="getSelectedGroup(groupOption, editForm.get('groups')!.value)"
+              *ngFor="let groupOption of groupsSharedCollection; trackBy: trackGroupById"
+            >
+              {{ groupOption.id }}
+            </option>
+          </select>
+        </div>
       </div>
 
       <div>
