@@ -1,9 +1,6 @@
 package com.homies.app.web.rest.auxiliary;
 
-import com.homies.app.domain.Group;
-import com.homies.app.domain.TaskList;
-import com.homies.app.domain.User;
-import com.homies.app.domain.UserData;
+import com.homies.app.domain.*;
 import com.homies.app.service.*;
 import com.homies.app.web.rest.GroupResource;
 import com.homies.app.web.rest.vm.CreateGroupVM;
@@ -28,6 +25,12 @@ public class CreateGroupsAux {
 
     private final TaskListService taskListService;
 
+    private final SpendingListService spendingListService;
+
+    private final ShoppingListService shoppingListService;
+
+    private final SettingsListService settingsListService;
+
     private final UserDataService userDataService;
 
     private final Logger log = LoggerFactory.getLogger(GroupResource.class);
@@ -35,10 +38,16 @@ public class CreateGroupsAux {
     public CreateGroupsAux(GroupQueryService groupQueryService,
                            GroupService groupService,
                            TaskListService taskListService,
+                           SpendingListService spendingListService,
+                           ShoppingListService shoppingListService,
+                           SettingsListService settingsListService,
                            UserDataService userDataService) {
         this.groupQueryService = groupQueryService;
         this.groupService = groupService;
         this.taskListService = taskListService;
+        this.spendingListService = spendingListService;
+        this.shoppingListService = shoppingListService;
+        this.settingsListService = settingsListService;
         this.userDataService = userDataService;
     }
 
@@ -64,10 +73,6 @@ public class CreateGroupsAux {
         userSet.add(userData);
         newGroup.setUserData(userSet);
 
-        //modelo de inserción de usuarios ***********eliminar esto
-        /*userData = userExist(2L);
-        userSet.add(userData);*/
-
         newGroup.setAddGroupDate(LocalDate.now()); //Date of creation
 
         TaskList taskList = createTaskList(groupVM.getGroupName());
@@ -76,6 +81,18 @@ public class CreateGroupsAux {
         //New Group created
         log.warn("Created group: " + newGroup);
         groupService.save(newGroup);
+
+        //New SpendingList
+        SpendingList spendingList = createSpendingList(newGroup.getGroupName(), newGroup);
+        newGroup.setSpendingList(spendingList);
+
+        //New ShoppingList
+        ShoppingList shoppingList = createShoppingList(newGroup.getGroupName(), newGroup);
+        newGroup.setShoppingList(shoppingList);
+
+        //New SettingsList
+        SettingsList settingsList = createSettingsList(newGroup);
+        newGroup.setSettingsList(settingsList);
 
         //Update taskList
         newGroup = groupService.findOne(newGroup.getGroupName()).get();
@@ -102,7 +119,7 @@ public class CreateGroupsAux {
 
     private TaskList createTaskList(String name) {
         TaskList newTaskList = new TaskList();
-        newTaskList.setNameList("Lista" + name);
+        newTaskList.setNameList("TKL" + name);
         taskListService.save(newTaskList);
         log.warn(newTaskList.toString());
         return newTaskList;
@@ -114,6 +131,36 @@ public class CreateGroupsAux {
         taskListService.partialUpdate(taskList);
     }
 
+    private SpendingList createSpendingList(String name, Group group) {
+        SpendingList spendingList = new SpendingList();
+        spendingList.setTotal(0f);
+        spendingList.setNameSpendList("SPL_" + name);
+        spendingList.setGroup(group);
+        spendingListService.save(spendingList);
+        return spendingList;
+    }
 
+    private ShoppingList createShoppingList(String name, Group group) {
+        ShoppingList shoppingList = new ShoppingList();
+        shoppingList.setTotal(0f);
+        shoppingList.setNameShopList("SHL" + name);
+        shoppingList.setGroup(group);
+        shoppingListService.save(shoppingList);
+        return shoppingList;
+    }
+
+    private SettingsList createSettingsList(Group group) {
+        SettingsList settingsList = new SettingsList();
+        settingsList.setGroup(group);
+        settingsList.settingOne(false);
+        settingsList.settingTwo(false);
+        settingsList.settingThree(false);
+        settingsList.settingFour(false);
+        settingsList.settingFive(false);
+        settingsList.settingSix(false);
+        settingsList.settingSeven(false);
+        settingsListService.save(settingsList);
+        return settingsList;
+    }
 
 }

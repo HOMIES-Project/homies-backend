@@ -43,15 +43,6 @@ public class SettingsList implements Serializable {
     @Column(name = "setting_seven")
     private Boolean settingSeven;
 
-    @ManyToOne
-    @JsonIgnoreProperties(value = { "spendings", "settingsLists", "group" }, allowSetters = true)
-    private SpendingList spendingList;
-
-    @OneToMany(mappedBy = "settingsList")
-    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-    @JsonIgnoreProperties(value = { "spendingList", "spendings", "settingsList" }, allowSetters = true)
-    private Set<UserPending> userPendings = new HashSet<>();
-
     @JsonIgnoreProperties(
         value = { "userAdmin", "taskList", "spendingList", "shoppingList", "settingsList", "userData" },
         allowSetters = true
@@ -165,50 +156,6 @@ public class SettingsList implements Serializable {
 
     public void setSettingSeven(Boolean settingSeven) {
         this.settingSeven = settingSeven;
-    }
-
-    public SpendingList getSpendingList() {
-        return this.spendingList;
-    }
-
-    public void setSpendingList(SpendingList spendingList) {
-        this.spendingList = spendingList;
-    }
-
-    public SettingsList spendingList(SpendingList spendingList) {
-        this.setSpendingList(spendingList);
-        return this;
-    }
-
-    public Set<UserPending> getUserPendings() {
-        return this.userPendings;
-    }
-
-    public void setUserPendings(Set<UserPending> userPendings) {
-        if (this.userPendings != null) {
-            this.userPendings.forEach(i -> i.setSettingsList(null));
-        }
-        if (userPendings != null) {
-            userPendings.forEach(i -> i.setSettingsList(this));
-        }
-        this.userPendings = userPendings;
-    }
-
-    public SettingsList userPendings(Set<UserPending> userPendings) {
-        this.setUserPendings(userPendings);
-        return this;
-    }
-
-    public SettingsList addUserPending(UserPending userPending) {
-        this.userPendings.add(userPending);
-        userPending.setSettingsList(this);
-        return this;
-    }
-
-    public SettingsList removeUserPending(UserPending userPending) {
-        this.userPendings.remove(userPending);
-        userPending.setSettingsList(null);
-        return this;
     }
 
     public Group getGroup() {

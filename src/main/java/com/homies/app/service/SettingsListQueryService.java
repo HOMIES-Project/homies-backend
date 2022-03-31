@@ -106,24 +106,6 @@ public class SettingsListQueryService extends QueryService<SettingsList> {
             if (criteria.getSettingSeven() != null) {
                 specification = specification.and(buildSpecification(criteria.getSettingSeven(), SettingsList_.settingSeven));
             }
-            if (criteria.getSpendingListId() != null) {
-                specification =
-                    specification.and(
-                        buildSpecification(
-                            criteria.getSpendingListId(),
-                            root -> root.join(SettingsList_.spendingList, JoinType.LEFT).get(SpendingList_.id)
-                        )
-                    );
-            }
-            if (criteria.getUserPendingId() != null) {
-                specification =
-                    specification.and(
-                        buildSpecification(
-                            criteria.getUserPendingId(),
-                            root -> root.join(SettingsList_.userPendings, JoinType.LEFT).get(UserPending_.id)
-                        )
-                    );
-            }
             if (criteria.getGroupId() != null) {
                 specification =
                     specification.and(

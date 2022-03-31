@@ -45,10 +45,6 @@ public class UserPending implements Serializable {
     @JsonIgnoreProperties(value = { "userPendings" }, allowSetters = true)
     private Set<Spending> spendings = new HashSet<>();
 
-    @ManyToOne
-    @JsonIgnoreProperties(value = { "spendingList", "userPendings", "group" }, allowSetters = true)
-    private SettingsList settingsList;
-
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
     public Long getId() {
@@ -125,19 +121,6 @@ public class UserPending implements Serializable {
     public UserPending removeSpending(Spending spending) {
         this.spendings.remove(spending);
         spending.getUserPendings().remove(this);
-        return this;
-    }
-
-    public SettingsList getSettingsList() {
-        return this.settingsList;
-    }
-
-    public void setSettingsList(SettingsList settingsList) {
-        this.settingsList = settingsList;
-    }
-
-    public UserPending settingsList(SettingsList settingsList) {
-        this.setSettingsList(settingsList);
         return this;
     }
 

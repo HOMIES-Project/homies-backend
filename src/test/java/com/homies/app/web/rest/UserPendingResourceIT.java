@@ -425,7 +425,6 @@ class UserPendingResourceIT {
         }
         em.persist(settingsList);
         em.flush();
-        userPending.setSettingsList(settingsList);
         userPendingRepository.saveAndFlush(userPending);
         Long settingsListId = settingsList.getId();
 

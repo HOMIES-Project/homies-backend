@@ -649,7 +649,6 @@ class SettingsListResourceIT {
         }
         em.persist(spendingList);
         em.flush();
-        settingsList.setSpendingList(spendingList);
         settingsListRepository.saveAndFlush(settingsList);
         Long spendingListId = spendingList.getId();
 
@@ -675,7 +674,6 @@ class SettingsListResourceIT {
         }
         em.persist(userPending);
         em.flush();
-        settingsList.addUserPending(userPending);
         settingsListRepository.saveAndFlush(settingsList);
         Long userPendingId = userPending.getId();
 

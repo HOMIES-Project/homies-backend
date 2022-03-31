@@ -37,11 +37,6 @@ public class SpendingList implements Serializable {
     @JsonIgnoreProperties(value = { "spendingList", "spendings", "settingsList" }, allowSetters = true)
     private Set<UserPending> spendings = new HashSet<>();
 
-    @OneToMany(mappedBy = "spendingList")
-    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-    @JsonIgnoreProperties(value = { "spendingList", "userPendings", "group" }, allowSetters = true)
-    private Set<SettingsList> settingsLists = new HashSet<>();
-
     @JsonIgnoreProperties(
         value = { "userAdmin", "taskList", "spendingList", "shoppingList", "settingsList", "userData" },
         allowSetters = true
@@ -121,37 +116,6 @@ public class SpendingList implements Serializable {
     public SpendingList removeSpending(UserPending userPending) {
         this.spendings.remove(userPending);
         userPending.setSpendingList(null);
-        return this;
-    }
-
-    public Set<SettingsList> getSettingsLists() {
-        return this.settingsLists;
-    }
-
-    public void setSettingsLists(Set<SettingsList> settingsLists) {
-        if (this.settingsLists != null) {
-            this.settingsLists.forEach(i -> i.setSpendingList(null));
-        }
-        if (settingsLists != null) {
-            settingsLists.forEach(i -> i.setSpendingList(this));
-        }
-        this.settingsLists = settingsLists;
-    }
-
-    public SpendingList settingsLists(Set<SettingsList> settingsLists) {
-        this.setSettingsLists(settingsLists);
-        return this;
-    }
-
-    public SpendingList addSettingsList(SettingsList settingsList) {
-        this.settingsLists.add(settingsList);
-        settingsList.setSpendingList(this);
-        return this;
-    }
-
-    public SpendingList removeSettingsList(SettingsList settingsList) {
-        this.settingsLists.remove(settingsList);
-        settingsList.setSpendingList(null);
         return this;
     }
 
