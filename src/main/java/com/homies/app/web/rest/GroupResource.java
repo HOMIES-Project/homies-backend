@@ -70,7 +70,7 @@ public class GroupResource {
      * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new group, or with status {@code 400 (Bad Request)} if the group has already an ID.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
-    @PostMapping("/my-groups")
+    @PostMapping("/groups")
     public ResponseEntity<Group> createGroup(@Valid @RequestBody CreateGroupVM group) throws URISyntaxException {
         log.debug("REST request to save Group : {}", group);
 
@@ -80,29 +80,6 @@ public class GroupResource {
             return new ResponseEntity<>(newGrop, HttpStatus.CREATED);
 
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-    }
-
-    /**
-     * {@code POST  /groups} : Create a new group.
-     *
-     * @param group the group to create.
-     * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new group, or with status {@code 400 (Bad Request)} if the group has already an ID.
-     * @throws URISyntaxException if the Location URI syntax is incorrect.
-     */
-    @PostMapping("/groups")
-    public ResponseEntity<Group> createGroup(@Valid @RequestBody Group group) throws URISyntaxException {
-        log.debug("REST request to save Group : {}", group);
-        if (group.getId() != null) {
-            throw new BadRequestAlertException("A new group cannot already have an ID", ENTITY_NAME, "idexists");
-        }
-        if (Objects.isNull(group.getTaskList())) {
-            throw new BadRequestAlertException("Invalid association value provided", ENTITY_NAME, "null");
-        }
-        Group result = groupService.save(group);
-        return ResponseEntity
-            .created(new URI("/api/groups/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(applicationName, false, ENTITY_NAME, result.getId().toString()))
-            .body(result);
     }
 
     /**

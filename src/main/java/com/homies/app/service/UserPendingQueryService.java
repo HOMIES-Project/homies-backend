@@ -109,15 +109,6 @@ public class UserPendingQueryService extends QueryService<UserPending> {
                         )
                     );
             }
-            if (criteria.getSettingsListId() != null) {
-                specification =
-                    specification.and(
-                        buildSpecification(
-                            criteria.getSettingsListId(),
-                            root -> root.join(UserPending_.settingsList, JoinType.LEFT).get(SettingsList_.id)
-                        )
-                    );
-            }
         }
         return specification;
     }

@@ -26,10 +26,5 @@
                                  referencedColumnNames="id"
                                  referencedTableName="spending"/>
 
-        <addForeignKeyConstraint baseColumnNames="settings_list_id"
-                                 baseTableName="user_pending"
-                                 constraintName="fk_user_pending__settings_list_id"
-                                 referencedColumnNames="id"
-                                 referencedTableName="settings_list"/>
     </changeSet>
 </databaseChangeLog>

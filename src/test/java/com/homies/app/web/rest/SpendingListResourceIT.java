@@ -467,7 +467,6 @@ class SpendingListResourceIT {
         }
         em.persist(settingsList);
         em.flush();
-        spendingList.addSettingsList(settingsList);
         spendingListRepository.saveAndFlush(spendingList);
         Long settingsListId = settingsList.getId();
 

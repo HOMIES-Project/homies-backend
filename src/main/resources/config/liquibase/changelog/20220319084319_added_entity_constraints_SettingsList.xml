@@ -8,12 +8,6 @@
     -->
     <changeSet id="20220319084319-2" author="jhipster">
 
-        <addForeignKeyConstraint baseColumnNames="spending_list_id"
-                                 baseTableName="settings_list"
-                                 constraintName="fk_settings_list__spending_list_id"
-                                 referencedColumnNames="id"
-                                 referencedTableName="spending_list"/>
-
         <addForeignKeyConstraint baseColumnNames="id"
                                  baseTableName="settings_list"
                                  constraintName="fk_settings_list__group_id"
