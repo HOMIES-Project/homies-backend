@@ -35,6 +35,7 @@
           <th scope="col" jhiSortBy="id"><span>ID</span> <fa-icon icon="sort"></fa-icon></th>
           <th scope="col" jhiSortBy="total"><span>Total</span> <fa-icon icon="sort"></fa-icon></th>
           <th scope="col" jhiSortBy="nameSpendList"><span>Name Spend List</span> <fa-icon icon="sort"></fa-icon></th>
+          <th scope="col" jhiSortBy="group.id"><span>Group</span> <fa-icon icon="sort"></fa-icon></th>
           <th scope="col"></th>
         </tr>
       </thead>
@@ -45,6 +46,11 @@
           </td>
           <td>{{ spendingList.total }}</td>
           <td>{{ spendingList.nameSpendList }}</td>
+          <td>
+            <div *ngIf="spendingList.group">
+              <a [routerLink]="['/group', spendingList.group?.id, 'view']">{{ spendingList.group?.id }}</a>
+            </div>
+          </td>
           <td class="text-end">
             <div class="btn-group">
               <button

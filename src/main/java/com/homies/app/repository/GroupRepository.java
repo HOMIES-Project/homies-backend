@@ -13,17 +13,17 @@ import org.springframework.stereotype.Repository;
  * Spring Data SQL repository for the Group entity.
  */
 @Repository
-public interface GroupRepository extends GroupRepositoryWithBagRelationships, JpaRepository<Group, Long>, JpaSpecificationExecutor<Group> {
+public interface GroupRepository extends JpaRepository<Group, Long>, JpaSpecificationExecutor<Group> {
     default Optional<Group> findOneWithEagerRelationships(Long id) {
-        return this.fetchBagRelationships(this.findOneWithToOneRelationships(id));
+        return this.findOneWithToOneRelationships(id);
     }
 
     default List<Group> findAllWithEagerRelationships() {
-        return this.fetchBagRelationships(this.findAllWithToOneRelationships());
+        return this.findAllWithToOneRelationships();
     }
 
     default Page<Group> findAllWithEagerRelationships(Pageable pageable) {
-        return this.fetchBagRelationships(this.findAllWithToOneRelationships(pageable));
+        return this.findAllWithToOneRelationships(pageable);
     }
 
     Optional<Group> findByGroupName(String groupName);

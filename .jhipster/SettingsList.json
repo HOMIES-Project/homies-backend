@@ -47,6 +47,15 @@
       "otherEntityRelationshipName": "settingsList",
       "relationshipName": "userPending",
       "relationshipType": "one-to-many"
+    },
+    {
+      "id": true,
+      "otherEntityField": "id",
+      "otherEntityName": "group",
+      "otherEntityRelationshipName": "settingsList",
+      "ownerSide": true,
+      "relationshipName": "group",
+      "relationshipType": "one-to-one"
     }
   ],
   "service": "serviceImpl"

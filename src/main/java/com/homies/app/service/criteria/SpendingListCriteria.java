@@ -36,6 +36,8 @@ public class SpendingListCriteria implements Serializable, Criteria {
 
     private LongFilter settingsListId;
 
+    private LongFilter groupId;
+
     private Boolean distinct;
 
     public SpendingListCriteria() {}
@@ -46,6 +48,7 @@ public class SpendingListCriteria implements Serializable, Criteria {
         this.nameSpendList = other.nameSpendList == null ? null : other.nameSpendList.copy();
         this.spendingId = other.spendingId == null ? null : other.spendingId.copy();
         this.settingsListId = other.settingsListId == null ? null : other.settingsListId.copy();
+        this.groupId = other.groupId == null ? null : other.groupId.copy();
         this.distinct = other.distinct;
     }
 
@@ -129,6 +132,21 @@ public class SpendingListCriteria implements Serializable, Criteria {
         this.settingsListId = settingsListId;
     }
 
+    public LongFilter getGroupId() {
+        return groupId;
+    }
+
+    public LongFilter groupId() {
+        if (groupId == null) {
+            groupId = new LongFilter();
+        }
+        return groupId;
+    }
+
+    public void setGroupId(LongFilter groupId) {
+        this.groupId = groupId;
+    }
+
     public Boolean getDistinct() {
         return distinct;
     }
@@ -152,13 +170,14 @@ public class SpendingListCriteria implements Serializable, Criteria {
             Objects.equals(nameSpendList, that.nameSpendList) &&
             Objects.equals(spendingId, that.spendingId) &&
             Objects.equals(settingsListId, that.settingsListId) &&
+            Objects.equals(groupId, that.groupId) &&
             Objects.equals(distinct, that.distinct)
         );
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, total, nameSpendList, spendingId, settingsListId, distinct);
+        return Objects.hash(id, total, nameSpendList, spendingId, settingsListId, groupId, distinct);
     }
 
     // prettier-ignore
@@ -170,6 +189,7 @@ public class SpendingListCriteria implements Serializable, Criteria {
             (nameSpendList != null ? "nameSpendList=" + nameSpendList + ", " : "") +
             (spendingId != null ? "spendingId=" + spendingId + ", " : "") +
             (settingsListId != null ? "settingsListId=" + settingsListId + ", " : "") +
+            (groupId != null ? "groupId=" + groupId + ", " : "") +
             (distinct != null ? "distinct=" + distinct + ", " : "") +
             "}";
     }

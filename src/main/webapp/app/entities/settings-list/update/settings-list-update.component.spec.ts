@@ -10,6 +10,8 @@ import { SettingsListService } from '../service/settings-list.service';
 import { ISettingsList, SettingsList } from '../settings-list.model';
 import { ISpendingList } from 'app/entities/spending-list/spending-list.model';
 import { SpendingListService } from 'app/entities/spending-list/service/spending-list.service';
+import { IGroup } from 'app/entities/Homies/group/group.model';
+import { GroupService } from 'app/entities/Homies/group/service/group.service';
 
 import { SettingsListUpdateComponent } from './settings-list-update.component';
 
@@ -19,6 +21,7 @@ describe('SettingsList Management Update Component', () => {
   let activatedRoute: ActivatedRoute;
   let settingsListService: SettingsListService;
   let spendingListService: SpendingListService;
+  let groupService: GroupService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -41,6 +44,7 @@ describe('SettingsList Management Update Component', () => {
     activatedRoute = TestBed.inject(ActivatedRoute);
     settingsListService = TestBed.inject(SettingsListService);
     spendingListService = TestBed.inject(SpendingListService);
+    groupService = TestBed.inject(GroupService);
 
     comp = fixture.componentInstance;
   });
@@ -48,10 +52,10 @@ describe('SettingsList Management Update Component', () => {
   describe('ngOnInit', () => {
     it('Should call SpendingList query and add missing value', () => {
       const settingsList: ISettingsList = { id: 456 };
-      const spendingList: ISpendingList = { id: 95319 };
+      const spendingList: ISpendingList = { id: 63703 };
       settingsList.spendingList = spendingList;
 
-      const spendingListCollection: ISpendingList[] = [{ id: 23294 }];
+      const spendingListCollection: ISpendingList[] = [{ id: 43017 }];
       jest.spyOn(spendingListService, 'query').mockReturnValue(of(new HttpResponse({ body: spendingListCollection })));
       const additionalSpendingLists = [spendingList];
       const expectedCollection: ISpendingList[] = [...additionalSpendingLists, ...spendingListCollection];
@@ -68,16 +72,37 @@ describe('SettingsList Management Update Component', () => {
       expect(comp.spendingListsSharedCollection).toEqual(expectedCollection);
     });
 
+    it('Should call group query and add missing value', () => {
+      const settingsList: ISettingsList = { id: 456 };
+      const group: IGroup = { id: 59090 };
+      settingsList.group = group;
+
+      const groupCollection: IGroup[] = [{ id: 73621 }];
+      jest.spyOn(groupService, 'query').mockReturnValue(of(new HttpResponse({ body: groupCollection })));
+      const expectedCollection: IGroup[] = [group, ...groupCollection];
+      jest.spyOn(groupService, 'addGroupToCollectionIfMissing').mockReturnValue(expectedCollection);
+
+      activatedRoute.data = of({ settingsList });
+      comp.ngOnInit();
+
+      expect(groupService.query).toHaveBeenCalled();
+      expect(groupService.addGroupToCollectionIfMissing).toHaveBeenCalledWith(groupCollection, group);
+      expect(comp.groupsCollection).toEqual(expectedCollection);
+    });
+
     it('Should update editForm', () => {
       const settingsList: ISettingsList = { id: 456 };
-      const spendingList: ISpendingList = { id: 20293 };
+      const spendingList: ISpendingList = { id: 44925 };
       settingsList.spendingList = spendingList;
+      const group: IGroup = { id: 53491 };
+      settingsList.group = group;
 
       activatedRoute.data = of({ settingsList });
       comp.ngOnInit();
 
       expect(comp.editForm.value).toEqual(expect.objectContaining(settingsList));
       expect(comp.spendingListsSharedCollection).toContain(spendingList);
+      expect(comp.groupsCollection).toContain(group);
     });
   });
 
@@ -150,6 +175,14 @@ describe('SettingsList Management Update Component', () => {
       it('Should return tracked SpendingList primary key', () => {
         const entity = { id: 123 };
         const trackResult = comp.trackSpendingListById(0, entity);
+        expect(trackResult).toEqual(entity.id);
+      });
+    });
+
+    describe('trackGroupById', () => {
+      it('Should return tracked Group primary key', () => {
+        const entity = { id: 123 };
+        const trackResult = comp.trackGroupById(0, entity);
         expect(trackResult).toEqual(entity.id);
       });
     });

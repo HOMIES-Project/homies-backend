@@ -19,7 +19,6 @@ public class SettingsList implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
 
@@ -45,13 +44,22 @@ public class SettingsList implements Serializable {
     private Boolean settingSeven;
 
     @ManyToOne
-    @JsonIgnoreProperties(value = { "spendings", "settingsLists" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "spendings", "settingsLists", "group" }, allowSetters = true)
     private SpendingList spendingList;
 
     @OneToMany(mappedBy = "settingsList")
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @JsonIgnoreProperties(value = { "spendingList", "spendings", "settingsList" }, allowSetters = true)
     private Set<UserPending> userPendings = new HashSet<>();
+
+    @JsonIgnoreProperties(
+        value = { "userAdmin", "taskList", "spendingList", "shoppingList", "settingsList", "userData" },
+        allowSetters = true
+    )
+    @OneToOne
+    @MapsId
+    @JoinColumn(name = "id")
+    private Group group;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -200,6 +208,19 @@ public class SettingsList implements Serializable {
     public SettingsList removeUserPending(UserPending userPending) {
         this.userPendings.remove(userPending);
         userPending.setSettingsList(null);
+        return this;
+    }
+
+    public Group getGroup() {
+        return this.group;
+    }
+
+    public void setGroup(Group group) {
+        this.group = group;
+    }
+
+    public SettingsList group(Group group) {
+        this.setGroup(group);
         return this;
     }
 

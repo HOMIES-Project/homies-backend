@@ -1,6 +1,7 @@
 package com.homies.app.service.impl;
 
 import com.homies.app.domain.SettingsList;
+import com.homies.app.repository.GroupRepository;
 import com.homies.app.repository.SettingsListRepository;
 import com.homies.app.service.SettingsListService;
 import java.util.Optional;
@@ -22,13 +23,18 @@ public class SettingsListServiceImpl implements SettingsListService {
 
     private final SettingsListRepository settingsListRepository;
 
-    public SettingsListServiceImpl(SettingsListRepository settingsListRepository) {
+    private final GroupRepository groupRepository;
+
+    public SettingsListServiceImpl(SettingsListRepository settingsListRepository, GroupRepository groupRepository) {
         this.settingsListRepository = settingsListRepository;
+        this.groupRepository = groupRepository;
     }
 
     @Override
     public SettingsList save(SettingsList settingsList) {
         log.debug("Request to save SettingsList : {}", settingsList);
+        Long groupId = settingsList.getGroup().getId();
+        groupRepository.findById(groupId).ifPresent(settingsList::group);
         return settingsListRepository.save(settingsList);
     }
 

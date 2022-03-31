@@ -71,10 +71,10 @@ describe('Products Management Update Component', () => {
 
     it('Should call ShoppingList query and add missing value', () => {
       const products: IProducts = { id: 456 };
-      const shoppingList: IShoppingList = { id: 42350 };
+      const shoppingList: IShoppingList = { id: 24036 };
       products.shoppingList = shoppingList;
 
-      const shoppingListCollection: IShoppingList[] = [{ id: 25415 }];
+      const shoppingListCollection: IShoppingList[] = [{ id: 21086 }];
       jest.spyOn(shoppingListService, 'query').mockReturnValue(of(new HttpResponse({ body: shoppingListCollection })));
       const additionalShoppingLists = [shoppingList];
       const expectedCollection: IShoppingList[] = [...additionalShoppingLists, ...shoppingListCollection];
@@ -95,7 +95,7 @@ describe('Products Management Update Component', () => {
       const products: IProducts = { id: 456 };
       const userCreator: IUserData = { id: 25638 };
       products.userCreator = userCreator;
-      const shoppingList: IShoppingList = { id: 55839 };
+      const shoppingList: IShoppingList = { id: 53801 };
       products.shoppingList = shoppingList;
 
       activatedRoute.data = of({ products });

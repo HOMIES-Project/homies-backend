@@ -28,7 +28,10 @@ public class TaskList implements Serializable {
     @Column(name = "name_list", length = 20)
     private String nameList;
 
-    @JsonIgnoreProperties(value = { "userData", "userAdmin", "taskList" }, allowSetters = true)
+    @JsonIgnoreProperties(
+        value = { "userAdmin", "taskList", "spendingList", "shoppingList", "settingsList", "userData" },
+        allowSetters = true
+    )
     @OneToOne(mappedBy = "taskList")
     private Group group;
 

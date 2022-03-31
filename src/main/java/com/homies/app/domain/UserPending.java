@@ -32,7 +32,7 @@ public class UserPending implements Serializable {
     private Boolean paid;
 
     @ManyToOne
-    @JsonIgnoreProperties(value = { "spendings", "settingsLists" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "spendings", "settingsLists", "group" }, allowSetters = true)
     private SpendingList spendingList;
 
     @ManyToMany
@@ -46,7 +46,7 @@ public class UserPending implements Serializable {
     private Set<Spending> spendings = new HashSet<>();
 
     @ManyToOne
-    @JsonIgnoreProperties(value = { "spendingList", "userPendings" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "spendingList", "userPendings", "group" }, allowSetters = true)
     private SettingsList settingsList;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here

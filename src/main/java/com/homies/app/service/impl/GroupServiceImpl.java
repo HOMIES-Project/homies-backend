@@ -4,7 +4,10 @@ import com.homies.app.domain.Group;
 import com.homies.app.repository.GroupRepository;
 import com.homies.app.repository.TaskListRepository;
 import com.homies.app.service.GroupService;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -72,6 +75,45 @@ public class GroupServiceImpl implements GroupService {
 
     public Page<Group> findAllWithEagerRelationships(Pageable pageable) {
         return groupRepository.findAllWithEagerRelationships(pageable);
+    }
+
+    /**
+     *  Get all the groups where SpendingList is {@code null}.
+     *  @return the list of entities.
+     */
+    @Transactional(readOnly = true)
+    public List<Group> findAllWhereSpendingListIsNull() {
+        log.debug("Request to get all groups where SpendingList is null");
+        return StreamSupport
+            .stream(groupRepository.findAll().spliterator(), false)
+            .filter(group -> group.getSpendingList() == null)
+            .collect(Collectors.toList());
+    }
+
+    /**
+     *  Get all the groups where ShoppingList is {@code null}.
+     *  @return the list of entities.
+     */
+    @Transactional(readOnly = true)
+    public List<Group> findAllWhereShoppingListIsNull() {
+        log.debug("Request to get all groups where ShoppingList is null");
+        return StreamSupport
+            .stream(groupRepository.findAll().spliterator(), false)
+            .filter(group -> group.getShoppingList() == null)
+            .collect(Collectors.toList());
+    }
+
+    /**
+     *  Get all the groups where SettingsList is {@code null}.
+     *  @return the list of entities.
+     */
+    @Transactional(readOnly = true)
+    public List<Group> findAllWhereSettingsListIsNull() {
+        log.debug("Request to get all groups where SettingsList is null");
+        return StreamSupport
+            .stream(groupRepository.findAll().spliterator(), false)
+            .filter(group -> group.getSettingsList() == null)
+            .collect(Collectors.toList());
     }
 
     @Override

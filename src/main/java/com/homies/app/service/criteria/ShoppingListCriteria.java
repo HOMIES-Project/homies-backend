@@ -34,6 +34,8 @@ public class ShoppingListCriteria implements Serializable, Criteria {
 
     private LongFilter productsId;
 
+    private LongFilter groupId;
+
     private Boolean distinct;
 
     public ShoppingListCriteria() {}
@@ -43,6 +45,7 @@ public class ShoppingListCriteria implements Serializable, Criteria {
         this.total = other.total == null ? null : other.total.copy();
         this.nameShopList = other.nameShopList == null ? null : other.nameShopList.copy();
         this.productsId = other.productsId == null ? null : other.productsId.copy();
+        this.groupId = other.groupId == null ? null : other.groupId.copy();
         this.distinct = other.distinct;
     }
 
@@ -111,6 +114,21 @@ public class ShoppingListCriteria implements Serializable, Criteria {
         this.productsId = productsId;
     }
 
+    public LongFilter getGroupId() {
+        return groupId;
+    }
+
+    public LongFilter groupId() {
+        if (groupId == null) {
+            groupId = new LongFilter();
+        }
+        return groupId;
+    }
+
+    public void setGroupId(LongFilter groupId) {
+        this.groupId = groupId;
+    }
+
     public Boolean getDistinct() {
         return distinct;
     }
@@ -133,13 +151,14 @@ public class ShoppingListCriteria implements Serializable, Criteria {
             Objects.equals(total, that.total) &&
             Objects.equals(nameShopList, that.nameShopList) &&
             Objects.equals(productsId, that.productsId) &&
+            Objects.equals(groupId, that.groupId) &&
             Objects.equals(distinct, that.distinct)
         );
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, total, nameShopList, productsId, distinct);
+        return Objects.hash(id, total, nameShopList, productsId, groupId, distinct);
     }
 
     // prettier-ignore
@@ -150,6 +169,7 @@ public class ShoppingListCriteria implements Serializable, Criteria {
             (total != null ? "total=" + total + ", " : "") +
             (nameShopList != null ? "nameShopList=" + nameShopList + ", " : "") +
             (productsId != null ? "productsId=" + productsId + ", " : "") +
+            (groupId != null ? "groupId=" + groupId + ", " : "") +
             (distinct != null ? "distinct=" + distinct + ", " : "") +
             "}";
     }

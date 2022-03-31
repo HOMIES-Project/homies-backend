@@ -56,10 +56,10 @@ describe('UserPending Management Update Component', () => {
   describe('ngOnInit', () => {
     it('Should call SpendingList query and add missing value', () => {
       const userPending: IUserPending = { id: 456 };
-      const spendingList: ISpendingList = { id: 31633 };
+      const spendingList: ISpendingList = { id: 442 };
       userPending.spendingList = spendingList;
 
-      const spendingListCollection: ISpendingList[] = [{ id: 31508 }];
+      const spendingListCollection: ISpendingList[] = [{ id: 87223 }];
       jest.spyOn(spendingListService, 'query').mockReturnValue(of(new HttpResponse({ body: spendingListCollection })));
       const additionalSpendingLists = [spendingList];
       const expectedCollection: ISpendingList[] = [...additionalSpendingLists, ...spendingListCollection];
@@ -97,10 +97,10 @@ describe('UserPending Management Update Component', () => {
 
     it('Should call SettingsList query and add missing value', () => {
       const userPending: IUserPending = { id: 456 };
-      const settingsList: ISettingsList = { id: 81770 };
+      const settingsList: ISettingsList = { id: 37571 };
       userPending.settingsList = settingsList;
 
-      const settingsListCollection: ISettingsList[] = [{ id: 54043 }];
+      const settingsListCollection: ISettingsList[] = [{ id: 64076 }];
       jest.spyOn(settingsListService, 'query').mockReturnValue(of(new HttpResponse({ body: settingsListCollection })));
       const additionalSettingsLists = [settingsList];
       const expectedCollection: ISettingsList[] = [...additionalSettingsLists, ...settingsListCollection];
@@ -119,11 +119,11 @@ describe('UserPending Management Update Component', () => {
 
     it('Should update editForm', () => {
       const userPending: IUserPending = { id: 456 };
-      const spendingList: ISpendingList = { id: 74574 };
+      const spendingList: ISpendingList = { id: 73579 };
       userPending.spendingList = spendingList;
       const spendings: ISpending = { id: 44249 };
       userPending.spendings = [spendings];
-      const settingsList: ISettingsList = { id: 69983 };
+      const settingsList: ISettingsList = { id: 30279 };
       userPending.settingsList = settingsList;
 
       activatedRoute.data = of({ userPending });

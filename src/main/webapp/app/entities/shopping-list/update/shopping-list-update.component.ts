@@ -3,10 +3,12 @@ import { HttpResponse } from '@angular/common/http';
 import { FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs';
-import { finalize } from 'rxjs/operators';
+import { finalize, map } from 'rxjs/operators';
 
 import { IShoppingList, ShoppingList } from '../shopping-list.model';
 import { ShoppingListService } from '../service/shopping-list.service';
+import { IGroup } from 'app/entities/Homies/group/group.model';
+import { GroupService } from 'app/entities/Homies/group/service/group.service';
 
 @Component({
   selector: 'jhi-shopping-list-update',
@@ -15,17 +17,27 @@ import { ShoppingListService } from '../service/shopping-list.service';
 export class ShoppingListUpdateComponent implements OnInit {
   isSaving = false;
 
+  groupsCollection: IGroup[] = [];
+
   editForm = this.fb.group({
     id: [],
     total: [],
     nameShopList: [null, [Validators.required, Validators.minLength(3), Validators.maxLength(20)]],
+    group: [],
   });
 
-  constructor(protected shoppingListService: ShoppingListService, protected activatedRoute: ActivatedRoute, protected fb: FormBuilder) {}
+  constructor(
+    protected shoppingListService: ShoppingListService,
+    protected groupService: GroupService,
+    protected activatedRoute: ActivatedRoute,
+    protected fb: FormBuilder
+  ) {}
 
   ngOnInit(): void {
     this.activatedRoute.data.subscribe(({ shoppingList }) => {
       this.updateForm(shoppingList);
+
+      this.loadRelationshipsOptions();
     });
   }
 
@@ -41,6 +53,10 @@ export class ShoppingListUpdateComponent implements OnInit {
     } else {
       this.subscribeToSaveResponse(this.shoppingListService.create(shoppingList));
     }
+  }
+
+  trackGroupById(index: number, item: IGroup): number {
+    return item.id!;
   }
 
   protected subscribeToSaveResponse(result: Observable<HttpResponse<IShoppingList>>): void {
@@ -67,7 +83,18 @@ export class ShoppingListUpdateComponent implements OnInit {
       id: shoppingList.id,
       total: shoppingList.total,
       nameShopList: shoppingList.nameShopList,
+      group: shoppingList.group,
     });
+
+    this.groupsCollection = this.groupService.addGroupToCollectionIfMissing(this.groupsCollection, shoppingList.group);
+  }
+
+  protected loadRelationshipsOptions(): void {
+    this.groupService
+      .query({ 'shoppingListId.specified': 'false' })
+      .pipe(map((res: HttpResponse<IGroup[]>) => res.body ?? []))
+      .pipe(map((groups: IGroup[]) => this.groupService.addGroupToCollectionIfMissing(groups, this.editForm.get('group')!.value)))
+      .subscribe((groups: IGroup[]) => (this.groupsCollection = groups));
   }
 
   protected createFromForm(): IShoppingList {
@@ -76,6 +103,7 @@ export class ShoppingListUpdateComponent implements OnInit {
       id: this.editForm.get(['id'])!.value,
       total: this.editForm.get(['total'])!.value,
       nameShopList: this.editForm.get(['nameShopList'])!.value,
+      group: this.editForm.get(['group'])!.value,
     };
   }
 }

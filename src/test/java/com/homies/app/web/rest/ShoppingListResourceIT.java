@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.homies.app.IntegrationTest;
+import com.homies.app.domain.Group;
 import com.homies.app.domain.Products;
 import com.homies.app.domain.ShoppingList;
 import com.homies.app.repository.ShoppingListRepository;
@@ -63,6 +64,16 @@ class ShoppingListResourceIT {
      */
     public static ShoppingList createEntity(EntityManager em) {
         ShoppingList shoppingList = new ShoppingList().total(DEFAULT_TOTAL).nameShopList(DEFAULT_NAME_SHOP_LIST);
+        // Add required entity
+        Group group;
+        if (TestUtil.findAll(em, Group.class).isEmpty()) {
+            group = GroupResourceIT.createEntity(em);
+            em.persist(group);
+            em.flush();
+        } else {
+            group = TestUtil.findAll(em, Group.class).get(0);
+        }
+        shoppingList.setGroup(group);
         return shoppingList;
     }
 
@@ -74,6 +85,16 @@ class ShoppingListResourceIT {
      */
     public static ShoppingList createUpdatedEntity(EntityManager em) {
         ShoppingList shoppingList = new ShoppingList().total(UPDATED_TOTAL).nameShopList(UPDATED_NAME_SHOP_LIST);
+        // Add required entity
+        Group group;
+        if (TestUtil.findAll(em, Group.class).isEmpty()) {
+            group = GroupResourceIT.createUpdatedEntity(em);
+            em.persist(group);
+            em.flush();
+        } else {
+            group = TestUtil.findAll(em, Group.class).get(0);
+        }
+        shoppingList.setGroup(group);
         return shoppingList;
     }
 
@@ -97,6 +118,9 @@ class ShoppingListResourceIT {
         ShoppingList testShoppingList = shoppingListList.get(shoppingListList.size() - 1);
         assertThat(testShoppingList.getTotal()).isEqualTo(DEFAULT_TOTAL);
         assertThat(testShoppingList.getNameShopList()).isEqualTo(DEFAULT_NAME_SHOP_LIST);
+
+        // Validate the id for MapsId, the ids must be same
+        assertThat(testShoppingList.getId()).isEqualTo(testShoppingList.getGroup().getId());
     }
 
     @Test
@@ -115,6 +139,41 @@ class ShoppingListResourceIT {
         // Validate the ShoppingList in the database
         List<ShoppingList> shoppingListList = shoppingListRepository.findAll();
         assertThat(shoppingListList).hasSize(databaseSizeBeforeCreate);
+    }
+
+    @Test
+    @Transactional
+    void updateShoppingListMapsIdAssociationWithNewId() throws Exception {
+        // Initialize the database
+        shoppingListRepository.saveAndFlush(shoppingList);
+        int databaseSizeBeforeCreate = shoppingListRepository.findAll().size();
+
+        // Load the shoppingList
+        ShoppingList updatedShoppingList = shoppingListRepository.findById(shoppingList.getId()).get();
+        assertThat(updatedShoppingList).isNotNull();
+        // Disconnect from session so that the updates on updatedShoppingList are not directly saved in db
+        em.detach(updatedShoppingList);
+
+        // Update the Group with new association value
+        updatedShoppingList.setGroup(shoppingList.getGroup());
+
+        // Update the entity
+        restShoppingListMockMvc
+            .perform(
+                put(ENTITY_API_URL_ID, updatedShoppingList.getId())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(updatedShoppingList))
+            )
+            .andExpect(status().isOk());
+
+        // Validate the ShoppingList in the database
+        List<ShoppingList> shoppingListList = shoppingListRepository.findAll();
+        assertThat(shoppingListList).hasSize(databaseSizeBeforeCreate);
+        ShoppingList testShoppingList = shoppingListList.get(shoppingListList.size() - 1);
+        // Validate the id for MapsId, the ids must be same
+        // Uncomment the following line for assertion. However, please note that there is a known issue and uncommenting will fail the test.
+        // Please look at https://github.com/jhipster/generator-jhipster/issues/9100. You can modify this test as necessary.
+        // assertThat(testShoppingList.getId()).isEqualTo(testShoppingList.getGroup().getId());
     }
 
     @Test
@@ -390,6 +449,21 @@ class ShoppingListResourceIT {
 
         // Get all the shoppingListList where products equals to (productsId + 1)
         defaultShoppingListShouldNotBeFound("productsId.equals=" + (productsId + 1));
+    }
+
+    @Test
+    @Transactional
+    void getAllShoppingListsByGroupIsEqualToSomething() throws Exception {
+        // Get already existing entity
+        Group group = shoppingList.getGroup();
+        shoppingListRepository.saveAndFlush(shoppingList);
+        Long groupId = group.getId();
+
+        // Get all the shoppingListList where group equals to groupId
+        defaultShoppingListShouldBeFound("groupId.equals=" + groupId);
+
+        // Get all the shoppingListList where group equals to (groupId + 1)
+        defaultShoppingListShouldNotBeFound("groupId.equals=" + (groupId + 1));
     }
 
     /**

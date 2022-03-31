@@ -97,7 +97,7 @@ public class CreateGroupsAux {
     @Transactional(readOnly = true)
     private boolean groupExist(String name) {
         log.warn(name);
-        return  groupQueryService.findOneByName(name);
+        return  false;//groupQueryService.findOneByName(name);
     }
 
     private TaskList createTaskList(String name) {

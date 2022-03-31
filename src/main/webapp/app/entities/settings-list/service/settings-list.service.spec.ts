@@ -167,7 +167,7 @@ describe('SettingsList Service', () => {
       });
 
       it('should add only unique SettingsList to an array', () => {
-        const settingsListArray: ISettingsList[] = [{ id: 123 }, { id: 456 }, { id: 68781 }];
+        const settingsListArray: ISettingsList[] = [{ id: 123 }, { id: 456 }, { id: 24742 }];
         const settingsListCollection: ISettingsList[] = [{ id: 123 }];
         expectedResult = service.addSettingsListToCollectionIfMissing(settingsListCollection, ...settingsListArray);
         expect(expectedResult).toHaveLength(3);

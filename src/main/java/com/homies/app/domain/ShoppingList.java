@@ -20,7 +20,6 @@ public class ShoppingList implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
 
@@ -37,7 +36,11 @@ public class ShoppingList implements Serializable {
     @JsonIgnoreProperties(value = { "userCreator", "shoppingList" }, allowSetters = true)
     private Set<Products> products = new HashSet<>();
 
-    @JsonIgnoreProperties(value = { "shoppingList", "group" }, allowSetters = true)
+    @JsonIgnoreProperties(
+        value = { "userAdmin", "taskList", "spendingList", "shoppingList", "settingsList", "userData" },
+        allowSetters = true
+    )
+
     @OneToOne
     @MapsId
     @JoinColumn(name = "id")
@@ -112,6 +115,19 @@ public class ShoppingList implements Serializable {
     public ShoppingList removeProducts(Products products) {
         this.products.remove(products);
         products.setShoppingList(null);
+        return this;
+    }
+
+    public Group getGroup() {
+        return this.group;
+    }
+
+    public void setGroup(Group group) {
+        this.group = group;
+    }
+
+    public ShoppingList group(Group group) {
+        this.setGroup(group);
         return this;
     }
 

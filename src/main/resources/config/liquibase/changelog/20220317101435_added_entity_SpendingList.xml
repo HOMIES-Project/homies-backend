@@ -11,7 +11,7 @@
     -->
     <changeSet id="20220317101435-1" author="jhipster">
         <createTable tableName="spending_list">
-            <column name="id" type="bigint" autoIncrement="true">
+            <column name="id" type="bigint">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="total" type="${floatType}">

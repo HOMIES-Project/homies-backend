@@ -46,6 +46,8 @@ public class SettingsListCriteria implements Serializable, Criteria {
 
     private LongFilter userPendingId;
 
+    private LongFilter groupId;
+
     private Boolean distinct;
 
     public SettingsListCriteria() {}
@@ -61,6 +63,7 @@ public class SettingsListCriteria implements Serializable, Criteria {
         this.settingSeven = other.settingSeven == null ? null : other.settingSeven.copy();
         this.spendingListId = other.spendingListId == null ? null : other.spendingListId.copy();
         this.userPendingId = other.userPendingId == null ? null : other.userPendingId.copy();
+        this.groupId = other.groupId == null ? null : other.groupId.copy();
         this.distinct = other.distinct;
     }
 
@@ -219,6 +222,21 @@ public class SettingsListCriteria implements Serializable, Criteria {
         this.userPendingId = userPendingId;
     }
 
+    public LongFilter getGroupId() {
+        return groupId;
+    }
+
+    public LongFilter groupId() {
+        if (groupId == null) {
+            groupId = new LongFilter();
+        }
+        return groupId;
+    }
+
+    public void setGroupId(LongFilter groupId) {
+        this.groupId = groupId;
+    }
+
     public Boolean getDistinct() {
         return distinct;
     }
@@ -247,6 +265,7 @@ public class SettingsListCriteria implements Serializable, Criteria {
             Objects.equals(settingSeven, that.settingSeven) &&
             Objects.equals(spendingListId, that.spendingListId) &&
             Objects.equals(userPendingId, that.userPendingId) &&
+            Objects.equals(groupId, that.groupId) &&
             Objects.equals(distinct, that.distinct)
         );
     }
@@ -264,6 +283,7 @@ public class SettingsListCriteria implements Serializable, Criteria {
             settingSeven,
             spendingListId,
             userPendingId,
+            groupId,
             distinct
         );
     }
@@ -282,6 +302,7 @@ public class SettingsListCriteria implements Serializable, Criteria {
             (settingSeven != null ? "settingSeven=" + settingSeven + ", " : "") +
             (spendingListId != null ? "spendingListId=" + spendingListId + ", " : "") +
             (userPendingId != null ? "userPendingId=" + userPendingId + ", " : "") +
+            (groupId != null ? "groupId=" + groupId + ", " : "") +
             (distinct != null ? "distinct=" + distinct + ", " : "") +
             "}";
     }

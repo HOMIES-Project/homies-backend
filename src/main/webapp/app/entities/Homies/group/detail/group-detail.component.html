@@ -30,13 +30,6 @@
         <dd>
           <span>{{ group.addGroupDate | formatMediumDate }}</span>
         </dd>
-        <dt><span>User Data</span></dt>
-        <dd>
-          <span *ngFor="let userData of group.userData; let last = last">
-            <a [routerLink]="['/user-data', userData?.id, 'view']">{{ userData.id }}</a
-            >{{ last ? '' : ', ' }}
-          </span>
-        </dd>
         <dt><span>User Admin</span></dt>
         <dd>
           <div *ngIf="group.userAdmin">

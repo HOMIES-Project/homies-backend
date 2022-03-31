@@ -8,18 +8,6 @@
     -->
     <changeSet id="20220308114221-2" author="jhipster">
 
-        <addForeignKeyConstraint baseColumnNames="jhi_group_id"
-                                 baseTableName="rel_jhi_group__user_data"
-                                 constraintName="fk_rel_jhi_group__user_data__jhi_group_id"
-                                 referencedColumnNames="id"
-                                 referencedTableName="jhi_group"/>
-
-        <addForeignKeyConstraint baseColumnNames="user_data_id"
-                                 baseTableName="rel_jhi_group__user_data"
-                                 constraintName="fk_rel_jhi_group__user_data__user_data_id"
-                                 referencedColumnNames="id"
-                                 referencedTableName="user_data"/>
-
         <addForeignKeyConstraint baseColumnNames="user_admin_id"
                                  baseTableName="jhi_group"
                                  constraintName="fk_jhi_group__user_admin_id"

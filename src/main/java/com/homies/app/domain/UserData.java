@@ -45,11 +45,6 @@ public class UserData implements Serializable {
     @Column(name = "add_date")
     private LocalDate addDate;
 
-    @ManyToMany(mappedBy = "userData")
-    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-    @JsonIgnoreProperties(value = { "userData", "userAdmin", "taskList" }, allowSetters = true)
-    private Set<Group> groups = new HashSet<>();
-
     @OneToOne
     @MapsId
     @JoinColumn(name = "id")
@@ -57,7 +52,10 @@ public class UserData implements Serializable {
 
     @OneToMany(mappedBy = "userAdmin")
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-    @JsonIgnoreProperties(value = { "userData", "userAdmin", "taskList" }, allowSetters = true)
+    @JsonIgnoreProperties(
+        value = { "userAdmin", "taskList", "spendingList", "shoppingList", "settingsList", "userData" },
+        allowSetters = true
+    )
     private Set<Group> adminGroups = new HashSet<>();
 
     @ManyToMany
@@ -74,6 +72,19 @@ public class UserData implements Serializable {
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @JsonIgnoreProperties(value = { "userCreator", "shoppingList" }, allowSetters = true)
     private Set<Products> productCreateds = new HashSet<>();
+
+    @ManyToMany
+    @JoinTable(
+        name = "rel_user_data__group",
+        joinColumns = @JoinColumn(name = "user_data_id"),
+        inverseJoinColumns = @JoinColumn(name = "group_id")
+    )
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    @JsonIgnoreProperties(
+        value = { "userAdmin", "taskList", "spendingList", "shoppingList", "settingsList", "userData" },
+        allowSetters = true
+    )
+    private Set<Group> groups = new HashSet<>();
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -166,37 +177,6 @@ public class UserData implements Serializable {
 
     public void setAddDate(LocalDate addDate) {
         this.addDate = addDate;
-    }
-
-    public Set<Group> getGroups() {
-        return this.groups;
-    }
-
-    public void setGroups(Set<Group> groups) {
-        if (this.groups != null) {
-            this.groups.forEach(i -> i.removeUserData(this));
-        }
-        if (groups != null) {
-            groups.forEach(i -> i.addUserData(this));
-        }
-        this.groups = groups;
-    }
-
-    public UserData groups(Set<Group> groups) {
-        this.setGroups(groups);
-        return this;
-    }
-
-    public UserData addGroup(Group group) {
-        this.groups.add(group);
-        group.getUserData().add(this);
-        return this;
-    }
-
-    public UserData removeGroup(Group group) {
-        this.groups.remove(group);
-        group.getUserData().remove(this);
-        return this;
     }
 
     public User getUser() {
@@ -296,6 +276,31 @@ public class UserData implements Serializable {
     public UserData removeProductCreated(Products products) {
         this.productCreateds.remove(products);
         products.setUserCreator(null);
+        return this;
+    }
+
+    public Set<Group> getGroups() {
+        return this.groups;
+    }
+
+    public void setGroups(Set<Group> groups) {
+        this.groups = groups;
+    }
+
+    public UserData groups(Set<Group> groups) {
+        this.setGroups(groups);
+        return this;
+    }
+
+    public UserData addGroup(Group group) {
+        this.groups.add(group);
+        group.getUserData().add(this);
+        return this;
+    }
+
+    public UserData removeGroup(Group group) {
+        this.groups.remove(group);
+        group.getUserData().remove(this);
         return this;
     }
 

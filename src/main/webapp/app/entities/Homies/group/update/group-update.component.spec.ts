@@ -52,14 +52,12 @@ describe('Group Management Update Component', () => {
   describe('ngOnInit', () => {
     it('Should call UserData query and add missing value', () => {
       const group: IGroup = { id: 456 };
-      const userData: IUserData[] = [{ id: 10422 }];
-      group.userData = userData;
-      const userAdmin: IUserData = { id: 31950 };
+      const userAdmin: IUserData = { id: 10422 };
       group.userAdmin = userAdmin;
 
-      const userDataCollection: IUserData[] = [{ id: 83534 }];
+      const userDataCollection: IUserData[] = [{ id: 31950 }];
       jest.spyOn(userDataService, 'query').mockReturnValue(of(new HttpResponse({ body: userDataCollection })));
-      const additionalUserData = [...userData, userAdmin];
+      const additionalUserData = [userAdmin];
       const expectedCollection: IUserData[] = [...additionalUserData, ...userDataCollection];
       jest.spyOn(userDataService, 'addUserDataToCollectionIfMissing').mockReturnValue(expectedCollection);
 
@@ -91,9 +89,7 @@ describe('Group Management Update Component', () => {
 
     it('Should update editForm', () => {
       const group: IGroup = { id: 456 };
-      const userData: IUserData = { id: 44372 };
-      group.userData = [userData];
-      const userAdmin: IUserData = { id: 44832 };
+      const userAdmin: IUserData = { id: 83534 };
       group.userAdmin = userAdmin;
       const taskList: ITaskList = { id: 36206 };
       group.taskList = taskList;
@@ -102,7 +98,6 @@ describe('Group Management Update Component', () => {
       comp.ngOnInit();
 
       expect(comp.editForm.value).toEqual(expect.objectContaining(group));
-      expect(comp.userDataSharedCollection).toContain(userData);
       expect(comp.userDataSharedCollection).toContain(userAdmin);
       expect(comp.taskListsCollection).toContain(taskList);
     });
@@ -186,34 +181,6 @@ describe('Group Management Update Component', () => {
         const entity = { id: 123 };
         const trackResult = comp.trackTaskListById(0, entity);
         expect(trackResult).toEqual(entity.id);
-      });
-    });
-  });
-
-  describe('Getting selected relationships', () => {
-    describe('getSelectedUserData', () => {
-      it('Should return option if no UserData is selected', () => {
-        const option = { id: 123 };
-        const result = comp.getSelectedUserData(option);
-        expect(result === option).toEqual(true);
-      });
-
-      it('Should return selected UserData for according option', () => {
-        const option = { id: 123 };
-        const selected = { id: 123 };
-        const selected2 = { id: 456 };
-        const result = comp.getSelectedUserData(option, [selected2, selected]);
-        expect(result === selected).toEqual(true);
-        expect(result === selected2).toEqual(false);
-        expect(result === option).toEqual(false);
-      });
-
-      it('Should return option if this UserData is not selected', () => {
-        const option = { id: 123 };
-        const selected = { id: 456 };
-        const result = comp.getSelectedUserData(option, [selected]);
-        expect(result === option).toEqual(true);
-        expect(result === selected).toEqual(false);
       });
     });
   });

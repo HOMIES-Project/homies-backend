@@ -1,6 +1,7 @@
 package com.homies.app.service.impl;
 
 import com.homies.app.domain.SpendingList;
+import com.homies.app.repository.GroupRepository;
 import com.homies.app.repository.SpendingListRepository;
 import com.homies.app.service.SpendingListService;
 import java.util.Optional;
@@ -22,13 +23,18 @@ public class SpendingListServiceImpl implements SpendingListService {
 
     private final SpendingListRepository spendingListRepository;
 
-    public SpendingListServiceImpl(SpendingListRepository spendingListRepository) {
+    private final GroupRepository groupRepository;
+
+    public SpendingListServiceImpl(SpendingListRepository spendingListRepository, GroupRepository groupRepository) {
         this.spendingListRepository = spendingListRepository;
+        this.groupRepository = groupRepository;
     }
 
     @Override
     public SpendingList save(SpendingList spendingList) {
         log.debug("Request to save SpendingList : {}", spendingList);
+        Long groupId = spendingList.getGroup().getId();
+        groupRepository.findById(groupId).ifPresent(spendingList::group);
         return spendingListRepository.save(spendingList);
     }
 

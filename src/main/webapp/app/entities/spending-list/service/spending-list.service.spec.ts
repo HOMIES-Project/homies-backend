@@ -144,7 +144,7 @@ describe('SpendingList Service', () => {
       });
 
       it('should add only unique SpendingList to an array', () => {
-        const spendingListArray: ISpendingList[] = [{ id: 123 }, { id: 456 }, { id: 91664 }];
+        const spendingListArray: ISpendingList[] = [{ id: 123 }, { id: 456 }, { id: 35887 }];
         const spendingListCollection: ISpendingList[] = [{ id: 123 }];
         expectedResult = service.addSpendingListToCollectionIfMissing(spendingListCollection, ...spendingListArray);
         expect(expectedResult).toHaveLength(3);

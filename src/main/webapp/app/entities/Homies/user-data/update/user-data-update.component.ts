@@ -12,6 +12,8 @@ import { EventManager, EventWithContent } from 'app/core/util/event-manager.serv
 import { DataUtils, FileLoadError } from 'app/core/util/data-util.service';
 import { IUser } from 'app/entities/user/user.model';
 import { UserService } from 'app/entities/user/user.service';
+import { IGroup } from 'app/entities/Homies/group/group.model';
+import { GroupService } from 'app/entities/Homies/group/service/group.service';
 import { ITask } from 'app/entities/task/task.model';
 import { TaskService } from 'app/entities/task/service/task.service';
 
@@ -23,6 +25,7 @@ export class UserDataUpdateComponent implements OnInit {
   isSaving = false;
 
   usersSharedCollection: IUser[] = [];
+  groupsSharedCollection: IGroup[] = [];
   tasksSharedCollection: ITask[] = [];
 
   editForm = this.fb.group({
@@ -35,6 +38,7 @@ export class UserDataUpdateComponent implements OnInit {
     addDate: [],
     user: [],
     taskAsigneds: [],
+    groups: [],
   });
 
   constructor(
@@ -42,6 +46,7 @@ export class UserDataUpdateComponent implements OnInit {
     protected eventManager: EventManager,
     protected userDataService: UserDataService,
     protected userService: UserService,
+    protected groupService: GroupService,
     protected taskService: TaskService,
     protected elementRef: ElementRef,
     protected activatedRoute: ActivatedRoute,
@@ -99,8 +104,23 @@ export class UserDataUpdateComponent implements OnInit {
     return item.id!;
   }
 
+  trackGroupById(index: number, item: IGroup): number {
+    return item.id!;
+  }
+
   trackTaskById(index: number, item: ITask): number {
     return item.id!;
+  }
+
+  getSelectedGroup(option: IGroup, selectedVals?: IGroup[]): IGroup {
+    if (selectedVals) {
+      for (const selectedVal of selectedVals) {
+        if (option.id === selectedVal.id) {
+          return selectedVal;
+        }
+      }
+    }
+    return option;
   }
 
   getSelectedTask(option: ITask, selectedVals?: ITask[]): ITask {
@@ -144,9 +164,11 @@ export class UserDataUpdateComponent implements OnInit {
       addDate: userData.addDate,
       user: userData.user,
       taskAsigneds: userData.taskAsigneds,
+      groups: userData.groups,
     });
 
     this.usersSharedCollection = this.userService.addUserToCollectionIfMissing(this.usersSharedCollection, userData.user);
+    this.groupsSharedCollection = this.groupService.addGroupToCollectionIfMissing(this.groupsSharedCollection, ...(userData.groups ?? []));
     this.tasksSharedCollection = this.taskService.addTaskToCollectionIfMissing(
       this.tasksSharedCollection,
       ...(userData.taskAsigneds ?? [])
@@ -159,6 +181,14 @@ export class UserDataUpdateComponent implements OnInit {
       .pipe(map((res: HttpResponse<IUser[]>) => res.body ?? []))
       .pipe(map((users: IUser[]) => this.userService.addUserToCollectionIfMissing(users, this.editForm.get('user')!.value)))
       .subscribe((users: IUser[]) => (this.usersSharedCollection = users));
+
+    this.groupService
+      .query()
+      .pipe(map((res: HttpResponse<IGroup[]>) => res.body ?? []))
+      .pipe(
+        map((groups: IGroup[]) => this.groupService.addGroupToCollectionIfMissing(groups, ...(this.editForm.get('groups')!.value ?? [])))
+      )
+      .subscribe((groups: IGroup[]) => (this.groupsSharedCollection = groups));
 
     this.taskService
       .query()
@@ -181,6 +211,7 @@ export class UserDataUpdateComponent implements OnInit {
       addDate: this.editForm.get(['addDate'])!.value,
       user: this.editForm.get(['user'])!.value,
       taskAsigneds: this.editForm.get(['taskAsigneds'])!.value,
+      groups: this.editForm.get(['groups'])!.value,
     };
   }
 }
