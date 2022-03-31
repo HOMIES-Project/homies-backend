@@ -26,6 +26,10 @@ public interface GroupRepository extends JpaRepository<Group, Long>, JpaSpecific
         return this.findAllWithToOneRelationships(pageable);
     }
 
+    Optional<Group> findByGroupName(String groupName);
+
+    boolean existsByGroupName(String groupName);
+
     @Query(
         value = "select distinct jhiGroup from Group jhiGroup left join fetch jhiGroup.taskList",
         countQuery = "select count(distinct jhiGroup) from Group jhiGroup"

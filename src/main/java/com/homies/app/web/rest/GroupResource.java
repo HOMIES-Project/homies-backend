@@ -5,6 +5,7 @@ import com.homies.app.repository.GroupRepository;
 import com.homies.app.service.GroupQueryService;
 import com.homies.app.service.GroupService;
 import com.homies.app.service.criteria.GroupCriteria;
+import com.homies.app.web.rest.auxiliary.CreateGroupsAux;
 import com.homies.app.web.rest.errors.BadRequestAlertException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -14,12 +15,15 @@ import java.util.Optional;
 import java.util.stream.StreamSupport;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+
+import com.homies.app.web.rest.vm.CreateGroupVM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -47,10 +51,35 @@ public class GroupResource {
 
     private final GroupQueryService groupQueryService;
 
-    public GroupResource(GroupService groupService, GroupRepository groupRepository, GroupQueryService groupQueryService) {
+    private final CreateGroupsAux createGroupsAux;
+
+    public GroupResource(GroupService groupService,
+                         GroupRepository groupRepository,
+                         GroupQueryService groupQueryService,
+                         CreateGroupsAux createGroupsAux) {
         this.groupService = groupService;
         this.groupRepository = groupRepository;
         this.groupQueryService = groupQueryService;
+        this.createGroupsAux = createGroupsAux;
+    }
+
+    /**
+     * {@code POST  /groups} : Create a new group.
+     *
+     * @param group the group to create.
+     * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new group, or with status {@code 400 (Bad Request)} if the group has already an ID.
+     * @throws URISyntaxException if the Location URI syntax is incorrect.
+     */
+    @PostMapping("/my-groups")
+    public ResponseEntity<Group> createGroup(@Valid @RequestBody CreateGroupVM group) throws URISyntaxException {
+        log.debug("REST request to save Group : {}", group);
+
+        Group newGrop = createGroupsAux.createNewGroup(group);
+
+        if (newGrop != null)
+            return new ResponseEntity<>(newGrop, HttpStatus.CREATED);
+
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
     /**

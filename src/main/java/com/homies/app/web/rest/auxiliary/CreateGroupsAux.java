@@ -78,7 +78,7 @@ public class CreateGroupsAux {
         groupService.save(newGroup);
 
         //Update taskList
-        //newGroup = groupService.findOne(newGroup.getGroupName()).get();
+        newGroup = groupService.findOne(newGroup.getGroupName()).get();
         updateTaskList(newGroup.getId(), newGroup);
 
         //Group update with new taskList
