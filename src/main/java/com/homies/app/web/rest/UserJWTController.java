@@ -1,8 +1,12 @@
 package com.homies.app.web.rest;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.homies.app.domain.UserData;
 import com.homies.app.security.jwt.JWTFilter;
 import com.homies.app.security.jwt.TokenProvider;
+import com.homies.app.service.UserDataQueryService;
+import com.homies.app.service.UserDataService;
+import com.homies.app.service.UserService;
 import com.homies.app.web.rest.vm.LoginVM;
 import javax.validation.Valid;
 import org.springframework.http.HttpHeaders;
@@ -28,9 +32,14 @@ public class UserJWTController {
 
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
 
-    public UserJWTController(TokenProvider tokenProvider, AuthenticationManagerBuilder authenticationManagerBuilder) {
+    private final UserDataQueryService userDataQueryService;
+
+    public UserJWTController(TokenProvider tokenProvider,
+                             AuthenticationManagerBuilder authenticationManagerBuilder,
+                             UserDataQueryService userDataQueryService) {
         this.tokenProvider = tokenProvider;
         this.authenticationManagerBuilder = authenticationManagerBuilder;
+        this.userDataQueryService = userDataQueryService;
     }
 
     @PostMapping("/authenticate")
@@ -44,8 +53,9 @@ public class UserJWTController {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = tokenProvider.createToken(authentication, loginVM.isRememberMe());
         HttpHeaders httpHeaders = new HttpHeaders();
+        UserData userData = userDataQueryService.getByUser_Login(authentication.getName()).get();
         httpHeaders.add(JWTFilter.AUTHORIZATION_HEADER, "Bearer " + jwt);
-        return new ResponseEntity<>(new JWTToken(jwt), httpHeaders, HttpStatus.OK);
+        return new ResponseEntity<>(new JWTToken(jwt, userData.getId()), httpHeaders, HttpStatus.OK);
     }
 
     /**
@@ -54,9 +64,11 @@ public class UserJWTController {
     static class JWTToken {
 
         private String idToken;
+        private Long id;
 
-        JWTToken(String idToken) {
+        JWTToken(String idToken, Long id) {
             this.idToken = idToken;
+            this.id = id;
         }
 
         @JsonProperty("id_token")
@@ -66,6 +78,15 @@ public class UserJWTController {
 
         void setIdToken(String idToken) {
             this.idToken = idToken;
+        }
+
+        @JsonProperty("id")
+        Long getId() {
+            return id;
+        }
+
+        void setId(Long id) {
+            this.id = id;
         }
     }
 }
