@@ -41,7 +41,7 @@ public class Group implements Serializable {
     @Column(name = "add_group_date")
     private LocalDate addGroupDate;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JsonIgnoreProperties(value = { "user", "adminGroups", "taskAsigneds", "productCreateds", "groups" }, allowSetters = true)
     private UserData userAdmin;
 
