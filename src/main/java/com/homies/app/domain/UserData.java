@@ -3,6 +3,7 @@ package com.homies.app.domain;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.*;
@@ -73,7 +74,7 @@ public class UserData implements Serializable {
     @JsonIgnoreProperties(value = { "userCreator", "shoppingList" }, allowSetters = true)
     private Set<Products> productCreateds = new HashSet<>();
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
         name = "rel_user_data__group",
         joinColumns = @JoinColumn(name = "user_data_id"),
@@ -323,17 +324,21 @@ public class UserData implements Serializable {
         return getClass().hashCode();
     }
 
-    // prettier-ignore
     @Override
     public String toString() {
         return "UserData{" +
-            "id=" + getId() +
-            ", photo='" + getPhoto() + "'" +
-            ", photoContentType='" + getPhotoContentType() + "'" +
-            ", phone='" + getPhone() + "'" +
-            ", premium='" + getPremium() + "'" +
-            ", birthDate='" + getBirthDate() + "'" +
-            ", addDate='" + getAddDate() + "'" +
-            "}";
+            "id=" + id +
+            ", photo=" + "Arrays.toString(photo)" +
+            ", photoContentType='" + photoContentType + '\'' +
+            ", phone='" + phone + '\'' +
+            ", premium=" + premium +
+            ", birthDate=" + birthDate +
+            ", addDate=" + addDate +
+            ", user=" + user +
+            ", adminGroups=" + adminGroups +
+            ", taskAsigneds=" + taskAsigneds +
+            ", productCreateds=" + productCreateds +
+            ", groups=" + groups +
+            '}';
     }
 }

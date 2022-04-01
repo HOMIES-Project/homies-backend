@@ -9,6 +9,7 @@ import javax.persistence.*;
 import javax.validation.constraints.*;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Fetch;
 
 /**
  * A Group.
@@ -63,7 +64,7 @@ public class Group implements Serializable {
     @OneToOne(mappedBy = "group")
     private SettingsList settingsList;
 
-    @ManyToMany(mappedBy = "groups")
+    @ManyToMany(mappedBy = "groups", fetch = FetchType.EAGER)
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @JsonIgnoreProperties(value = { "user", "adminGroups", "taskAsigneds", "productCreateds", "groups" }, allowSetters = true)
     private Set<UserData> userData = new HashSet<>();
@@ -268,15 +269,20 @@ public class Group implements Serializable {
         return getClass().hashCode();
     }
 
-    // prettier-ignore
     @Override
     public String toString() {
         return "Group{" +
-            "id=" + getId() +
-            ", groupKey='" + getGroupKey() + "'" +
-            ", groupName='" + getGroupName() + "'" +
-            ", groupRelationName='" + getGroupRelationName() + "'" +
-            ", addGroupDate='" + getAddGroupDate() + "'" +
-            "}";
+            "id=" + id +
+            ", groupKey='" + groupKey + '\'' +
+            ", groupName='" + groupName + '\'' +
+            ", groupRelationName='" + groupRelationName + '\'' +
+            ", addGroupDate=" + addGroupDate +
+            ", userAdmin=" + userAdmin +
+            ", taskList=" + taskList +
+            ", spendingList=" + spendingList +
+            ", shoppingList=" + shoppingList +
+            ", settingsList=" + settingsList +
+            ", userData=" + userData +
+            '}';
     }
 }
