@@ -41,7 +41,7 @@ public class Group implements Serializable {
     @Column(name = "add_group_date")
     private LocalDate addGroupDate;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne
     @JsonIgnoreProperties(value = { "user", "adminGroups", "taskAsigneds", "productCreateds", "groups" }, allowSetters = true)
     private UserData userAdmin;
 
@@ -63,7 +63,7 @@ public class Group implements Serializable {
     @OneToOne(mappedBy = "group")
     private SettingsList settingsList;
 
-    @ManyToMany(mappedBy = "groups")
+    @ManyToMany(mappedBy = "groups", fetch = FetchType.EAGER)
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @JsonIgnoreProperties(value = { "user", "adminGroups", "taskAsigneds", "productCreateds", "groups" }, allowSetters = true)
     private Set<UserData> userData = new HashSet<>();
