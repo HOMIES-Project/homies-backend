@@ -46,7 +46,7 @@ public class UserData implements Serializable {
     @Column(name = "add_date")
     private LocalDate addDate;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     @MapsId
     @JoinColumn(name = "id")
     private User user;
