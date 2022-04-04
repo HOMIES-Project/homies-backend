@@ -272,17 +272,17 @@ public class Group implements Serializable {
     @Override
     public String toString() {
         return "Group{" +
-            "id=" + id +
-            ", groupKey='" + groupKey + '\'' +
-            ", groupName='" + groupName + '\'' +
-            ", groupRelationName='" + groupRelationName + '\'' +
-            ", addGroupDate=" + addGroupDate +
-            ", userAdmin=" + userAdmin +
-            ", taskList=" + taskList +
-            ", spendingList=" + spendingList +
-            ", shoppingList=" + shoppingList +
-            ", settingsList=" + settingsList +
-            ", userData=" + userData +
+            "id=" + getId() +
+            ", groupKey='" + getGroupKey() + '\'' +
+            ", groupName='" + getGroupName() + '\'' +
+            ", groupRelationName='" + getGroupRelationName() + '\'' +
+            ", addGroupDate=" + getAddGroupDate() +
+            ", userAdmin=" + getUserAdmin() +
+            //", taskList=" + getTaskList() +
+            //", spendingList=" + getSpendingList() +
+            //", shoppingList=" + getShoppingList() +
+            //", settingsList=" + getSettingsList() +
+            //", userData=" + getUserData() +
             '}';
     }
 }

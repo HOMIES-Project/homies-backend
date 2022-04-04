@@ -327,8 +327,26 @@ public class UserData implements Serializable {
     @Override
     public String toString() {
         return "UserData{" +
+            "id=" + getId() +
+            ", photo='" + getPhoto() + "'" +
+            ", photoContentType='" + getPhotoContentType() + "'" +
+            ", phone='" + getPhone() + "'" +
+            ", premium='" + getPremium() + "'" +
+            ", birthDate='" + getBirthDate() + "'" +
+            ", addDate='" + getAddDate() + "'" +
+            //", user=" + getUser() +
+            //", adminGroups=" + getAdminGroups() +
+            //", taskAsigneds=" + getTaskAsigneds() +
+            //", productCreateds=" + getProductCreateds() +
+            //", groups=" + getGroups() +
+            "}";
+    }
+
+   /* @Override
+    public String toString() {
+        return "UserData{" +
             "id=" + id +
-            ", photo=" + "Arrays.toString(photo)" +
+            ", photo=" + Arrays.toString(photo) +
             ", photoContentType='" + photoContentType + '\'' +
             ", phone='" + phone + '\'' +
             ", premium=" + premium +
@@ -340,5 +358,5 @@ public class UserData implements Serializable {
             ", productCreateds=" + productCreateds +
             ", groups=" + groups +
             '}';
-    }
+    }*/
 }
