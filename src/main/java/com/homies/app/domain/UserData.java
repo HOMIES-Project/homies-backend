@@ -3,6 +3,7 @@ package com.homies.app.domain;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.*;
@@ -45,7 +46,7 @@ public class UserData implements Serializable {
     @Column(name = "add_date")
     private LocalDate addDate;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     @MapsId
     @JoinColumn(name = "id")
     private User user;
@@ -73,17 +74,17 @@ public class UserData implements Serializable {
     @JsonIgnoreProperties(value = { "userCreator", "shoppingList" }, allowSetters = true)
     private Set<Products> productCreateds = new HashSet<>();
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
         name = "rel_user_data__group",
         joinColumns = @JoinColumn(name = "user_data_id"),
         inverseJoinColumns = @JoinColumn(name = "group_id")
     )
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-    @JsonIgnoreProperties(
+/*    @JsonIgnoreProperties(
         value = { "userAdmin", "taskList", "spendingList", "shoppingList", "settingsList", "userData" },
         allowSetters = true
-    )
+    )*/
     private Set<Group> groups = new HashSet<>();
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
@@ -323,7 +324,6 @@ public class UserData implements Serializable {
         return getClass().hashCode();
     }
 
-    // prettier-ignore
     @Override
     public String toString() {
         return "UserData{" +
@@ -334,6 +334,29 @@ public class UserData implements Serializable {
             ", premium='" + getPremium() + "'" +
             ", birthDate='" + getBirthDate() + "'" +
             ", addDate='" + getAddDate() + "'" +
+            //", user=" + getUser() +
+            //", adminGroups=" + getAdminGroups() +
+            //", taskAsigneds=" + getTaskAsigneds() +
+            //", productCreateds=" + getProductCreateds() +
+            //", groups=" + getGroups() +
             "}";
     }
+
+   /* @Override
+    public String toString() {
+        return "UserData{" +
+            "id=" + id +
+            ", photo=" + Arrays.toString(photo) +
+            ", photoContentType='" + photoContentType + '\'' +
+            ", phone='" + phone + '\'' +
+            ", premium=" + premium +
+            ", birthDate=" + birthDate +
+            ", addDate=" + addDate +
+            ", user=" + user +
+            ", adminGroups=" + adminGroups +
+            ", taskAsigneds=" + taskAsigneds +
+            ", productCreateds=" + productCreateds +
+            ", groups=" + groups +
+            '}';
+    }*/
 }

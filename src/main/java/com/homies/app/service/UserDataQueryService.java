@@ -5,6 +5,7 @@ import com.homies.app.domain.UserData;
 import com.homies.app.repository.UserDataRepository;
 import com.homies.app.service.criteria.UserDataCriteria;
 import java.util.List;
+import java.util.Optional;
 import javax.persistence.criteria.JoinType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +32,12 @@ public class UserDataQueryService extends QueryService<UserData> {
 
     public UserDataQueryService(UserDataRepository userDataRepository) {
         this.userDataRepository = userDataRepository;
+    }
+
+
+    @Transactional(readOnly = true)
+    public Optional<UserData> getByUser_Login(String login){
+        return userDataRepository.getByUser_Login(login);
     }
 
     /**

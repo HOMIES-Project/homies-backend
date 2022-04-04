@@ -27,6 +27,8 @@ public interface UserDataRepository
         return this.fetchBagRelationships(this.findAllWithToOneRelationships(pageable));
     }
 
+    Optional<UserData> getByUser_Login(String login);
+
     @Query(
         value = "select distinct userData from UserData userData left join fetch userData.user",
         countQuery = "select count(distinct userData) from UserData userData"

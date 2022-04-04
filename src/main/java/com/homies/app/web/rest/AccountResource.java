@@ -77,6 +77,7 @@ public class AccountResource {
             throw new InvalidPasswordException();
         }
         User user = userService.registerUser(managedUserVM, managedUserVM.getPassword());
+        fusionUserAndUserData.createUserData(user.getId());
         mailService.sendActivationEmail(user);
     }
 
