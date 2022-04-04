@@ -63,7 +63,7 @@ public class Group implements Serializable {
     @OneToOne(mappedBy = "group")
     private SettingsList settingsList;
 
-    @ManyToMany(mappedBy = "groups")
+    @ManyToMany(mappedBy = "groups", fetch = FetchType.EAGER)
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @JsonIgnoreProperties(value = { "user", "adminGroups", "taskAsigneds", "productCreateds", "groups" }, allowSetters = true)
     private Set<UserData> userData = new HashSet<>();
