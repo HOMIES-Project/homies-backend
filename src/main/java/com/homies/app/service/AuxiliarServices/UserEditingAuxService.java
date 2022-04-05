@@ -1,8 +1,6 @@
-package com.homies.app.web.rest.auxiliary;
+package com.homies.app.service.AuxiliarServices;
 
-import com.homies.app.domain.User;
 import com.homies.app.domain.UserData;
-import com.homies.app.service.UserDataQueryService;
 import com.homies.app.service.UserDataService;
 import com.homies.app.service.UserService;
 import com.homies.app.service.dto.UserDataUpdateDTO;
@@ -11,30 +9,24 @@ import com.homies.app.web.rest.vm.UserEditingVM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
 @Service
-public class UserEditingAux {
+public class UserEditingAuxService {
 
-    private final Logger log = LoggerFactory.getLogger(UserEditingAux.class);
+    private final Logger log = LoggerFactory.getLogger(UserEditingAuxService.class);
 
     private final UserService userService;
-
-    private final UserDataQueryService userDataQueryService;
 
     private final UserDataService userDataService;
 
     //private final UserEditingVM userEditingVM;
 
-    public UserEditingAux(UserService userService,
-                          UserDataQueryService userDataQueryService,
-                          UserDataService userDataService) {
+    public UserEditingAuxService(UserService userService,
+                                 UserDataService userDataService) {
         this.userService = userService;
-        this.userDataQueryService = userDataQueryService;
         this.userDataService = userDataService;
-        //this.userEditingVM = userEditingVM;
     }
 
     public UserData updateUser(UserEditingVM userEditingVM) {

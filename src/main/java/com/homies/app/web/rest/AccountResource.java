@@ -7,7 +7,7 @@ import com.homies.app.service.MailService;
 import com.homies.app.service.UserService;
 import com.homies.app.service.dto.AdminUserDTO;
 import com.homies.app.service.dto.PasswordChangeDTO;
-import com.homies.app.web.rest.auxiliary.CreateUserDataForUserAux;
+import com.homies.app.service.AuxiliarServices.CreateUserDataForUserAuxService;
 import com.homies.app.web.rest.errors.*;
 import com.homies.app.web.rest.auxiliary.JSONResetPasswordAux;
 import com.homies.app.web.rest.vm.JSONEmailVM;
@@ -49,12 +49,12 @@ public class AccountResource {
 
     private final MailService mailService;
 
-    private final CreateUserDataForUserAux createUserDataForUserAux;
+    private final CreateUserDataForUserAuxService createUserDataForUserAux;
 
     public AccountResource(UserRepository userRepository,
                            UserService userService,
                            MailService mailService,
-                           CreateUserDataForUserAux createUserDataForUserAux) {
+                           CreateUserDataForUserAuxService createUserDataForUserAux) {
         this.userRepository = userRepository;
         this.userService = userService;
         this.mailService = mailService;

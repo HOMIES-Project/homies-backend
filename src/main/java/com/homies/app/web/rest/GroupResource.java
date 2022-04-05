@@ -2,20 +2,21 @@ package com.homies.app.web.rest;
 
 import com.homies.app.domain.Group;
 import com.homies.app.repository.GroupRepository;
+import com.homies.app.service.AuxiliarServices.AddUserToGroupAuxService;
 import com.homies.app.service.GroupQueryService;
 import com.homies.app.service.GroupService;
 import com.homies.app.service.criteria.GroupCriteria;
-import com.homies.app.web.rest.auxiliary.CreateGroupsAux;
+import com.homies.app.service.AuxiliarServices.CreateGroupsAuxService;
 import com.homies.app.web.rest.errors.BadRequestAlertException;
-import java.net.URI;
+
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.StreamSupport;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
+import com.homies.app.web.rest.vm.AddUserToGroupVM;
 import com.homies.app.web.rest.vm.CreateGroupVM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,16 +52,20 @@ public class GroupResource {
 
     private final GroupQueryService groupQueryService;
 
-    private final CreateGroupsAux createGroupsAux;
+    private final CreateGroupsAuxService createGroupsAux;
+
+    private final AddUserToGroupAuxService addUserToGroupAuxService;
 
     public GroupResource(GroupService groupService,
                          GroupRepository groupRepository,
                          GroupQueryService groupQueryService,
-                         CreateGroupsAux createGroupsAux) {
+                         CreateGroupsAuxService createGroupsAux,
+                         AddUserToGroupAuxService addUserToGroupAuxService) {
         this.groupService = groupService;
         this.groupRepository = groupRepository;
         this.groupQueryService = groupQueryService;
         this.createGroupsAux = createGroupsAux;
+        this.addUserToGroupAuxService = addUserToGroupAuxService;
     }
 
     /**
@@ -149,6 +154,34 @@ public class GroupResource {
             HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, group.getId().toString())
         );
     }
+
+    @PostMapping("/groups/add-user")
+    public ResponseEntity<Group> addUserToGroup(
+        @Valid @RequestBody AddUserToGroupVM addUser)
+        throws URISyntaxException{
+
+        log.warn(addUser.toString());
+        if (addUser.getIdAdminGroup() == null) {
+            return new ResponseEntity("Error. Was not specify admin id.", HttpStatus.BAD_REQUEST);
+        }
+        log.warn("################ => hay user admin");
+        if (addUser.getIdGroup() == null) {
+            return new ResponseEntity("Error. Was not specify group id", HttpStatus.BAD_REQUEST);
+        }
+        log.warn("################ => hay grupo");
+        if (addUser.getLogin().isEmpty()) {
+            return new ResponseEntity("Error. Was not specify user Login", HttpStatus.BAD_REQUEST);
+        }
+
+        log.warn("################ => Crear grupo");
+        Optional<Group> result = addUserToGroupAuxService.addUserToGroup(addUser);
+
+        return ResponseUtil.wrapOrNotFound(
+            result,
+            HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, result.get().getUserData().toString())
+        );
+    }
+
 
     /**
      * {@code GET  /groups} : get all the groups.

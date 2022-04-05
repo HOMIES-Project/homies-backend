@@ -258,6 +258,10 @@ public class UserService {
             });
     }
 
+    public Optional<User> getUser(String login) {
+        return userRepository.findOneByLogin(login);
+    }
+
     public Boolean updateUser(UserUpdateDTO user) {
         var complete = new AtomicReference<>(false);
         SecurityUtils
