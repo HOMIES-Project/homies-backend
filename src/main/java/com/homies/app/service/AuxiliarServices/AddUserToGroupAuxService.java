@@ -57,10 +57,6 @@ public class AddUserToGroupAuxService {
 
     public Optional<Group> changeUserAdminOfTheGroup(AddUserToGroupVM addUser){
         if (manageUserOfTheGroup(addUser).isPresent()) {
-/*            userAdmin.get().removeGroup(group.get());
-            userData.get().addAdminGroups(group.get());
-            userDataService.save(userAdmin.get());
-            userDataService.save(userData.get());*/
             group.get().setUserAdmin(userData.get());
             groupService.save(group.get());
             return group;
@@ -76,37 +72,21 @@ public class AddUserToGroupAuxService {
 
         if (userAdmin.isEmpty())
             return Optional.empty(); //UserAdmin not exist
-        log.warn("##### => " + userAdmin);
 
         if (group.isEmpty())
             return Optional.empty(); //Group not exist
 
         if (group.get().getUserAdmin() == null)
             return Optional.empty(); //Group's UserAdmin not exist
-        log.warn("##### => " + group);
 
         if (userData.isEmpty())
             return Optional.empty(); //UserData not exist
-        log.warn("##### => " + userData);
 
         if (userAdmin.get().getId().longValue() != group.get().getUserAdmin().getId().longValue())
             return Optional.empty(); //UserAdmin not is group's userAdmin.
-        log.warn("##### => " + true);
 
         return group;
 
     }
-
-    private Optional<UserData> userAdminExist(Long id) {
-        return userDataService.findOne(id);
-    }
-
-    private Optional<Group> groupExist(Long id) {
-        return groupService.findOne(id);
-    }
-
-    private Optional<UserData> userExist(String login) {
-        return userDataService.findOne(userService.getUser(login).get().getId());
-    }
-
+    
 }

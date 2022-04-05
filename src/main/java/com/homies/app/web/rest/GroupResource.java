@@ -174,9 +174,7 @@ public class GroupResource {
         }
 
         log.warn("################ => Crear grupo");
-        //Optional<Group> result = addUserToGroupAuxService.addUserToGroup(addUser);
-        //Optional<Group> result = addUserToGroupAuxService.deleteUserToTheGroup(addUser);
-        Optional<Group> result = addUserToGroupAuxService.changeUserAdminOfTheGroup(addUser);
+        Optional<Group> result = addUserToGroupAuxService.addUserToGroup(addUser);
 
         return ResponseUtil.wrapOrNotFound(
             result,
@@ -184,6 +182,59 @@ public class GroupResource {
         );
     }
 
+    @PostMapping("/groups/delete-user")
+    public ResponseEntity<Group> deleteUserToGroup(
+        @Valid @RequestBody AddUserToGroupVM addUser)
+        throws URISyntaxException{
+
+        log.warn(addUser.toString());
+        if (addUser.getIdAdminGroup() == null) {
+            return new ResponseEntity("Error. Was not specify admin id.", HttpStatus.BAD_REQUEST);
+        }
+        log.warn("################ => hay user admin");
+        if (addUser.getIdGroup() == null) {
+            return new ResponseEntity("Error. Was not specify group id", HttpStatus.BAD_REQUEST);
+        }
+        log.warn("################ => hay grupo");
+        if (addUser.getLogin().isEmpty()) {
+            return new ResponseEntity("Error. Was not specify user Login", HttpStatus.BAD_REQUEST);
+        }
+
+        log.warn("################ => Crear grupo");
+        Optional<Group> result = addUserToGroupAuxService.deleteUserToTheGroup(addUser);
+
+        return ResponseUtil.wrapOrNotFound(
+            result,
+            HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, result.get().getUserData().toString())
+        );
+    }
+
+    @PostMapping("/groups/change-admin")
+    public ResponseEntity<Group> changeUserAdminToGroup(
+        @Valid @RequestBody AddUserToGroupVM addUser)
+        throws URISyntaxException{
+
+        log.warn(addUser.toString());
+        if (addUser.getIdAdminGroup() == null) {
+            return new ResponseEntity("Error. Was not specify admin id.", HttpStatus.BAD_REQUEST);
+        }
+        log.warn("################ => hay user admin");
+        if (addUser.getIdGroup() == null) {
+            return new ResponseEntity("Error. Was not specify group id", HttpStatus.BAD_REQUEST);
+        }
+        log.warn("################ => hay grupo");
+        if (addUser.getLogin().isEmpty()) {
+            return new ResponseEntity("Error. Was not specify user Login", HttpStatus.BAD_REQUEST);
+        }
+
+        log.warn("################ => Crear grupo");
+        Optional<Group> result = addUserToGroupAuxService.changeUserAdminOfTheGroup(addUser);
+
+        return ResponseUtil.wrapOrNotFound(
+            result,
+            HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, result.get().getUserData().toString())
+        );
+    }
 
     /**
      * {@code GET  /groups} : get all the groups.
