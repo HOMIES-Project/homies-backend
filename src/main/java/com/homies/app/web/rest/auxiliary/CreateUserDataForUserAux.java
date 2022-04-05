@@ -14,15 +14,15 @@ import java.util.Optional;
 
 @Service
 @Transactional
-public class FusionUserAndUserDataAux {
+public class CreateUserDataForUserAux {
 
-    private final Logger log = LoggerFactory.getLogger(FusionUserAndUserDataAux.class);
+    private final Logger log = LoggerFactory.getLogger(CreateUserDataForUserAux.class);
 
     private final UserRepository userRepository;
 
     private final UserDataRepository userDataRepository;
 
-    public FusionUserAndUserDataAux(UserRepository userRepository, UserDataRepository userDataRepository) {
+    public CreateUserDataForUserAux(UserRepository userRepository, UserDataRepository userDataRepository) {
         this.userRepository = userRepository;
         this.userDataRepository = userDataRepository;
     }

@@ -5,6 +5,7 @@ import com.homies.app.repository.UserDataRepository;
 import com.homies.app.service.UserDataQueryService;
 import com.homies.app.service.UserDataService;
 import com.homies.app.service.criteria.UserDataCriteria;
+import com.homies.app.web.rest.auxiliary.UserEditingAux;
 import com.homies.app.web.rest.errors.BadRequestAlertException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -13,6 +14,8 @@ import java.util.Objects;
 import java.util.Optional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+
+import com.homies.app.web.rest.vm.UserEditingVM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -46,14 +49,18 @@ public class UserDataResource {
 
     private final UserDataQueryService userDataQueryService;
 
+    private final UserEditingAux userEditingAux;
+
     public UserDataResource(
         UserDataService userDataService,
         UserDataRepository userDataRepository,
-        UserDataQueryService userDataQueryService
+        UserDataQueryService userDataQueryService,
+        UserEditingAux userEditingAux
     ) {
         this.userDataService = userDataService;
         this.userDataRepository = userDataRepository;
         this.userDataQueryService = userDataQueryService;
+        this.userEditingAux = userEditingAux;
     }
 
     /**
@@ -79,7 +86,7 @@ public class UserDataResource {
             .body(result);
     }
 
-    /**
+   /* /**
      * {@code PUT  /user-data/:id} : Updates an existing userData.
      *
      * @param id the id of the userData to save.
@@ -88,7 +95,7 @@ public class UserDataResource {
      * or with status {@code 400 (Bad Request)} if the userData is not valid,
      * or with status {@code 500 (Internal Server Error)} if the userData couldn't be updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
-     */
+     *//*
     @PutMapping("/user-data/{id}")
     public ResponseEntity<UserData> updateUserData(
         @PathVariable(value = "id", required = false) final Long id,
@@ -111,7 +118,33 @@ public class UserDataResource {
             .ok()
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, userData.getId().toString()))
             .body(result);
+    }*/
+
+
+    //Put personalizado para cambiar user y userData
+    @PutMapping("/user-data/{id}")
+    public ResponseEntity<?> editFieldCompleteUser(
+        @PathVariable Long id,
+        @Valid @RequestBody UserEditingVM user) {
+        if (id == null)
+            return ResponseEntity.badRequest().body("No se ha especificado usuario");
+
+        user.setId(id);
+
+        if (userDataService.findOne(user.getId()).isEmpty())
+            return ResponseEntity.badRequest().body("No se ha encontrado al usuario");
+
+        UserData updateUser = userEditingAux.updateUser(user);
+
+        if (updateUser != null) {
+            return ResponseEntity.ok().body(updateUser);
+        } else {
+            return null;
+        }
     }
+
+
+
 
     /**
      * {@code PATCH  /user-data/:id} : Partial updates given fields of an existing userData, field will ignore if it is null

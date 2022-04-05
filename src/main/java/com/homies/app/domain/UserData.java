@@ -342,21 +342,4 @@ public class UserData implements Serializable {
             "}";
     }
 
-   /* @Override
-    public String toString() {
-        return "UserData{" +
-            "id=" + id +
-            ", photo=" + Arrays.toString(photo) +
-            ", photoContentType='" + photoContentType + '\'' +
-            ", phone='" + phone + '\'' +
-            ", premium=" + premium +
-            ", birthDate=" + birthDate +
-            ", addDate=" + addDate +
-            ", user=" + user +
-            ", adminGroups=" + adminGroups +
-            ", taskAsigneds=" + taskAsigneds +
-            ", productCreateds=" + productCreateds +
-            ", groups=" + groups +
-            '}';
-    }*/
 }

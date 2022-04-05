@@ -4,6 +4,8 @@ import com.homies.app.domain.User;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+
+import org.jetbrains.annotations.NotNull;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -23,6 +25,11 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findOneByResetKey(String resetKey);
     Optional<User> findOneByEmailIgnoreCase(String email);
     Optional<User> findOneByLogin(String login);
+    Optional<User> findOneById(Long id);
+
+
+
+
 
     @EntityGraph(attributePaths = "authorities")
     @Cacheable(cacheNames = USERS_BY_LOGIN_CACHE)
@@ -33,4 +40,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findOneWithAuthoritiesByEmailIgnoreCase(String email);
 
     Page<User> findAllByIdNotNullAndActivatedIsTrue(Pageable pageable);
+
+
+
 }

@@ -12,7 +12,10 @@ import com.homies.app.service.dto.UserDTO;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
+
+import com.homies.app.service.dto.UserUpdateDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.CacheManager;
@@ -23,6 +26,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tech.jhipster.security.RandomUtil;
+
 
 /**
  * Service class for managing users.
@@ -186,7 +190,7 @@ public class UserService {
      * @param userDTO user to update.
      * @return updated user.
      */
-    public Optional<AdminUserDTO> updateUser(AdminUserDTO userDTO) {
+    public Optional<AdminUserDTO> getUser(AdminUserDTO userDTO) {
         return Optional
             .of(userRepository.findById(userDTO.getId()))
             .filter(Optional::isPresent)
@@ -237,7 +241,7 @@ public class UserService {
      * @param langKey   language key.
      * @param imageUrl  image URL of user.
      */
-    public void updateUser(String firstName, String lastName, String email, String langKey, String imageUrl) {
+    public void getUser(String firstName, String lastName, String email, String langKey, String imageUrl) {
         SecurityUtils
             .getCurrentUserLogin()
             .flatMap(userRepository::findOneByLogin)
@@ -252,6 +256,27 @@ public class UserService {
                 this.clearUserCaches(user);
                 log.debug("Changed Information for User: {}", user);
             });
+    }
+
+    public Boolean updateUser(UserUpdateDTO user) {
+        var complete = new AtomicReference<>(false);
+        SecurityUtils
+            .getCurrentUserLogin()
+            .flatMap((String id) -> userRepository.findOneById(user.getId()))
+            .ifPresent(newUser -> {
+                newUser.setLogin(user.getLogin());
+                newUser.setFirstName(user.getLastName());
+                newUser.setLastName(user.getLastName());
+                if (user.getEmail() != null) {
+                    newUser.setEmail(user.getEmail().toLowerCase());
+                }
+                newUser.setLangKey(user.getLangKey());
+                this.clearUserCaches(newUser);
+                log.debug("Changed Information for User: {}", newUser);
+                complete.set(true);
+            });
+
+        return complete.get();
     }
 
     @Transactional
@@ -269,6 +294,11 @@ public class UserService {
                 this.clearUserCaches(user);
                 log.debug("Changed password for User: {}", user);
             });
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<User> getUser(Long id) {
+        return userRepository.findOneById(id);
     }
 
     @Transactional(readOnly = true)
