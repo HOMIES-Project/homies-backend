@@ -174,7 +174,9 @@ public class GroupResource {
         }
 
         log.warn("################ => Crear grupo");
-        Optional<Group> result = addUserToGroupAuxService.addUserToGroup(addUser);
+        //Optional<Group> result = addUserToGroupAuxService.addUserToGroup(addUser);
+        //Optional<Group> result = addUserToGroupAuxService.deleteUserToTheGroup(addUser);
+        Optional<Group> result = addUserToGroupAuxService.changeUserAdminOfTheGroup(addUser);
 
         return ResponseUtil.wrapOrNotFound(
             result,

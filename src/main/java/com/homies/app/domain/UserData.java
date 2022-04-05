@@ -51,7 +51,7 @@ public class UserData implements Serializable {
     @JoinColumn(name = "id")
     private User user;
 
-    @OneToMany(mappedBy = "userAdmin", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "userAdmin", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @JsonIgnoreProperties(
         value = { "userAdmin", "taskList", "spendingList", "shoppingList", "settingsList", "userData" },

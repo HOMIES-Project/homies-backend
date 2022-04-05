@@ -7,15 +7,11 @@ import com.homies.app.service.GroupQueryService;
 import com.homies.app.service.GroupService;
 import com.homies.app.service.UserDataService;
 import com.homies.app.service.UserService;
-import com.homies.app.service.impl.UserDataServiceImpl;
 import com.homies.app.web.rest.vm.AddUserToGroupVM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import javax.xml.crypto.URIReferenceException;
-import java.util.HashSet;
-import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -29,23 +25,54 @@ public class AddUserToGroupAuxService {
 
     private final GroupService groupService;
 
-    private final GroupQueryService groupQueryService;
-
     public AddUserToGroupAuxService(UserService userService,
                                     GroupService groupService,
-                                    GroupQueryService groupQueryService,
                                     UserDataService userDataService) {
         this.userService = userService;
         this.groupService = groupService;
-        this.groupQueryService = groupQueryService;
         this.userDataService = userDataService;
     }
 
+    private Optional<UserData> userAdmin;
+    private Optional<Group> group;
+    private Optional<UserData> userData;
+
     public Optional<Group> addUserToGroup(AddUserToGroupVM addUser) {
-        Optional<UserData> userAdmin = userDataService.findOne(addUser.getIdAdminGroup());
-        Optional<Group> group = groupService.findOne(addUser.getIdGroup());
+        if (manageUserOfTheGroup(addUser).isPresent()) {
+            userData.get().addGroup(group.get());
+            userDataService.save(userData.get());
+            return group;
+        }
+        return Optional.empty();
+    }
+
+    public Optional<Group> deleteUserToTheGroup(AddUserToGroupVM addUser) {
+        if (manageUserOfTheGroup(addUser).isPresent()) {
+            userData.get().removeGroup(group.get());
+            userDataService.save(userData.get());
+            return group;
+        }
+        return Optional.empty();
+    }
+
+    public Optional<Group> changeUserAdminOfTheGroup(AddUserToGroupVM addUser){
+        if (manageUserOfTheGroup(addUser).isPresent()) {
+/*            userAdmin.get().removeGroup(group.get());
+            userData.get().addAdminGroups(group.get());
+            userDataService.save(userAdmin.get());
+            userDataService.save(userData.get());*/
+            group.get().setUserAdmin(userData.get());
+            groupService.save(group.get());
+            return group;
+        }
+        return Optional.empty();
+    }
+
+    private Optional<Group> manageUserOfTheGroup(AddUserToGroupVM addUser) {
+        userAdmin = userDataService.findOne(addUser.getIdAdminGroup());
+        group = groupService.findOne(addUser.getIdGroup());
         Optional<User> user = userService.getUser(addUser.getLogin());
-        Optional<UserData> userData = userDataService.findOne(user.get().getId());
+        userData = userDataService.findOne(user.get().getId());
 
         if (userAdmin.isEmpty())
             return Optional.empty(); //UserAdmin not exist
@@ -66,11 +93,20 @@ public class AddUserToGroupAuxService {
             return Optional.empty(); //UserAdmin not is group's userAdmin.
         log.warn("##### => " + true);
 
-        userData.get().addGroup(group.get());
-        userDataService.save(userData.get());
-        
         return group;
 
+    }
+
+    private Optional<UserData> userAdminExist(Long id) {
+        return userDataService.findOne(id);
+    }
+
+    private Optional<Group> groupExist(Long id) {
+        return groupService.findOne(id);
+    }
+
+    private Optional<UserData> userExist(String login) {
+        return userDataService.findOne(userService.getUser(login).get().getId());
     }
 
 }
