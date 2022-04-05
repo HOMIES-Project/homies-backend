@@ -16,6 +16,7 @@ import java.util.stream.StreamSupport;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
+import com.homies.app.web.rest.errors.GroupAlreadyUsedException;
 import com.homies.app.web.rest.vm.CreateGroupVM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,7 +80,7 @@ public class GroupResource {
         if (newGrop != null)
             return new ResponseEntity<>(newGrop, HttpStatus.CREATED);
 
-        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        throw new GroupAlreadyUsedException();
     }
 
     /**
