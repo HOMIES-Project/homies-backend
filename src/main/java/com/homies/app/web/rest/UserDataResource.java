@@ -5,6 +5,7 @@ import com.homies.app.repository.UserDataRepository;
 import com.homies.app.service.UserDataQueryService;
 import com.homies.app.service.UserDataService;
 import com.homies.app.service.criteria.UserDataCriteria;
+import com.homies.app.service.AuxiliarServices.UserEditingAuxService;
 import com.homies.app.web.rest.errors.BadRequestAlertException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -13,6 +14,8 @@ import java.util.Objects;
 import java.util.Optional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+
+import com.homies.app.web.rest.vm.UserEditingVM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -46,14 +49,18 @@ public class UserDataResource {
 
     private final UserDataQueryService userDataQueryService;
 
+    private final UserEditingAuxService userEditingAux;
+
     public UserDataResource(
         UserDataService userDataService,
         UserDataRepository userDataRepository,
-        UserDataQueryService userDataQueryService
+        UserDataQueryService userDataQueryService,
+        UserEditingAuxService userEditingAux
     ) {
         this.userDataService = userDataService;
         this.userDataRepository = userDataRepository;
         this.userDataQueryService = userDataQueryService;
+        this.userEditingAux = userEditingAux;
     }
 
     /**
@@ -80,38 +87,36 @@ public class UserDataResource {
     }
 
     /**
-     * {@code PUT  /user-data/:id} : Updates an existing userData.
+     * EndPoint to update user information (user/userData)
      *
-     * @param id the id of the userData to save.
-     * @param userData the userData to update.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated userData,
-     * or with status {@code 400 (Bad Request)} if the userData is not valid,
-     * or with status {@code 500 (Internal Server Error)} if the userData couldn't be updated.
-     * @throws URISyntaxException if the Location URI syntax is incorrect.
+     * @param id for specific user to update
+     * @param user VM with data needed
+     * @return 200 if the update was ok or 400 if update was not possible.
      */
     @PutMapping("/user-data/{id}")
-    public ResponseEntity<UserData> updateUserData(
-        @PathVariable(value = "id", required = false) final Long id,
-        @Valid @RequestBody UserData userData
-    ) throws URISyntaxException {
-        log.debug("REST request to update UserData : {}, {}", id, userData);
-        if (userData.getId() == null) {
-            throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
-        }
-        if (!Objects.equals(id, userData.getId())) {
-            throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
-        }
+    public ResponseEntity<?> editFieldCompleteUser(
+        @PathVariable Long id,
+        @Valid @RequestBody UserEditingVM user)
+        throws URISyntaxException {
 
-        if (!userDataRepository.existsById(id)) {
-            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
+        if (id == null) {
+            return ResponseEntity.badRequest().body("Error. Was not specify user id.");
+        } else {
+            user.setId(id);
         }
+        if (userDataService.findOne(user.getId()).isEmpty())
+            return ResponseEntity.badRequest().body("Error. User not found.");
 
-        UserData result = userDataService.save(userData);
-        return ResponseEntity
-            .ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, userData.getId().toString()))
-            .body(result);
+        UserData updateUser = userEditingAux.updateUser(user);
+        if (updateUser != null) {
+            return ResponseEntity.ok().body(updateUser);
+        } else {
+            return ResponseEntity.badRequest().body("Error. User not update.");
+        }
     }
+
+
+
 
     /**
      * {@code PATCH  /user-data/:id} : Partial updates given fields of an existing userData, field will ignore if it is null

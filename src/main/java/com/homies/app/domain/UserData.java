@@ -51,7 +51,7 @@ public class UserData implements Serializable {
     @JoinColumn(name = "id")
     private User user;
 
-    @OneToMany(mappedBy = "userAdmin", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "userAdmin", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @JsonIgnoreProperties(
         value = { "userAdmin", "taskList", "spendingList", "shoppingList", "settingsList", "userData" },
@@ -59,7 +59,7 @@ public class UserData implements Serializable {
     )
     private Set<Group> adminGroups = new HashSet<>();
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
         name = "rel_user_data__task_asigned",
         joinColumns = @JoinColumn(name = "user_data_id"),
@@ -69,7 +69,7 @@ public class UserData implements Serializable {
     @JsonIgnoreProperties(value = { "taskList", "userData", "userCreator", "userAssigneds" }, allowSetters = true)
     private Set<Task> taskAsigneds = new HashSet<>();
 
-    @OneToMany(mappedBy = "userCreator")
+    @OneToMany(mappedBy = "userCreator", fetch = FetchType.EAGER)
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @JsonIgnoreProperties(value = { "userCreator", "shoppingList" }, allowSetters = true)
     private Set<Products> productCreateds = new HashSet<>();
@@ -342,21 +342,4 @@ public class UserData implements Serializable {
             "}";
     }
 
-   /* @Override
-    public String toString() {
-        return "UserData{" +
-            "id=" + id +
-            ", photo=" + Arrays.toString(photo) +
-            ", photoContentType='" + photoContentType + '\'' +
-            ", phone='" + phone + '\'' +
-            ", premium=" + premium +
-            ", birthDate=" + birthDate +
-            ", addDate=" + addDate +
-            ", user=" + user +
-            ", adminGroups=" + adminGroups +
-            ", taskAsigneds=" + taskAsigneds +
-            ", productCreateds=" + productCreateds +
-            ", groups=" + groups +
-            '}';
-    }*/
 }

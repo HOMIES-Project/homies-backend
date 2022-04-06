@@ -1,4 +1,4 @@
-package com.homies.app.web.rest.auxiliary;
+package com.homies.app.service.AuxiliarServices;
 
 import com.homies.app.domain.*;
 import com.homies.app.repository.UserDataRepository;
@@ -14,15 +14,15 @@ import java.util.Optional;
 
 @Service
 @Transactional
-public class FusionUserAndUserDataAux {
+public class CreateUserDataForUserAuxService {
 
-    private final Logger log = LoggerFactory.getLogger(FusionUserAndUserDataAux.class);
+    private final Logger log = LoggerFactory.getLogger(CreateUserDataForUserAuxService.class);
 
     private final UserRepository userRepository;
 
     private final UserDataRepository userDataRepository;
 
-    public FusionUserAndUserDataAux(UserRepository userRepository, UserDataRepository userDataRepository) {
+    public CreateUserDataForUserAuxService(UserRepository userRepository, UserDataRepository userDataRepository) {
         this.userRepository = userRepository;
         this.userDataRepository = userDataRepository;
     }

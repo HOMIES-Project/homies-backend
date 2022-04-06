@@ -14,7 +14,6 @@ import com.homies.app.security.AuthoritiesConstants;
 import com.homies.app.service.UserService;
 import com.homies.app.service.dto.AdminUserDTO;
 import com.homies.app.service.dto.PasswordChangeDTO;
-import com.homies.app.service.dto.UserDTO;
 import com.homies.app.web.rest.vm.KeyAndPasswordVM;
 import com.homies.app.web.rest.vm.ManagedUserVM;
 import java.time.Instant;
@@ -342,7 +341,7 @@ class AccountResourceIT {
         assertThat(testUser4.get().getEmail()).isEqualTo("test-register-duplicate-email@example.com");
 
         testUser4.get().setActivated(true);
-        userService.updateUser((new AdminUserDTO(testUser4.get())));
+        userService.getUser((new AdminUserDTO(testUser4.get())));
 
         // Register 4th (already activated) user
         restAccountMockMvc

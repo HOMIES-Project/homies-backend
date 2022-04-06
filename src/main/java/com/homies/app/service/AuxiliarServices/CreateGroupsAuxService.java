@@ -1,4 +1,4 @@
-package com.homies.app.web.rest.auxiliary;
+package com.homies.app.service.AuxiliarServices;
 
 import com.homies.app.domain.*;
 import com.homies.app.service.*;
@@ -13,7 +13,7 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 @Service
-public class CreateGroupsAux {
+public class CreateGroupsAuxService {
 
     private final GroupQueryService groupQueryService;
 
@@ -31,13 +31,13 @@ public class CreateGroupsAux {
 
     private final Logger log = LoggerFactory.getLogger(GroupResource.class);
 
-    public CreateGroupsAux(GroupQueryService groupQueryService,
-                           GroupService groupService,
-                           TaskListService taskListService,
-                           SpendingListService spendingListService,
-                           ShoppingListService shoppingListService,
-                           SettingsListService settingsListService,
-                           UserDataService userDataService) {
+    public CreateGroupsAuxService(GroupQueryService groupQueryService,
+                                  GroupService groupService,
+                                  TaskListService taskListService,
+                                  SpendingListService spendingListService,
+                                  ShoppingListService shoppingListService,
+                                  SettingsListService settingsListService,
+                                  UserDataService userDataService) {
         this.groupQueryService = groupQueryService;
         this.groupService = groupService;
         this.taskListService = taskListService;
@@ -112,7 +112,7 @@ public class CreateGroupsAux {
     @Transactional(readOnly = true)
     private boolean groupExist(String name) {
         log.warn(name);
-        return  false;//groupQueryService.findOneByName(name);
+        return groupQueryService.findOneByName(name);
     }
 
     private TaskList createTaskList(String name) {
