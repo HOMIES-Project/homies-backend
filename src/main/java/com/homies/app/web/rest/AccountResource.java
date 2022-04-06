@@ -81,6 +81,21 @@ public class AccountResource {
     }
 
     /**
+     * Resend account activation email
+     *
+     * @param email in JSON format
+     * @Response 205
+     */
+    @PostMapping("/email")
+    @ResponseStatus(HttpStatus.RESET_CONTENT)
+    public void reSendEmailOfActivation(@Valid @RequestBody JSONEmailVM email) {
+        log.warn(email.getEmail());
+
+        Optional<User> user = userService.getUserForEmail(email.getEmail());
+        mailService.sendActivationEmail(user.get());
+    }
+
+    /**
      * {@code GET  /activate} : activate the registered user.
      *
      * @param key the activation key.

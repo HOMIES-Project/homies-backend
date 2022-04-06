@@ -262,6 +262,10 @@ public class UserService {
         return userRepository.findOneByLogin(login);
     }
 
+    public Optional<User> getUserForEmail(String email) {
+        return userRepository.findOneByEmailIgnoreCase(email);
+    }
+
     public Boolean updateUser(UserUpdateDTO user) {
         var complete = new AtomicReference<>(false);
         SecurityUtils
