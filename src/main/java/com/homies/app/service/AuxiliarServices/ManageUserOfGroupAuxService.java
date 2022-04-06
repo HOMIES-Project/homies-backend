@@ -9,14 +9,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
 @Service
-public class ManageUserToGroupAuxService {
+public class ManageUserOfGroupAuxService {
 
-    private final Logger log = LoggerFactory.getLogger(ManageUserToGroupAuxService.class);
+    private final Logger log = LoggerFactory.getLogger(ManageUserOfGroupAuxService.class);
 
     private final UserService userService;
 
@@ -26,7 +25,7 @@ public class ManageUserToGroupAuxService {
 
     private final GroupQueryService groupQueryService;
 
-    public ManageUserToGroupAuxService(UserService userService,
+    public ManageUserOfGroupAuxService(UserService userService,
                                        GroupService groupService,
                                        UserDataService userDataService,
                                        GroupQueryService groupQueryService) {
