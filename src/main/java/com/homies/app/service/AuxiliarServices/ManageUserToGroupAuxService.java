@@ -3,21 +3,20 @@ package com.homies.app.service.AuxiliarServices;
 import com.homies.app.domain.Group;
 import com.homies.app.domain.User;
 import com.homies.app.domain.UserData;
-import com.homies.app.service.GroupQueryService;
-import com.homies.app.service.GroupService;
-import com.homies.app.service.UserDataService;
-import com.homies.app.service.UserService;
+import com.homies.app.service.*;
 import com.homies.app.web.rest.vm.AddUserToGroupVM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
-public class AddUserToGroupAuxService {
+public class ManageUserToGroupAuxService {
 
-    private final Logger log = LoggerFactory.getLogger(AddUserToGroupAuxService.class);
+    private final Logger log = LoggerFactory.getLogger(ManageUserToGroupAuxService.class);
 
     private final UserService userService;
 
@@ -25,12 +24,16 @@ public class AddUserToGroupAuxService {
 
     private final GroupService groupService;
 
-    public AddUserToGroupAuxService(UserService userService,
-                                    GroupService groupService,
-                                    UserDataService userDataService) {
+    private final GroupQueryService groupQueryService;
+
+    public ManageUserToGroupAuxService(UserService userService,
+                                       GroupService groupService,
+                                       UserDataService userDataService,
+                                       GroupQueryService groupQueryService) {
         this.userService = userService;
         this.groupService = groupService;
         this.userDataService = userDataService;
+        this.groupQueryService = groupQueryService;
     }
 
     private Optional<UserData> userAdmin;
@@ -49,6 +52,14 @@ public class AddUserToGroupAuxService {
     public Optional<Group> deleteUserToTheGroup(AddUserToGroupVM addUser) {
         if (manageUserOfTheGroup(addUser).isPresent()) {
             userData.get().removeGroup(group.get());
+            if (userData.get().getId().longValue() == group.get().getUserAdmin().getId().longValue()) {
+                Set<UserData> userDataSet = group.get().getUserData();
+                if (userDataSet.size() > 0) {
+                    group.get().setUserAdmin(userDataSet.iterator().next());
+                    groupService.save(group.get());
+                }
+            }
+
             userDataService.save(userData.get());
             return group;
         }
@@ -88,5 +99,5 @@ public class AddUserToGroupAuxService {
         return group;
 
     }
-    
+
 }

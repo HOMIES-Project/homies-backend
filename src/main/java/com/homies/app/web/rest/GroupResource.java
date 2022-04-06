@@ -2,7 +2,7 @@ package com.homies.app.web.rest;
 
 import com.homies.app.domain.Group;
 import com.homies.app.repository.GroupRepository;
-import com.homies.app.service.AuxiliarServices.AddUserToGroupAuxService;
+import com.homies.app.service.AuxiliarServices.ManageUserToGroupAuxService;
 import com.homies.app.service.GroupQueryService;
 import com.homies.app.service.GroupService;
 import com.homies.app.service.criteria.GroupCriteria;
@@ -54,13 +54,13 @@ public class GroupResource {
 
     private final CreateGroupsAuxService createGroupsAux;
 
-    private final AddUserToGroupAuxService addUserToGroupAuxService;
+    private final ManageUserToGroupAuxService addUserToGroupAuxService;
 
     public GroupResource(GroupService groupService,
                          GroupRepository groupRepository,
                          GroupQueryService groupQueryService,
                          CreateGroupsAuxService createGroupsAux,
-                         AddUserToGroupAuxService addUserToGroupAuxService) {
+                         ManageUserToGroupAuxService addUserToGroupAuxService) {
         this.groupService = groupService;
         this.groupRepository = groupRepository;
         this.groupQueryService = groupQueryService;
