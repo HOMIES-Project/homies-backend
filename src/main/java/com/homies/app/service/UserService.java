@@ -269,7 +269,7 @@ public class UserService {
             .flatMap((String id) -> userRepository.findOneById(user.getId()))
             .ifPresent(newUser -> {
                 newUser.setLogin(user.getLogin());
-                newUser.setFirstName(user.getLastName());
+                newUser.setFirstName(user.getFirstName());
                 newUser.setLastName(user.getLastName());
                 if (user.getEmail() != null) {
                     newUser.setEmail(user.getEmail().toLowerCase());
