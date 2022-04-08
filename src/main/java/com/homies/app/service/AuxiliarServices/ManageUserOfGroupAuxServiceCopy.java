@@ -3,7 +3,10 @@ package com.homies.app.service.AuxiliarServices;
 import com.homies.app.domain.Group;
 import com.homies.app.domain.User;
 import com.homies.app.domain.UserData;
-import com.homies.app.service.*;
+import com.homies.app.service.GroupQueryService;
+import com.homies.app.service.GroupService;
+import com.homies.app.service.UserDataService;
+import com.homies.app.service.UserService;
 import com.homies.app.web.rest.vm.AddUserToGroupVM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,9 +17,9 @@ import java.util.Optional;
 import java.util.Set;
 
 @Service
-public class ManageUserOfGroupAuxService {
+public class ManageUserOfGroupAuxServiceCopy {
 
-    private final Logger log = LoggerFactory.getLogger(ManageUserOfGroupAuxService.class);
+    private final Logger log = LoggerFactory.getLogger(ManageUserOfGroupAuxServiceCopy.class);
 
     private final UserService userService;
 
@@ -26,16 +29,16 @@ public class ManageUserOfGroupAuxService {
 
     private final GroupQueryService groupQueryService;
 
-    public ManageUserOfGroupAuxService(UserService userService,
-                                       GroupService groupService,
-                                       UserDataService userDataService,
-                                       GroupQueryService groupQueryService) {
+    public ManageUserOfGroupAuxServiceCopy(UserService userService,
+                                           GroupService groupService,
+                                           UserDataService userDataService,
+                                           GroupQueryService groupQueryService) {
         this.userService = userService;
         this.groupService = groupService;
         this.userDataService = userDataService;
         this.groupQueryService = groupQueryService;
     }
-    private Optional<UserData> userAdmin;
+
     private Optional<Group> group;
     private Optional<UserData> userData;
 
@@ -46,89 +49,64 @@ public class ManageUserOfGroupAuxService {
             userDataService.save(userData.get());
             group.get().addUserData(userData.get());
             groupService.save(group.get());
-            return groupService.findOne(group.get().getId());
+            return group;
         }
         return Optional.empty();
     }
 
     public Optional<Group> deleteUserToTheGroup(AddUserToGroupVM addUser) {
         if (manageUserOfTheGroup(addUser).isPresent()) {
-            deleteUser();
-            return groupService.findOne(group.get().getId());
+            deleteUserAdmin(group.get());
+
+/*            userData.get().removeGroup(group.get());
+            if (userData.get().getId().longValue() == group.get().getUserAdmin().getId().longValue()) {
+                Set<UserData> userDataSet = group.get().getUserData();
+                if (userDataSet.size() > 0) {
+                    group.get().setUserAdmin(userDataSet.iterator().next());
+                    groupService.save(group.get());
+                }
+            }*/
+
+            userDataService.save(userData.get());
+            return group;
         }
         return Optional.empty();
     }
-    private void deleteUser() {
-
-        //Se elimina el grupo de la relación en userData
-        userData.get().removeGroup(group.get());
-        userDataService.save(userData.get());
-
-        //Se elimina al usuario de la reación de group
-        group.get().removeUserData(userData.get());
-        groupService.save(group.get());
-
-        //Si el usuario que se ha eliminado es el mismo que el admin del grupo
-        if (userData.get().getId().longValue() == group.get().getUserAdmin().getId().longValue()) {
-
-            //Se elimina al admin de la relación de group
-            group.get().setUserAdmin(null);
-            groupService.save(group.get());
-
-            //Se elimina al grupo de la relación de userAdmin
-            userData.get().removeAdminGroups(group.get());
-            userDataService.save(userData.get());
-
-            //se carga el set de usuarios del grupo
-            Set<UserData> userDataSet = group.get().getUserData();
-
-            //Si hay más usuarios en el grupo
+    private void deleteUserAdmin(Group group) {
+        userData.get().removeGroup(group);
+        if (userData.get().getId().longValue() == group.getUserAdmin().getId().longValue()) {
+            Set<UserData> userDataSet = group.getUserData();
             if (userDataSet.size() > 0) {
-
-                //Se caga el primer user que haya en la lista
-                userData = userDataService.findOne(userDataSet.iterator().next().getId());
-
-                //Se guarda en el grupo al nuevo userAdmin
-                group.get().setUserAdmin(userData.get());
-                groupService.save(group.get());
-
-                //Se le carga el grupo que va a administrar y se guarda
-                userData.get().addAdminGroups(group.get());
-                userDataService.save(userData.get());
-
+                group.setUserAdmin(userDataSet.iterator().next());
+                groupService.save(group);
             } else {
-                log.warn("########=> Se debe eliminar al grupo");
-                //Se elimina el grupo
-                //Cascade.all active = delete all group lists
-                groupService.delete(group.get().getId());
+                group.setUserAdmin(null);
+                groupService.delete(group.getId()); //Revisar, hace falta eliminar las listas? se puede hacer con cascade.
             }
-
+        } else {
+            groupService.save(group);
         }
     }
 
     public boolean deleteUserAllGroups(Long id) {
         try {
-            userData = userDataService.findOne(id);
+            userData = findUserGroupById(id);
             //Recuperar en que grupos está el usuario
             List<Group> userGroups = groupQueryService
                 .getAllGroupsUserId(userData.get().getId(),
                     userData.get().getId());
 
-/*            //eliminar datos del usuario sobre grupos y propiedad de grupos
-            userData.get().setGroups(null);
-            userData.get().setAdminGroups(null);*/
-
             //Iterar sobre cada grupo para eliminarlo
-/*            for (Group group: userGroups) {
-                this.group = Optional.ofNullable(group);
-                userGroups.remove(0);
-                deleteUser();
-            }*/
-
-            for (int i = 0; i <= userGroups.size() ; i += 1) {
-                this.group = Optional.ofNullable(userGroups.get(i));
-                deleteUser();
+            for (Group group: userGroups) {
+                deleteUserAdmin(group);
             }
+
+            //eliminar datos del usuario sobre grupos y propiedad de grupos
+            userData.get().setGroups(null);
+            userData.get().setAdminGroups(null);
+
+            //eliminar usuario
+            userDataService.delete(id);
 
             return true;
         } catch (Exception e) {
@@ -138,24 +116,15 @@ public class ManageUserOfGroupAuxService {
 
     public Optional<Group> changeUserAdminOfTheGroup(AddUserToGroupVM addUser){
         if (manageUserOfTheGroup(addUser).isPresent()) {
-
             group.get().setUserAdmin(userData.get());
             groupService.save(group.get());
-
-            userAdmin.get().removeAdminGroups(group.get());
-            userDataService.save(userAdmin.get());
-
-            userData.get().addAdminGroups(group.get());
-            userDataService.save(userData.get());
-
-
-            return groupService.findOne(group.get().getId());
+            return group;
         }
         return Optional.empty();
     }
 
     private Optional<Group> manageUserOfTheGroup(AddUserToGroupVM addUser) {
-        userAdmin = userDataService.findOne(addUser.getIdAdminGroup());
+        Optional<UserData> userAdmin = userDataService.findOne(addUser.getIdAdminGroup());
         group = groupService.findOne(addUser.getIdGroup());
         Optional<User> user = userService.getUser(addUser.getLogin());
         userData = userDataService.findOne(user.get().getId());
@@ -181,6 +150,25 @@ public class ManageUserOfGroupAuxService {
 
         return group;
 
+    }
+
+/*    private Optional<UserData> findUserAdmin(Long id) {
+        return userDataService.findOne(id);
+    }
+
+    private Optional<Group> findGroup(Long id) {
+        return groupService.findOne(id);
+    }
+
+    private Optional<UserData> findUserGroupByLogin(String login) {
+        *//*        Optional<User> user = userService.getUser(addUser.getLogin());
+        userData = userDataService.findOne(user.get().getId());*//*
+        Optional<User> user = userService.getUser(login);
+        return userDataService.findOne(user.get().getId());
+    }*/
+
+    private Optional<UserData> findUserGroupById(Long id) {
+        return userDataService.findOne(id);
     }
 
 }

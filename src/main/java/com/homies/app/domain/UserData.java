@@ -51,7 +51,7 @@ public class UserData implements Serializable {
     @JoinColumn(name = "id")
     private User user;
 
-    @OneToMany(mappedBy = "userAdmin", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "userAdmin", fetch = FetchType.EAGER, cascade = {CascadeType.REFRESH})//, cascade = {CascadeType.REFRESH, CascadeType.DETACH, CascadeType.PERSIST})
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @JsonIgnoreProperties(
         value = { "userAdmin", "taskList", "spendingList", "shoppingList", "settingsList", "userData" },
@@ -74,7 +74,7 @@ public class UserData implements Serializable {
     @JsonIgnoreProperties(value = { "userCreator", "shoppingList" }, allowSetters = true)
     private Set<Products> productCreateds = new HashSet<>();
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.EAGER)//, cascade = {CascadeType.REFRESH, CascadeType.DETACH, CascadeType.PERSIST})
     @JoinTable(
         name = "rel_user_data__group",
         joinColumns = @JoinColumn(name = "user_data_id"),
