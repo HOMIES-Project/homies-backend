@@ -9,6 +9,7 @@ import javax.persistence.*;
 import javax.validation.constraints.*;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Fetch;
 
 /**
  * A Group.
@@ -268,15 +269,20 @@ public class Group implements Serializable {
         return getClass().hashCode();
     }
 
-    // prettier-ignore
     @Override
     public String toString() {
         return "Group{" +
             "id=" + getId() +
-            ", groupKey='" + getGroupKey() + "'" +
-            ", groupName='" + getGroupName() + "'" +
-            ", groupRelationName='" + getGroupRelationName() + "'" +
-            ", addGroupDate='" + getAddGroupDate() + "'" +
-            "}";
+            ", groupKey='" + getGroupKey() + '\'' +
+            ", groupName='" + getGroupName() + '\'' +
+            ", groupRelationName='" + getGroupRelationName() + '\'' +
+            ", addGroupDate=" + getAddGroupDate() +
+            ", userAdmin=" + getUserAdmin() +
+            //", taskList=" + getTaskList() +
+            //", spendingList=" + getSpendingList() +
+            //", shoppingList=" + getShoppingList() +
+            //", settingsList=" + getSettingsList() +
+            //", userData=" + getUserData() +
+            '}';
     }
 }

@@ -1,4 +1,4 @@
-package com.homies.app.web.rest.auxiliary;
+package com.homies.app.service.AuxiliarServices;
 
 import com.homies.app.domain.*;
 import com.homies.app.service.*;
@@ -9,15 +9,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tech.jhipster.security.RandomUtil;
-
 import java.time.LocalDate;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Optional;
-import java.util.Set;
 
 @Service
-public class CreateGroupsAux {
+public class CreateGroupsAuxService {
 
     private final GroupQueryService groupQueryService;
 
@@ -35,13 +31,13 @@ public class CreateGroupsAux {
 
     private final Logger log = LoggerFactory.getLogger(GroupResource.class);
 
-    public CreateGroupsAux(GroupQueryService groupQueryService,
-                           GroupService groupService,
-                           TaskListService taskListService,
-                           SpendingListService spendingListService,
-                           ShoppingListService shoppingListService,
-                           SettingsListService settingsListService,
-                           UserDataService userDataService) {
+    public CreateGroupsAuxService(GroupQueryService groupQueryService,
+                                  GroupService groupService,
+                                  TaskListService taskListService,
+                                  SpendingListService spendingListService,
+                                  ShoppingListService shoppingListService,
+                                  SettingsListService settingsListService,
+                                  UserDataService userDataService) {
         this.groupQueryService = groupQueryService;
         this.groupService = groupService;
         this.taskListService = taskListService;
@@ -68,11 +64,6 @@ public class CreateGroupsAux {
         UserData userData = userExist(groupVM.getUser());
         newGroup.setUserAdmin(userData); //add user (group creator user)
 
-        //First user add (The same user as the administrator)
-        HashSet userSet = new HashSet<UserData>();
-        userSet.add(userData);
-        newGroup.setUserData(userSet);
-
         newGroup.setAddGroupDate(LocalDate.now()); //Date of creation
 
         TaskList taskList = createTaskList(groupVM.getGroupName());
@@ -81,6 +72,10 @@ public class CreateGroupsAux {
         //New Group created
         log.warn("Created group: " + newGroup);
         groupService.save(newGroup);
+
+        //Add newGroup in UserData
+        userData.addGroup(newGroup);
+        userDataService.partialUpdate(userData);
 
         //New SpendingList
         SpendingList spendingList = createSpendingList(newGroup.getGroupName(), newGroup);
@@ -98,6 +93,9 @@ public class CreateGroupsAux {
         newGroup = groupService.findOne(newGroup.getGroupName()).get();
         updateTaskList(newGroup.getId(), newGroup);
 
+        //Add userData in newGroup
+        newGroup.addUserData(userData);
+
         //Group update with new taskList
         groupService.partialUpdate(newGroup);
 
@@ -114,7 +112,7 @@ public class CreateGroupsAux {
     @Transactional(readOnly = true)
     private boolean groupExist(String name) {
         log.warn(name);
-        return  false;//groupQueryService.findOneByName(name);
+        return groupQueryService.findOneByName(name);
     }
 
     private TaskList createTaskList(String name) {

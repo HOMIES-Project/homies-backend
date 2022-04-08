@@ -1,6 +1,5 @@
 package com.homies.app.web.rest;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.homies.app.domain.User;
 import com.homies.app.repository.UserRepository;
 import com.homies.app.security.SecurityUtils;
@@ -8,8 +7,8 @@ import com.homies.app.service.MailService;
 import com.homies.app.service.UserService;
 import com.homies.app.service.dto.AdminUserDTO;
 import com.homies.app.service.dto.PasswordChangeDTO;
+import com.homies.app.service.AuxiliarServices.CreateUserDataForUserAuxService;
 import com.homies.app.web.rest.errors.*;
-import com.homies.app.web.rest.auxiliary.FusionUserAndUserDataAux;
 import com.homies.app.web.rest.auxiliary.JSONResetPasswordAux;
 import com.homies.app.web.rest.vm.JSONEmailVM;
 import com.homies.app.web.rest.vm.KeyAndPasswordVM;
@@ -50,16 +49,16 @@ public class AccountResource {
 
     private final MailService mailService;
 
-    private final FusionUserAndUserDataAux fusionUserAndUserData;
+    private final CreateUserDataForUserAuxService createUserDataForUserAux;
 
     public AccountResource(UserRepository userRepository,
                            UserService userService,
                            MailService mailService,
-                           FusionUserAndUserDataAux fusionUserAndUserData) {
+                           CreateUserDataForUserAuxService createUserDataForUserAux) {
         this.userRepository = userRepository;
         this.userService = userService;
         this.mailService = mailService;
-        this.fusionUserAndUserData = fusionUserAndUserData;
+        this.createUserDataForUserAux = createUserDataForUserAux;
     }
 
     /**
@@ -77,7 +76,23 @@ public class AccountResource {
             throw new InvalidPasswordException();
         }
         User user = userService.registerUser(managedUserVM, managedUserVM.getPassword());
+        createUserDataForUserAux.createUserData(user.getId());
         mailService.sendActivationEmail(user);
+    }
+
+    /**
+     * Resend account activation email
+     *
+     * @param email in JSON format
+     * @Response 205
+     */
+    @PostMapping("/email")
+    @ResponseStatus(HttpStatus.RESET_CONTENT)
+    public void reSendEmailOfActivation(@Valid @RequestBody JSONEmailVM email) {
+        log.warn(email.getEmail());
+
+        Optional<User> user = userService.getUserForEmail(email.getEmail());
+        mailService.sendActivationEmail(user.get());
     }
 
     /**
@@ -140,7 +155,7 @@ public class AccountResource {
         if (!user.isPresent()) {
             throw new AccountResourceException("User could not be found");
         }
-        userService.updateUser(
+        userService.getUser(
             userDTO.getFirstName(),
             userDTO.getLastName(),
             userDTO.getEmail(),

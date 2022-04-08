@@ -23,6 +23,11 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findOneByResetKey(String resetKey);
     Optional<User> findOneByEmailIgnoreCase(String email);
     Optional<User> findOneByLogin(String login);
+    Optional<User> findOneById(Long id);
+
+
+
+
 
     @EntityGraph(attributePaths = "authorities")
     @Cacheable(cacheNames = USERS_BY_LOGIN_CACHE)
@@ -33,4 +38,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findOneWithAuthoritiesByEmailIgnoreCase(String email);
 
     Page<User> findAllByIdNotNullAndActivatedIsTrue(Pageable pageable);
+
+
+
 }

@@ -3,6 +3,7 @@ package com.homies.app.domain;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.*;
@@ -45,12 +46,12 @@ public class UserData implements Serializable {
     @Column(name = "add_date")
     private LocalDate addDate;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     @MapsId
     @JoinColumn(name = "id")
     private User user;
 
-    @OneToMany(mappedBy = "userAdmin", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "userAdmin", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @JsonIgnoreProperties(
         value = { "userAdmin", "taskList", "spendingList", "shoppingList", "settingsList", "userData" },
@@ -58,7 +59,7 @@ public class UserData implements Serializable {
     )
     private Set<Group> adminGroups = new HashSet<>();
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
         name = "rel_user_data__task_asigned",
         joinColumns = @JoinColumn(name = "user_data_id"),
@@ -68,22 +69,22 @@ public class UserData implements Serializable {
     @JsonIgnoreProperties(value = { "taskList", "userData", "userCreator", "userAssigneds" }, allowSetters = true)
     private Set<Task> taskAsigneds = new HashSet<>();
 
-    @OneToMany(mappedBy = "userCreator")
+    @OneToMany(mappedBy = "userCreator", fetch = FetchType.EAGER)
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @JsonIgnoreProperties(value = { "userCreator", "shoppingList" }, allowSetters = true)
     private Set<Products> productCreateds = new HashSet<>();
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
         name = "rel_user_data__group",
         joinColumns = @JoinColumn(name = "user_data_id"),
         inverseJoinColumns = @JoinColumn(name = "group_id")
     )
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-    @JsonIgnoreProperties(
+/*    @JsonIgnoreProperties(
         value = { "userAdmin", "taskList", "spendingList", "shoppingList", "settingsList", "userData" },
         allowSetters = true
-    )
+    )*/
     private Set<Group> groups = new HashSet<>();
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
@@ -323,7 +324,6 @@ public class UserData implements Serializable {
         return getClass().hashCode();
     }
 
-    // prettier-ignore
     @Override
     public String toString() {
         return "UserData{" +
@@ -334,6 +334,12 @@ public class UserData implements Serializable {
             ", premium='" + getPremium() + "'" +
             ", birthDate='" + getBirthDate() + "'" +
             ", addDate='" + getAddDate() + "'" +
+            //", user=" + getUser() +
+            //", adminGroups=" + getAdminGroups() +
+            //", taskAsigneds=" + getTaskAsigneds() +
+            //", productCreateds=" + getProductCreateds() +
+            //", groups=" + getGroups() +
             "}";
     }
+
 }
