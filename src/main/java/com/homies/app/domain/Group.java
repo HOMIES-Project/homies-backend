@@ -42,29 +42,29 @@ public class Group implements Serializable {
     @Column(name = "add_group_date")
     private LocalDate addGroupDate;
 
-    @ManyToOne
+    @ManyToOne//(cascade = {CascadeType.REFRESH, CascadeType.DETACH, CascadeType.PERSIST})
     @JsonIgnoreProperties(value = { "user", "adminGroups", "taskAsigneds", "productCreateds", "groups" }, allowSetters = true)
     private UserData userAdmin;
 
     @JsonIgnoreProperties(value = { "group", "tasks" }, allowSetters = true)
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     @MapsId
     @JoinColumn(name = "id")
     private TaskList taskList;
 
     @JsonIgnoreProperties(value = { "spendings", "settingsLists", "group" }, allowSetters = true)
-    @OneToOne(mappedBy = "group")
+    @OneToOne(mappedBy = "group", cascade = CascadeType.ALL)
     private SpendingList spendingList;
 
     @JsonIgnoreProperties(value = { "products", "group" }, allowSetters = true)
-    @OneToOne(mappedBy = "group")
+    @OneToOne(mappedBy = "group", cascade = CascadeType.ALL)
     private ShoppingList shoppingList;
 
     @JsonIgnoreProperties(value = { "spendingList", "userPendings", "group" }, allowSetters = true)
-    @OneToOne(mappedBy = "group")
+    @OneToOne(mappedBy = "group", cascade = CascadeType.ALL)
     private SettingsList settingsList;
 
-    @ManyToMany(mappedBy = "groups", fetch = FetchType.EAGER)
+    @ManyToMany(mappedBy = "groups", fetch = FetchType.EAGER)//, cascade = {CascadeType.REFRESH, CascadeType.DETACH, CascadeType.PERSIST})
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @JsonIgnoreProperties(value = { "user", "adminGroups", "taskAsigneds", "productCreateds", "groups" }, allowSetters = true)
     private Set<UserData> userData = new HashSet<>();

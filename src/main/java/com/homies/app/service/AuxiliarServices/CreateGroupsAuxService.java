@@ -59,12 +59,11 @@ public class CreateGroupsAuxService {
         newGroup.setGroupKey(RandomUtil.generateActivationKey()); //key
         newGroup.setGroupName(groupVM.getGroupName()); //name
         newGroup.setGroupRelationName(groupVM.getGroupRelation()); //RelationName
+        newGroup.setAddGroupDate(LocalDate.now()); //Date of creation
 
         //Administrator user add
         UserData userData = userExist(groupVM.getUser());
         newGroup.setUserAdmin(userData); //add user (group creator user)
-
-        newGroup.setAddGroupDate(LocalDate.now()); //Date of creation
 
         TaskList taskList = createTaskList(groupVM.getGroupName());
         newGroup.setTaskList(taskList); //TaskList add
@@ -75,7 +74,10 @@ public class CreateGroupsAuxService {
 
         //Add newGroup in UserData
         userData.addGroup(newGroup);
-        userDataService.partialUpdate(userData);
+        userData.addAdminGroups(newGroup);
+        userDataService.save(userData);
+
+        //Lists need the new group to exist in DB
 
         //New SpendingList
         SpendingList spendingList = createSpendingList(newGroup.getGroupName(), newGroup);
@@ -96,8 +98,8 @@ public class CreateGroupsAuxService {
         //Add userData in newGroup
         newGroup.addUserData(userData);
 
-        //Group update with new taskList
-        groupService.partialUpdate(newGroup);
+        //Group update with new List
+        groupService.save(newGroup);
 
         return newGroup;
     }

@@ -33,6 +33,11 @@ public class GroupQueryService extends QueryService<Group> {
         this.groupRepository = groupRepository;
     }
 
+    @Transactional(readOnly = true)
+    public List<Group> getAllGroupsUserId(Long userId, Long userDataId){
+        return groupRepository.getDistinctByUserAdmin_IdOrUserData_Id(userId,userDataId);
+    }
+
     /**
      * find group by name
      * @param nameGroup
