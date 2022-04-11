@@ -14,6 +14,9 @@ public final class ErrorConstants {
     public static final URI EMAIL_NOT_EXIST_TYPE = URI.create(PROBLEM_BASE_URL + "/email-not-exist");
     public static final URI LOGIN_ALREADY_USED_TYPE = URI.create(PROBLEM_BASE_URL + "/login-already-used");
     public static final URI GROUP_ALREADY_USED_TYPE = URI.create(PROBLEM_BASE_URL + "/group-already-used");
+    public static final URI GROUP_ID_NOT_SPECIFY = URI.create(PROBLEM_BASE_URL + "/group-id-not-specify");
+    public static final URI GROUP_IDGROUP_NOT_SPECIFY = URI.create(PROBLEM_BASE_URL + "/group-id-group-not-specify");
+    public static final URI GROUP_LOGIN_NOT_SPECIFY = URI.create(PROBLEM_BASE_URL + "/group-id-group-not-specify");
 
     private ErrorConstants() {}
 }
