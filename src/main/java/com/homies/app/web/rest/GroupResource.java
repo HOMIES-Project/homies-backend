@@ -135,15 +135,15 @@ public class GroupResource {
 
         log.warn(addUser.toString());
         if (addUser.getIdAdminGroup() == null) {
-            return new ResponseEntity("Error. Was not specify admin id.", HttpStatus.BAD_REQUEST);
+            throw new GroupWasNotSpecifyId();
         }
         log.warn("################ => hay user admin");
         if (addUser.getIdGroup() == null) {
-            return new ResponseEntity("Error. Was not specify group id", HttpStatus.BAD_REQUEST);
+            throw new GroupWasNotSpecifyIdGroup();
         }
         log.warn("################ => hay grupo");
         if (addUser.getLogin().isEmpty()) {
-            return new ResponseEntity("Error. Was not specify user Login", HttpStatus.BAD_REQUEST);
+            throw new GroupWasNotSpecifyLogin();
         }
 
         log.warn("################ => Crear grupo");
@@ -167,15 +167,15 @@ public class GroupResource {
 
         log.warn(addUser.toString());
         if (addUser.getIdAdminGroup() == null) {
-            return new ResponseEntity("Error. Was not specify admin id.", HttpStatus.BAD_REQUEST);
+            throw new GroupWasNotSpecifyId();
         }
         log.warn("################ => hay user admin");
         if (addUser.getIdGroup() == null) {
-            return new ResponseEntity("Error. Was not specify group id", HttpStatus.BAD_REQUEST);
+            throw new GroupWasNotSpecifyIdGroup();
         }
         log.warn("################ => hay grupo");
         if (addUser.getLogin().isEmpty()) {
-            return new ResponseEntity("Error. Was not specify user Login", HttpStatus.BAD_REQUEST);
+            throw new GroupWasNotSpecifyLogin();
         }
 
         log.warn("################ => Crear grupo");
