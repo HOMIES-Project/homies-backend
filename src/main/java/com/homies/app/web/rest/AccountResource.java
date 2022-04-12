@@ -10,6 +10,7 @@ import com.homies.app.service.dto.PasswordChangeDTO;
 import com.homies.app.service.AuxiliarServices.CreateUserDataForUserAuxService;
 import com.homies.app.web.rest.errors.*;
 import com.homies.app.web.rest.auxiliary.JSONResetPasswordAux;
+import com.homies.app.web.rest.errors.User.LoginAlreadyUsedException;
 import com.homies.app.web.rest.vm.JSONEmailVM;
 import com.homies.app.web.rest.vm.KeyAndPasswordVM;
 import com.homies.app.web.rest.vm.ManagedUserVM;

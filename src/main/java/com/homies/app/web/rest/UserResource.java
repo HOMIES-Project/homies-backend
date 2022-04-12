@@ -9,7 +9,7 @@ import com.homies.app.service.UserService;
 import com.homies.app.service.dto.AdminUserDTO;
 import com.homies.app.web.rest.errors.BadRequestAlertException;
 import com.homies.app.web.rest.errors.EmailAlreadyUsedException;
-import com.homies.app.web.rest.errors.LoginAlreadyUsedException;
+import com.homies.app.web.rest.errors.User.LoginAlreadyUsedException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;

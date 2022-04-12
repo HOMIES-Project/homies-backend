@@ -5,6 +5,7 @@ import com.homies.app.domain.TaskList;
 import com.homies.app.repository.TaskListRepository;
 import com.homies.app.service.criteria.TaskListCriteria;
 import java.util.List;
+import java.util.Optional;
 import javax.persistence.criteria.JoinType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,6 +69,15 @@ public class TaskListQueryService extends QueryService<TaskList> {
         log.debug("count by criteria : {}", criteria);
         final Specification<TaskList> specification = createSpecification(criteria);
         return taskListRepository.count(specification);
+    }
+
+    /**
+     * Find Task in TaskList
+     * @param id and taskName
+     * @return Optional
+     */
+    public Optional<TaskList> findByIdAndTasks_TaskName(Long id, String taskName){
+        return taskListRepository.findByIdAndTasks_TaskName(id, taskName);
     }
 
     /**
