@@ -3,6 +3,8 @@ package com.homies.app.web.rest.auxiliary;
 import com.homies.app.domain.*;
 import com.homies.app.service.*;
 import com.homies.app.web.rest.GroupResource;
+import com.homies.app.web.rest.errors.GroupAlreadyUsedException;
+import com.homies.app.web.rest.errors.User.UserDoesNotExist;
 import com.homies.app.web.rest.vm.CreateGroupVM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,10 +55,10 @@ public class CreateGroupsAux {
 
     public Group createNewGroup(CreateGroupVM groupVM) {
         if (userExist(groupVM.getUser()) == null)
-            return null;
+            throw new UserDoesNotExist();
 
         if (groupExist(groupVM.getGroupName()))
-            return null;
+            throw new GroupAlreadyUsedException();
 
         log.warn("creating group");
         Group newGroup = new Group();

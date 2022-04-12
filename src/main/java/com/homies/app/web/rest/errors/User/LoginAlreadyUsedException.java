@@ -1,4 +1,7 @@
-package com.homies.app.web.rest.errors;
+package com.homies.app.web.rest.errors.User;
+
+import com.homies.app.web.rest.errors.BadRequestAlertException;
+import com.homies.app.web.rest.errors.ErrorConstants;
 
 public class LoginAlreadyUsedException extends BadRequestAlertException {
 

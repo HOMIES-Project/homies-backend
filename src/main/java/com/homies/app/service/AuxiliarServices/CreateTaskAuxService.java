@@ -3,6 +3,8 @@ package com.homies.app.service.AuxiliarServices;
 import com.homies.app.domain.*;
 import com.homies.app.service.*;
 import com.homies.app.web.rest.GroupResource;
+import com.homies.app.web.rest.errors.Group.GroupNotExistException;
+import com.homies.app.web.rest.errors.Task.TaskAlreadyUsedException;
 import com.homies.app.web.rest.errors.Task.TaskUserDoesNotExist;
 import com.homies.app.web.rest.vm.CreateTaskVM;
 import org.slf4j.Logger;
@@ -18,9 +20,15 @@ public class CreateTaskAuxService {
 
     private final TaskQueryService taskQueryService;
 
+
+
     private final TaskService taskService;
 
+    private final GroupService groupService;
+
     private final TaskListService taskListService;
+
+    private final TaskListQueryService taskListQueryService;
 
     private final UserDataService userDataService;
 
@@ -28,11 +36,15 @@ public class CreateTaskAuxService {
 
     public CreateTaskAuxService(TaskQueryService taskQueryService,
                                 TaskService taskService,
+                                GroupService groupService,
                                 TaskListService taskListService,
+                                TaskListQueryService taskListQueryService,
                                 UserDataService userDataService) {
         this.taskQueryService = taskQueryService;
         this.taskService = taskService;
+        this.groupService = groupService;
         this.taskListService = taskListService;
+        this.taskListQueryService = taskListQueryService;
         this.userDataService = userDataService;
     }
 
@@ -40,11 +52,14 @@ public class CreateTaskAuxService {
         if (userExist(createTaskVM.getUser()) == null)
             throw new TaskUserDoesNotExist();
 
-        if (taskExist(createTaskVM.getTaskName()))
-            return null;
+        if (groupExist(createTaskVM.getIdGroup()) == null)
+            throw new GroupNotExistException();
 
         if(taskListExist(createTaskVM.getIdGroup()) == null)
-            return null;
+            throw new TaskUserDoesNotExist();
+
+        if (taskExist(createTaskVM.getIdGroup(), createTaskVM.getTaskName()).isPresent())
+            throw new TaskAlreadyUsedException();
 
         log.warn("creating task");
         Task newTask = new Task();
@@ -77,9 +92,10 @@ public class CreateTaskAuxService {
     }
 
     @Transactional(readOnly = true)
-    private boolean taskExist(String name) {
-        log.warn(name);
-        return false;
+    private Group groupExist(Long id) {
+        Optional<Group> group = groupService.findOne(id);
+        log.warn("" + id);
+        return group.orElse(null);
     }
 
     @Transactional(readOnly = true)
@@ -88,5 +104,13 @@ public class CreateTaskAuxService {
         log.warn(taskList.toString());
         return taskList.orElse(null);
     }
+
+    @Transactional(readOnly = true)
+    private Optional<TaskList> taskExist(Long id, String taskName) {
+        log.warn("" + id + " " + taskName );
+        return taskListQueryService.findByIdAndTasks_TaskName(id, taskName);
+    }
+
+
 
 }

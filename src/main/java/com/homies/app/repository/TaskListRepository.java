@@ -4,9 +4,15 @@ import com.homies.app.domain.TaskList;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 /**
  * Spring Data SQL repository for the TaskList entity.
  */
 @SuppressWarnings("unused")
 @Repository
-public interface TaskListRepository extends JpaRepository<TaskList, Long>, JpaSpecificationExecutor<TaskList> {}
+public interface TaskListRepository extends JpaRepository<TaskList, Long>, JpaSpecificationExecutor<TaskList> {
+
+    Optional<TaskList> findByIdAndTasks_TaskName(Long id, String taskName);
+
+}

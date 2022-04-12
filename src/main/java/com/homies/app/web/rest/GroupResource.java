@@ -9,6 +9,7 @@ import com.homies.app.service.criteria.GroupCriteria;
 import com.homies.app.service.AuxiliarServices.CreateGroupsAuxService;
 import com.homies.app.web.rest.errors.BadRequestAlertException;
 
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Objects;
@@ -88,7 +89,10 @@ public class GroupResource {
         if (newGrop != null)
             return new ResponseEntity<>(newGrop, HttpStatus.CREATED);
 
-        throw new GroupAlreadyUsedException();
+        return ResponseEntity
+            .created(new URI("/api/groups/" + newGrop.getId()))
+            .headers(HeaderUtil.createEntityCreationAlert(applicationName, false, ENTITY_NAME, newGrop.getId().toString()))
+            .body(newGrop);
     }
 
     /** make it posibble to add user to groups
