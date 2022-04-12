@@ -2,6 +2,7 @@ package com.homies.app.web.rest;
 
 import com.homies.app.domain.Task;
 import com.homies.app.repository.TaskRepository;
+import com.homies.app.service.AuxiliarServices.CreateTaskAuxService;
 import com.homies.app.service.TaskQueryService;
 import com.homies.app.service.TaskService;
 import com.homies.app.service.criteria.TaskCriteria;
@@ -13,12 +14,15 @@ import java.util.Objects;
 import java.util.Optional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+
+import com.homies.app.web.rest.vm.CreateTaskVM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -46,10 +50,16 @@ public class TaskResource {
 
     private final TaskQueryService taskQueryService;
 
-    public TaskResource(TaskService taskService, TaskRepository taskRepository, TaskQueryService taskQueryService) {
+    private final CreateTaskAuxService createTaskAuxService;
+
+    public TaskResource(TaskService taskService,
+                        TaskRepository taskRepository,
+                        TaskQueryService taskQueryService,
+                        CreateTaskAuxService createTaskAuxService) {
         this.taskService = taskService;
         this.taskRepository = taskRepository;
         this.taskQueryService = taskQueryService;
+        this.createTaskAuxService = createTaskAuxService;
     }
 
     /**
@@ -60,16 +70,18 @@ public class TaskResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/tasks")
-    public ResponseEntity<Task> createTask(@Valid @RequestBody Task task) throws URISyntaxException {
+    public ResponseEntity<Task> createTask(@Valid @RequestBody CreateTaskVM task) throws URISyntaxException {
         log.debug("REST request to save Task : {}", task);
-        if (task.getId() != null) {
-            throw new BadRequestAlertException("A new task cannot already have an ID", ENTITY_NAME, "idexists");
-        }
-        Task result = taskService.save(task);
+
+        Task newTask = createTaskAuxService.createNewTask(task);
+
+        if (newTask != null)
+            return new ResponseEntity<>(newTask, HttpStatus.CREATED);
+
         return ResponseEntity
-            .created(new URI("/api/tasks/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(applicationName, false, ENTITY_NAME, result.getId().toString()))
-            .body(result);
+            .created(new URI("/api/tasks/" + newTask.getId()))
+            .headers(HeaderUtil.createEntityCreationAlert(applicationName, false, ENTITY_NAME, newTask.getId().toString()))
+            .body(newTask);
     }
 
     /**
