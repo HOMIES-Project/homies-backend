@@ -17,6 +17,8 @@ public final class ErrorConstants {
     public static final URI GROUP_ID_NOT_SPECIFY = URI.create(PROBLEM_BASE_URL + "/group-id-not-specify");
     public static final URI GROUP_IDGROUP_NOT_SPECIFY = URI.create(PROBLEM_BASE_URL + "/group-id-group-not-specify");
     public static final URI GROUP_LOGIN_NOT_SPECIFY = URI.create(PROBLEM_BASE_URL + "/group-id-group-not-specify");
+    public static final URI TASK_USER_NOT_SPECIFY = URI.create(PROBLEM_BASE_URL + "/group-id-group-not-specify");
+    public static final URI TASK_USER_NOT_EXIST = URI.create(PROBLEM_BASE_URL + "/group-id-group-not-specify");
 
     private ErrorConstants() {}
 }

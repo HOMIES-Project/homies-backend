@@ -3,6 +3,7 @@ package com.homies.app.service.AuxiliarServices;
 import com.homies.app.domain.*;
 import com.homies.app.service.*;
 import com.homies.app.web.rest.GroupResource;
+import com.homies.app.web.rest.errors.Task.TaskUserDoesNotExist;
 import com.homies.app.web.rest.vm.CreateTaskVM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +38,7 @@ public class CreateTaskAuxService {
 
     public Task createNewTask(CreateTaskVM createTaskVM) {
         if (userExist(createTaskVM.getUser()) == null)
-            return null;
+            throw new TaskUserDoesNotExist();
 
         if (taskExist(createTaskVM.getTaskName()))
             return null;
