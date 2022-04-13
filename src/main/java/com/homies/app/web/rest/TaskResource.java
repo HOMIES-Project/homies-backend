@@ -21,6 +21,7 @@ import com.homies.app.web.rest.errors.Task.TaskWasNotSpecifyUser;
 import com.homies.app.web.rest.errors.TaskList.TaskListWasNotSpecifyTaskListId;
 import com.homies.app.web.rest.errors.User.UserWasNotSpecifyLogin;
 import com.homies.app.web.rest.vm.AddUserToTaskVM;
+
 import com.homies.app.web.rest.vm.CreateTaskVM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -192,7 +193,7 @@ public class TaskResource {
     ) throws URISyntaxException {
         log.debug("REST request to partial update Task partially : {}, {}", id, task);
         if (task.getId() == null) {
-            throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
+            throw new TaskWasNotSpecifyIdTask();
         }
         if (!Objects.equals(id, task.getId())) {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
