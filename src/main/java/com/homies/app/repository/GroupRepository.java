@@ -32,6 +32,8 @@ public interface GroupRepository extends JpaRepository<Group, Long>, JpaSpecific
 
     List<Group> getDistinctByUserAdmin_IdOrUserData_Id(Long id, Long id1);
 
+    Optional<Group> findByIdAndUserData_User_Login(Long id, String login);
+
     @Query(
         value = "select distinct jhiGroup from Group jhiGroup left join fetch jhiGroup.taskList",
         countQuery = "select count(distinct jhiGroup) from Group jhiGroup"

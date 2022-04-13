@@ -11,17 +11,13 @@ public class UserDataUpdateDTO {
     private Long id;
 
     @Lob
-    @Column(name = "photo")
     private byte[] photo;
 
-    @Column(name = "photo_content_type")
     private String photoContentType;
 
     @Size(min = 6, max = 50)
-    @Column(name = "phone", length = 50)
     private String phone;
 
-    @Column(name = "birth_date")
     private LocalDate birthDate;
 
     public Long getId() {

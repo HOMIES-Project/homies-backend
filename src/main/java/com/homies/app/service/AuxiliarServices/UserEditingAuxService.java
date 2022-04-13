@@ -21,8 +21,6 @@ public class UserEditingAuxService {
 
     private final UserDataService userDataService;
 
-    //private final UserEditingVM userEditingVM;
-
     public UserEditingAuxService(UserService userService,
                                  UserDataService userDataService) {
         this.userService = userService;
