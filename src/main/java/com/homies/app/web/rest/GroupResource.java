@@ -2,6 +2,7 @@ package com.homies.app.web.rest;
 
 import com.homies.app.domain.Group;
 import com.homies.app.repository.GroupRepository;
+import com.homies.app.security.AuthoritiesConstants;
 import com.homies.app.service.AuxiliarServices.ManageUserOfGroupAuxService;
 import com.homies.app.service.GroupQueryService;
 import com.homies.app.service.GroupService;
@@ -16,13 +17,11 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 
 import com.homies.app.web.rest.errors.Group.GroupWasNotSpecifyId;
 import com.homies.app.web.rest.errors.Group.GroupWasNotSpecifyIdGroup;
 import com.homies.app.web.rest.errors.Group.GroupWasNotSpecifyLogin;
 import com.homies.app.web.rest.vm.AddUserToGroupVM;
-import com.homies.app.web.rest.errors.GroupAlreadyUsedException;
 import com.homies.app.web.rest.vm.CreateGroupVM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,8 +31,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.PaginationUtil;
 import tech.jhipster.web.util.ResponseUtil;
@@ -100,26 +101,14 @@ public class GroupResource {
      *
      * @param addUser parameters to change
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated group,
-     * @throws URISyntaxException
+     * @throws URISyntaxException,UserPrincipalNotFoundException
      */
     @PostMapping("/groups/add-user")
     public ResponseEntity<Group> addUserToGroup(@Valid @RequestBody AddUserToGroupVM addUser)
         throws URISyntaxException, UserPrincipalNotFoundException {
 
-        log.warn(addUser.toString());
-        if (addUser.getIdAdminGroup() == null) {
-            throw new GroupWasNotSpecifyId();
-        }
-        log.warn("################ => hay user admin");
-        if (addUser.getIdGroup() == null) {
-            throw  new GroupWasNotSpecifyIdGroup();
-        }
-        log.warn("################ => hay grupo");
-        if (addUser.getLogin().isEmpty()) {
-            throw new GroupWasNotSpecifyLogin();
-        }
+        reviewData(addUser);
 
-        log.warn("################ => Crear grupo");
         Optional<Group> result = addUserToGroupAuxService.addUserToGroup(addUser);
 
         return ResponseUtil.wrapOrNotFound(
@@ -132,26 +121,15 @@ public class GroupResource {
      *
      * @param addUser parameters to change
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated group,
-     * @throws URISyntaxException
+     * @throws URISyntaxException,UserPrincipalNotFoundException
      */
     @PostMapping("/groups/delete-user")
-    public ResponseEntity<Group> deleteUserToGroup(@Valid @RequestBody AddUserToGroupVM addUser)
+    public ResponseEntity<Group> deleteUserToGroup(
+        @Valid @RequestBody AddUserToGroupVM addUser)
         throws URISyntaxException, UserPrincipalNotFoundException {
 
-        log.warn(addUser.toString());
-        if (addUser.getIdAdminGroup() == null) {
-            throw new GroupWasNotSpecifyId();
-        }
-        log.warn("################ => hay user admin");
-        if (addUser.getIdGroup() == null) {
-            throw new GroupWasNotSpecifyIdGroup();
-        }
-        log.warn("################ => hay grupo");
-        if (addUser.getLogin().isEmpty()) {
-            throw new GroupWasNotSpecifyLogin();
-        }
+        reviewData(addUser);
 
-        log.warn("################ => Crear grupo");
         Optional<Group> result = addUserToGroupAuxService.deleteUserToTheGroup(addUser);
 
         return ResponseUtil.wrapOrNotFound(
@@ -164,32 +142,41 @@ public class GroupResource {
      *
      * @param addUser parameters to change
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated group,
-     * @throws URISyntaxException
+     * @throws URISyntaxException,UserPrincipalNotFoundException
      */
     @PostMapping("/groups/change-admin")
-    public ResponseEntity<Group> changeUserAdminToGroup(@Valid @RequestBody AddUserToGroupVM addUser)
-        throws URISyntaxException, UserPrincipalNotFoundException {
+    public ResponseEntity<Group> changeUserAdminToGroup(
+        @Valid @RequestBody AddUserToGroupVM addUser)
+        throws URISyntaxException,
+        UserPrincipalNotFoundException {
 
-        log.warn(addUser.toString());
-        if (addUser.getIdAdminGroup() == null) {
-            throw new GroupWasNotSpecifyId();
-        }
-        log.warn("################ => hay user admin");
-        if (addUser.getIdGroup() == null) {
-            throw new GroupWasNotSpecifyIdGroup();
-        }
-        log.warn("################ => hay grupo");
-        if (addUser.getLogin().isEmpty()) {
-            throw new GroupWasNotSpecifyLogin();
-        }
+        reviewData(addUser);
 
-        log.warn("################ => Crear grupo");
         Optional<Group> result = addUserToGroupAuxService.changeUserAdminOfTheGroup(addUser);
 
         return ResponseUtil.wrapOrNotFound(
             result,
             HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, result.get().getUserData().toString())
         );
+    }
+
+    /**
+     * Methode for validations data
+     *
+     * @param addUser request
+     */
+    private void reviewData(AddUserToGroupVM addUser) {
+        log.warn(addUser.toString());
+
+        if (addUser.getIdAdminGroup() == null) {
+            throw new GroupWasNotSpecifyId();
+        }
+        if (addUser.getIdGroup() == null) {
+            throw new GroupWasNotSpecifyIdGroup();
+        }
+        if (addUser.getLogin().isEmpty()) {
+            throw new GroupWasNotSpecifyLogin();
+        }
     }
 
     /**
@@ -224,51 +211,14 @@ public class GroupResource {
     }
 
     /**
-     * {@code PATCH  /groups/:id} : Partial updates given fields of an existing group, field will ignore if it is null
-     *
-     * @param id the id of the group to save.
-     * @param group the group to update.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated group,
-     * or with status {@code 400 (Bad Request)} if the group is not valid,
-     * or with status {@code 404 (Not Found)} if the group is not found,
-     * or with status {@code 500 (Internal Server Error)} if the group couldn't be updated.
-     * @throws URISyntaxException if the Location URI syntax is incorrect.
-     */
-    @PatchMapping(value = "/groups/{id}", consumes = { "application/json", "application/merge-patch+json" })
-    public ResponseEntity<Group> partialUpdateGroup(
-        @PathVariable(value = "id", required = false) final Long id,
-        @NotNull @RequestBody Group group
-    ) throws URISyntaxException {
-        log.debug("REST request to partial update Group partially : {}, {}", id, group);
-        if (group.getId() == null) {
-            throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
-        }
-        if (!Objects.equals(id, group.getId())) {
-            throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
-        }
-
-        if (!groupRepository.existsById(id)) {
-            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
-        }
-
-        Optional<Group> result = groupService.partialUpdate(group);
-
-        return ResponseUtil.wrapOrNotFound(
-            result,
-            HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, group.getId().toString())
-        );
-    }
-
-
-
-    /**
-     * {@code GET  /groups} : get all the groups.
+     * {@code GET  /groups} : get all the groups. ONLY FOR ADMINS
      *
      * @param pageable the pagination information.
      * @param criteria the criteria which the requested entities should match.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of groups in body.
      */
     @GetMapping("/groups")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<List<Group>> getAllGroups(
         GroupCriteria criteria,
         @org.springdoc.api.annotations.ParameterObject Pageable pageable
@@ -280,12 +230,13 @@ public class GroupResource {
     }
 
     /**
-     * {@code GET  /groups/count} : count all the groups.
+     * {@code GET  /groups/count} : count all the groups. ONLY FOR ADMINS
      *
      * @param criteria the criteria which the requested entities should match.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the count in body.
      */
     @GetMapping("/groups/count")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<Long> countGroups(GroupCriteria criteria) {
         log.debug("REST request to count Groups by criteria: {}", criteria);
         return ResponseEntity.ok().body(groupQueryService.countByCriteria(criteria));
