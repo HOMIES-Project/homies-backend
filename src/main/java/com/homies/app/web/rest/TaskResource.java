@@ -15,6 +15,8 @@ import java.util.Optional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
+import com.homies.app.web.rest.errors.Task.TaskWasNotSpecifyUser;
+import com.homies.app.web.rest.vm.AddUserToTaskVM;
 import com.homies.app.web.rest.vm.CreateTaskVM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,6 +86,33 @@ public class TaskResource {
             .body(newTask);
     }
 
+    /** make it posibble to add user to task
+     *
+     * @param addUser parameters to change
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated group,
+     * @throws URISyntaxException
+     */
+    /** @PostMapping("/tasks/add-user")
+    public ResponseEntity<Task> addUserToTask(@Valid @RequestBody AddUserToTaskVM addUserToTaskVM)
+    throws URISyntaxException{
+        if(addUserToTaskVM.getIdTask() == null){
+            throw new TaskWasNotSpecifyUser(); // cambiar
+        }
+        if(addUserToTaskVM.getLogin() == null){
+            throw new TaskWasNotSpecifyUser(); // cambiar
+
+        }if(addUserToTaskVM.getIdList() == null){
+            throw new TaskWasNotSpecifyUser(); // cambiar
+        }
+
+        Optional<Task> result =
+
+        return ResponseUtil.wrapOrNotFound(
+            result,
+            HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, result.get().getUserData().toString())
+        );
+    };*/
+
     /**
      * {@code PUT  /tasks/:id} : Updates an existing task.
      *
@@ -99,7 +128,7 @@ public class TaskResource {
         throws URISyntaxException {
         log.debug("REST request to update Task : {}, {}", id, task);
         if (task.getId() == null) {
-            throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
+            throw new TaskWasNotSpecifyUser();
         }
         if (!Objects.equals(id, task.getId())) {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
