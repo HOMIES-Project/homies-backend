@@ -5,6 +5,7 @@ import com.homies.app.domain.Group;
 import com.homies.app.repository.GroupRepository;
 import com.homies.app.service.criteria.GroupCriteria;
 import java.util.List;
+import java.util.Optional;
 import javax.persistence.criteria.JoinType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +37,11 @@ public class GroupQueryService extends QueryService<Group> {
     @Transactional(readOnly = true)
     public List<Group> getAllGroupsUserId(Long userId, Long userDataId){
         return groupRepository.getDistinctByUserAdmin_IdOrUserData_Id(userId,userDataId);
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<Group> findByIdAndUserDataUserLogin(Long id, String login){
+        return groupRepository.findByIdAndUserData_User_Login(id, login);
     }
 
     /**
