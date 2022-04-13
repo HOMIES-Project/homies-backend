@@ -45,6 +45,12 @@ public class ManageUserOfGroupAuxService {
 
     public Optional<Group> addUserToGroup(AddUserToGroupVM addUser) throws UserPrincipalNotFoundException {
         if (manageUserOfTheGroup(addUser).isPresent()) {
+
+            if (groupQueryService.findByIdAndUserDataUserLogin(
+                addUser.getIdGroup(),
+                addUser.getLogin()).isPresent())
+                throw new UsernameAlreadyUsedException();
+
             //in MtM relationships, the relationship with each other must be maintained in both entities.
             userData.get().addGroup(group.get());
             userDataService.save(userData.get());
@@ -57,6 +63,10 @@ public class ManageUserOfGroupAuxService {
 
     public Optional<Group> deleteUserToTheGroup(AddUserToGroupVM addUser) throws UserPrincipalNotFoundException {
         if (manageUserOfTheGroup(addUser).isPresent()) {
+            if (groupQueryService.findByIdAndUserDataUserLogin(
+                addUser.getIdGroup(),
+                addUser.getLogin()).isEmpty())
+                throw new UserDoesNotExist();
             deleteUser();
             return groupService.findOne(group.get().getId());
         }
@@ -111,7 +121,7 @@ public class ManageUserOfGroupAuxService {
         }
     }
 
-    public boolean deleteUserAllGroups(Long id) throws Exception {
+    public void deleteUserAllGroups(Long id) throws Exception {
         if (userDataService.findOne(id).isEmpty())
             throw new UserDoesNotExist();
 
@@ -157,7 +167,6 @@ public class ManageUserOfGroupAuxService {
                     }
                 }
             }
-            return true;
 
         } catch (Exception e) {
             throw new Exception();
@@ -168,6 +177,11 @@ public class ManageUserOfGroupAuxService {
     public Optional<Group> changeUserAdminOfTheGroup(AddUserToGroupVM addUser) throws UserPrincipalNotFoundException {
         if (manageUserOfTheGroup(addUser).isPresent()) {
 
+            if (groupQueryService.findByIdAndUserDataUserLogin(
+                addUser.getIdGroup(),
+                addUser.getLogin()).isEmpty())
+                throw new UserDoesNotExist();
+
             group.get().setUserAdmin(userData.get());
             groupService.save(group.get());
 
@@ -176,7 +190,6 @@ public class ManageUserOfGroupAuxService {
 
             userData.get().addAdminGroups(group.get());
             userDataService.save(userData.get());
-
 
             return groupService.findOne(group.get().getId());
         }
