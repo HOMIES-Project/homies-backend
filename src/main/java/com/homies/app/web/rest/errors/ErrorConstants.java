@@ -25,6 +25,7 @@ public final class ErrorConstants {
     public static final URI TASK_USER_NOT_SPECIFY = URI.create(PROBLEM_BASE_URL + "/task-user-not-specify");
     public static final URI TASK_USER_NOT_EXIST = URI.create(PROBLEM_BASE_URL + "/task-user-not-exist");
     public static final URI TASK_ALREADY_USED_TYPE = URI.create(PROBLEM_BASE_URL + "/task-already-used");
+    public static final URI TASK_ID_NOT_SPECIFY = URI.create(PROBLEM_BASE_URL + "/task-id-not-specify");
     //TaskList
     public static final URI TASKLIST_NOT_EXIST = URI.create(PROBLEM_BASE_URL + "/tasklist-not-exist");
     //User
