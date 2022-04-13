@@ -5,6 +5,7 @@ import com.homies.app.domain.Task;
 import com.homies.app.repository.TaskRepository;
 import com.homies.app.service.criteria.TaskCriteria;
 import java.util.List;
+import java.util.Optional;
 import javax.persistence.criteria.JoinType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +32,11 @@ public class TaskQueryService extends QueryService<Task> {
 
     public TaskQueryService(TaskRepository taskRepository) {
         this.taskRepository = taskRepository;
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<Task> findByIdAndUserAssignedsUserLogin(Long id, String login){
+        return taskRepository.findByIdAndUserAssigneds_User_Login(id, login);
     }
 
     /**

@@ -5,6 +5,7 @@ import com.homies.app.domain.TaskList;
 import com.homies.app.domain.User;
 import com.homies.app.domain.UserData;
 import com.homies.app.service.*;
+import com.homies.app.web.rest.errors.User.UserDoesNotExist;
 import com.homies.app.web.rest.vm.AddUserToTaskVM;
 import org.springframework.stereotype.Service;
 
@@ -14,17 +15,21 @@ import java.util.Optional;
 public class ManageTaskAuxService {
 
     private TaskService taskService;
+    private TaskQueryService taskQueryService;
     private UserDataQueryService userDataQueryService;
     private UserDataService userDataService;
     private TaskListService taskListService;
     private UserService userService;
 
+
     public ManageTaskAuxService(TaskService taskService,
+                                TaskQueryService taskQueryService,
                                 UserDataQueryService userDataQueryService,
                                 UserDataService userDataService,
                                 TaskListService taskListService,
                                 UserService userService) {
         this.taskService = taskService;
+        this.taskQueryService = taskQueryService;
         this.userDataQueryService = userDataQueryService;
         this.userDataService = userDataService;
         this.taskListService = taskListService;
@@ -36,7 +41,12 @@ public class ManageTaskAuxService {
     private Optional<TaskList> taskList;
 
     public Optional<Task> addUserToTask(AddUserToTaskVM addUserToTaskVM){
-        if (managerUserOfTheGroup(addUserToTaskVM).isPresent()){
+        if (managerUserOfTheTask(addUserToTaskVM).isPresent()){
+            if (taskQueryService.findByIdAndUserAssignedsUserLogin(
+                addUserToTaskVM.getIdTask(),
+                addUserToTaskVM.getLogin()).isPresent())
+                throw new UsernameAlreadyUsedException();
+
             userData.get().addTaskAsigned(task.get());
             userDataService.save(userData.get());
             task.get().addUserAssigned(userData.get());
@@ -47,7 +57,12 @@ public class ManageTaskAuxService {
     }
 
     public Optional<Task> deleteUserToTask(AddUserToTaskVM addUserToTaskVM){
-        if(managerUserOfTheGroup(addUserToTaskVM).isPresent()){
+        if(managerUserOfTheTask(addUserToTaskVM).isPresent()){
+            if (taskQueryService.findByIdAndUserAssignedsUserLogin(
+                addUserToTaskVM.getIdTask(),
+                addUserToTaskVM.getLogin()).isEmpty())
+                throw new UserDoesNotExist();
+
             deleteUser();
             return taskService.findOne(task.get().getId());
         }
@@ -64,7 +79,7 @@ public class ManageTaskAuxService {
 
     }
 
-    private Optional<Task> managerUserOfTheGroup(AddUserToTaskVM addUserToTaskVM){
+    private Optional<Task> managerUserOfTheTask(AddUserToTaskVM addUserToTaskVM){
         task = taskService.findOne(addUserToTaskVM.getIdTask());
         taskList = taskListService.findOne(addUserToTaskVM.getIdList());
         Optional<User> user = userService.getUser(addUserToTaskVM.getLogin());
