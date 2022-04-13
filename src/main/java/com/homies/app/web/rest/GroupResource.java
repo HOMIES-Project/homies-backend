@@ -11,6 +11,7 @@ import com.homies.app.web.rest.errors.BadRequestAlertException;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.attribute.UserPrincipalNotFoundException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -103,7 +104,7 @@ public class GroupResource {
      */
     @PostMapping("/groups/add-user")
     public ResponseEntity<Group> addUserToGroup(@Valid @RequestBody AddUserToGroupVM addUser)
-        throws URISyntaxException{
+        throws URISyntaxException, UserPrincipalNotFoundException {
 
         log.warn(addUser.toString());
         if (addUser.getIdAdminGroup() == null) {
@@ -135,7 +136,7 @@ public class GroupResource {
      */
     @PostMapping("/groups/delete-user")
     public ResponseEntity<Group> deleteUserToGroup(@Valid @RequestBody AddUserToGroupVM addUser)
-        throws URISyntaxException{
+        throws URISyntaxException, UserPrincipalNotFoundException {
 
         log.warn(addUser.toString());
         if (addUser.getIdAdminGroup() == null) {
@@ -167,7 +168,7 @@ public class GroupResource {
      */
     @PostMapping("/groups/change-admin")
     public ResponseEntity<Group> changeUserAdminToGroup(@Valid @RequestBody AddUserToGroupVM addUser)
-        throws URISyntaxException{
+        throws URISyntaxException, UserPrincipalNotFoundException {
 
         log.warn(addUser.toString());
         if (addUser.getIdAdminGroup() == null) {
