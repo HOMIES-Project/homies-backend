@@ -3,6 +3,7 @@ package com.homies.app.web.rest;
 import com.homies.app.domain.Task;
 import com.homies.app.repository.TaskRepository;
 import com.homies.app.service.AuxiliarServices.CreateTaskAuxService;
+import com.homies.app.service.AuxiliarServices.ManageTaskAuxService;
 import com.homies.app.service.TaskQueryService;
 import com.homies.app.service.TaskService;
 import com.homies.app.service.criteria.TaskCriteria;
@@ -16,6 +17,11 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 import com.homies.app.web.rest.errors.Task.TaskWasNotSpecifyIdTask;
+import com.homies.app.web.rest.errors.Task.TaskWasNotSpecifyUser;
+import com.homies.app.web.rest.errors.TaskList.TaskListWasNotSpecifyTaskListId;
+import com.homies.app.web.rest.errors.User.UserWasNotSpecifyLogin;
+import com.homies.app.web.rest.vm.AddUserToTaskVM;
+
 import com.homies.app.web.rest.vm.CreateTaskVM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,14 +59,18 @@ public class TaskResource {
 
     private final CreateTaskAuxService createTaskAuxService;
 
+    private final ManageTaskAuxService manageTaskAuxService;
+
     public TaskResource(TaskService taskService,
                         TaskRepository taskRepository,
                         TaskQueryService taskQueryService,
-                        CreateTaskAuxService createTaskAuxService) {
+                        CreateTaskAuxService createTaskAuxService,
+                        ManageTaskAuxService manageTaskAuxService) {
         this.taskService = taskService;
         this.taskRepository = taskRepository;
         this.taskQueryService = taskQueryService;
         this.createTaskAuxService = createTaskAuxService;
+        this.manageTaskAuxService = manageTaskAuxService;
     }
 
     /**
@@ -85,6 +95,54 @@ public class TaskResource {
             .body(newTask);
     }
 
+    /** make it posibble to add user to task
+     *
+     * @param addUserToTaskVM parameters to change
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated group,
+     * @throws URISyntaxException
+     */
+    @PostMapping("/tasks/add-user")
+    public ResponseEntity<Task> addUserToTask(@Valid @RequestBody AddUserToTaskVM addUserToTaskVM)
+    throws URISyntaxException{
+        if(addUserToTaskVM.getIdTask() == null){
+            throw new TaskWasNotSpecifyIdTask();
+        }
+        if(addUserToTaskVM.getLogin().isEmpty()){
+            throw new UserWasNotSpecifyLogin();
+        }
+        if(addUserToTaskVM.getIdList() == null){
+            throw new TaskListWasNotSpecifyTaskListId();
+        }
+
+        Optional<Task> result = manageTaskAuxService.addUserToTask(addUserToTaskVM);
+
+        return ResponseUtil.wrapOrNotFound(
+            result,
+            HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, result.get().getUserData().toString())
+        );
+    };
+
+    @PostMapping("/task/delete-user")
+    public ResponseEntity<Task> deleteUserToTask(@Valid @RequestBody AddUserToTaskVM addUserToTaskVM)
+        throws URISyntaxException{
+        if(addUserToTaskVM.getIdTask() == null){
+            throw new TaskWasNotSpecifyIdTask();
+        }
+        if(addUserToTaskVM.getLogin().isEmpty()){
+            throw new UserWasNotSpecifyLogin();
+        }
+        if(addUserToTaskVM.getIdList() == null){
+            throw new TaskListWasNotSpecifyTaskListId();
+        }
+
+        Optional<Task> result = manageTaskAuxService.deleteUserToTask(addUserToTaskVM);
+
+        return ResponseUtil.wrapOrNotFound(
+            result,
+            HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, result.get().getUserData().toString())
+        );
+    }
+
     /**
      * {@code PUT  /tasks/:id} : Updates an existing task.
      *
@@ -100,7 +158,7 @@ public class TaskResource {
         throws URISyntaxException {
         log.debug("REST request to update Task : {}, {}", id, task);
         if (task.getId() == null) {
-            throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
+            throw new TaskWasNotSpecifyUser();
         }
         if (!Objects.equals(id, task.getId())) {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");

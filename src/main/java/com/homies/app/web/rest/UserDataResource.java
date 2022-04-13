@@ -209,10 +209,16 @@ public class UserDataResource {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/user-data/{id}")
-    public ResponseEntity<Void> deleteUserData(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteUserData(
+        @PathVariable Long id
+    ) throws Exception {
         log.debug("REST request to delete UserData : {}", id);
+        if (id == null) {
+            throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
+        }
         manageUserOfGroupAuxService.deleteUserAllGroups(id);
         userDataService.delete(id);
+
         return ResponseEntity
             .noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, false, ENTITY_NAME, id.toString()))
