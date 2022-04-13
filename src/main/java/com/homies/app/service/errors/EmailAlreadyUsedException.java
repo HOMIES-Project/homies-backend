@@ -1,4 +1,4 @@
-package com.homies.app.service;
+package com.homies.app.service.errors;
 
 public class EmailAlreadyUsedException extends RuntimeException {
 
