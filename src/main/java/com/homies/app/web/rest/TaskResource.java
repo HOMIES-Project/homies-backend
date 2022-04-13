@@ -17,6 +17,7 @@ import javax.validation.constraints.NotNull;
 
 import com.homies.app.web.rest.errors.Task.TaskWasNotSpecifyIdTask;
 import com.homies.app.web.rest.errors.Task.TaskWasNotSpecifyUser;
+import com.homies.app.web.rest.errors.User.UserWasNotSpecifyLogin;
 import com.homies.app.web.rest.vm.AddUserToTaskVM;
 import com.homies.app.web.rest.vm.CreateTaskVM;
 import org.slf4j.Logger;
@@ -100,7 +101,7 @@ public class TaskResource {
             throw new TaskWasNotSpecifyIdTask();
         }
         if(addUserToTaskVM.getLogin() == null){
-            throw new TaskWasNotSpecifyUser(); // cambiar
+            throw new UserWasNotSpecifyLogin();
 
         }if(addUserToTaskVM.getIdList() == null){
             throw new TaskWasNotSpecifyUser(); // cambiar
