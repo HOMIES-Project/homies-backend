@@ -31,7 +31,7 @@ public class ShoppingList implements Serializable {
     @Column(name = "name_shop_list", length = 20, nullable = false)
     private String nameShopList;
 
-    @OneToMany(mappedBy = "shoppingList")
+    @OneToMany(mappedBy = "shoppingList", cascade = CascadeType.ALL)
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @JsonIgnoreProperties(value = { "userCreator", "shoppingList" }, allowSetters = true)
     private Set<Products> products = new HashSet<>();

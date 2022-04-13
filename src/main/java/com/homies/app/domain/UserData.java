@@ -1,13 +1,18 @@
 package com.homies.app.domain;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
+import java.lang.annotation.ElementType;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.persistence.*;
 import javax.validation.constraints.*;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
@@ -51,7 +56,7 @@ public class UserData implements Serializable {
     @JoinColumn(name = "id")
     private User user;
 
-    @OneToMany(mappedBy = "userAdmin", fetch = FetchType.EAGER, cascade = {CascadeType.REFRESH})//, cascade = {CascadeType.REFRESH, CascadeType.DETACH, CascadeType.PERSIST})
+    @OneToMany(mappedBy = "userAdmin", fetch = FetchType.EAGER)
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @JsonIgnoreProperties(
         value = { "userAdmin", "taskList", "spendingList", "shoppingList", "settingsList", "userData" },
@@ -74,17 +79,17 @@ public class UserData implements Serializable {
     @JsonIgnoreProperties(value = { "userCreator", "shoppingList" }, allowSetters = true)
     private Set<Products> productCreateds = new HashSet<>();
 
-    @ManyToMany(fetch = FetchType.EAGER)//, cascade = {CascadeType.REFRESH, CascadeType.DETACH, CascadeType.PERSIST})
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
         name = "rel_user_data__group",
         joinColumns = @JoinColumn(name = "user_data_id"),
         inverseJoinColumns = @JoinColumn(name = "group_id")
     )
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-/*    @JsonIgnoreProperties(
+    @JsonIgnoreProperties(
         value = { "userAdmin", "taskList", "spendingList", "shoppingList", "settingsList", "userData" },
         allowSetters = true
-    )*/
+    )
     private Set<Group> groups = new HashSet<>();
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
