@@ -66,7 +66,7 @@ public class Task implements Serializable {
     @JsonIgnoreProperties(value = { "user", "adminGroups", "taskAsigneds", "productCreateds", "groups" }, allowSetters = true)
     private UserData userCreator;
 
-    @ManyToMany(mappedBy = "taskAsigneds")
+    @ManyToMany(mappedBy = "taskAsigneds", fetch = FetchType.EAGER)
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @JsonIgnoreProperties(value = { "user", "adminGroups", "taskAsigneds", "productCreateds", "groups" }, allowSetters = true)
     private Set<UserData> userAssigneds = new HashSet<>();
