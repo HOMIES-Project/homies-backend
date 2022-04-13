@@ -3,6 +3,7 @@ package com.homies.app.web.rest;
 import com.homies.app.domain.Task;
 import com.homies.app.repository.TaskRepository;
 import com.homies.app.service.AuxiliarServices.CreateTaskAuxService;
+import com.homies.app.service.AuxiliarServices.ManageTaskAuxService;
 import com.homies.app.service.TaskQueryService;
 import com.homies.app.service.TaskService;
 import com.homies.app.service.criteria.TaskCriteria;
@@ -57,14 +58,18 @@ public class TaskResource {
 
     private final CreateTaskAuxService createTaskAuxService;
 
+    private final ManageTaskAuxService manageTaskAuxService;
+
     public TaskResource(TaskService taskService,
                         TaskRepository taskRepository,
                         TaskQueryService taskQueryService,
-                        CreateTaskAuxService createTaskAuxService) {
+                        CreateTaskAuxService createTaskAuxService,
+                        ManageTaskAuxService manageTaskAuxService) {
         this.taskService = taskService;
         this.taskRepository = taskRepository;
         this.taskQueryService = taskQueryService;
         this.createTaskAuxService = createTaskAuxService;
+        this.manageTaskAuxService = manageTaskAuxService;
     }
 
     /**
@@ -108,7 +113,12 @@ public class TaskResource {
             throw new TaskListWasNotSpecifyTaskListId();
         }
 
-        throw new TaskWasNotSpecifyIdTask();
+        Optional<Task> result = manageTaskAuxService.addUserToTask(addUserToTaskVM);
+
+        return ResponseUtil.wrapOrNotFound(
+            result,
+            HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, result.get().getUserData().toString())
+        );
     };
 
     /**
