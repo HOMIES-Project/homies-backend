@@ -8,6 +8,6 @@ public class TaskWasNotSpecifyIdTask extends BadRequestAlertException {
     private static final long serialVersionUID = 1L;
 
     public TaskWasNotSpecifyIdTask() {
-        super(ErrorConstants.TASK_IDTASK_NOT_SPECIFY, "ID Task was not specify", "userManagement", "IdTaskWasNotSpecify");
+        super(ErrorConstants.TASK_ID_NOT_SPECIFY, "Id was not specify", "userManagement", "idWasNotSpecify");
     }
 }
