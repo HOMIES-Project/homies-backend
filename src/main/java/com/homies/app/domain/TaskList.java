@@ -35,7 +35,7 @@ public class TaskList implements Serializable {
     @OneToOne(mappedBy = "taskList")
     private Group group;
 
-    @OneToMany(mappedBy = "taskList")
+    @OneToMany(mappedBy = "taskList", cascade = CascadeType.ALL)
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @JsonIgnoreProperties(value = { "taskList", "userData", "userCreator", "userAssigneds" }, allowSetters = true)
     private Set<Task> tasks = new HashSet<>();
