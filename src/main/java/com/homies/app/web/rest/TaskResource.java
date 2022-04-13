@@ -106,10 +106,10 @@ public class TaskResource {
         if(addUserToTaskVM.getIdTask() == null){
             throw new TaskWasNotSpecifyIdTask();
         }
-        if(addUserToTaskVM.getLogin() == null){
+        if(addUserToTaskVM.getLogin().isEmpty()){
             throw new UserWasNotSpecifyLogin();
-
-        }if(addUserToTaskVM.getIdList() == null){
+        }
+        if(addUserToTaskVM.getIdList() == null){
             throw new TaskListWasNotSpecifyTaskListId();
         }
 
@@ -120,6 +120,27 @@ public class TaskResource {
             HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, result.get().getUserData().toString())
         );
     };
+
+    @PostMapping("/task/delete-user")
+    public ResponseEntity<Task> deleteUserToTask(@Valid @RequestBody AddUserToTaskVM addUserToTaskVM)
+        throws URISyntaxException{
+        if(addUserToTaskVM.getIdTask() == null){
+            throw new TaskWasNotSpecifyIdTask();
+        }
+        if(addUserToTaskVM.getLogin().isEmpty()){
+            throw new UserWasNotSpecifyLogin();
+        }
+        if(addUserToTaskVM.getIdList() == null){
+            throw new TaskListWasNotSpecifyTaskListId();
+        }
+
+        Optional<Task> result = manageTaskAuxService.deleteUserToTask(addUserToTaskVM);
+
+        return ResponseUtil.wrapOrNotFound(
+            result,
+            HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, result.get().getUserData().toString())
+        );
+    }
 
     /**
      * {@code PUT  /tasks/:id} : Updates an existing task.

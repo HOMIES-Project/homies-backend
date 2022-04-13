@@ -46,7 +46,23 @@ public class ManageTaskAuxService {
         return Optional.empty();
     }
 
+    public Optional<Task> deleteUserToTask(AddUserToTaskVM addUserToTaskVM){
+        if(managerUserOfTheGroup(addUserToTaskVM).isPresent()){
+            deleteUser();
+            return taskService.findOne(task.get().getId());
+        }
+        return Optional.empty();
+    }
 
+    private void deleteUser(){
+
+        userData.get().removeTaskAsigned(task.get());
+        userDataService.save(userData.get());
+
+        task.get().removeUserAssigned(userData.get());
+        taskService.save(task.get());
+
+    }
 
     private Optional<Task> managerUserOfTheGroup(AddUserToTaskVM addUserToTaskVM){
         task = taskService.findOne(addUserToTaskVM.getIdTask());

@@ -4,13 +4,10 @@ import javax.validation.constraints.NotNull;
 
 public class AddUserToTaskVM {
 
-    @NotNull
     private Long idTask;
 
-    @NotNull
     private String login;
 
-    @NotNull
     private Long idList;
 
     public Long getIdTask() {
