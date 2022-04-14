@@ -34,6 +34,10 @@ public class UserDataQueryService extends QueryService<UserData> {
         this.userDataRepository = userDataRepository;
     }
 
+    @Transactional(readOnly = true)
+    public List<UserData> getByTaskAsignedsId(Long id){
+        return userDataRepository.getByTaskAsigneds_Id(id);
+    }
 
     @Transactional(readOnly = true)
     public Optional<UserData> getByUser_Login(String login){
