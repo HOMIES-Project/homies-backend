@@ -30,6 +30,8 @@ public interface TaskRepository extends JpaRepository<Task, Long>, JpaSpecificat
 
 
 
+
+
     @Query(
         value = "select distinct task from Task task left join fetch task.taskList",
         countQuery = "select count(distinct task) from Task task"

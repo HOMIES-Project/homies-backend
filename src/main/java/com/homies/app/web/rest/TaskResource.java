@@ -150,6 +150,7 @@ public class TaskResource {
         if (id == null){
             throw new TaskWasNotSpecifyIdTask();
         }
+        
         manageTaskAuxService.deleteTask(id);
 
         return ResponseEntity

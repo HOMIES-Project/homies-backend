@@ -126,7 +126,7 @@ public class TaskQueryService extends QueryService<Task> {
                     specification.and(
                         buildSpecification(
                             criteria.getUserCreatorId(),
-                            root -> root.join(Task_.userCreator, JoinType.LEFT).get(UserData_.id)
+                            root -> root.join(Task_.userData, JoinType.LEFT).get(UserData_.id)
                         )
                     );
             }

@@ -10,8 +10,10 @@ import com.homies.app.web.rest.errors.User.UserDoesNotExist;
 import com.homies.app.web.rest.vm.AddUserToTaskVM;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class ManageTaskAuxService {
@@ -75,11 +77,15 @@ public class ManageTaskAuxService {
         if(taskService.findOne(id).isEmpty()){
             throw new TaskDoesNotExist();
         } else {
-            List<UserData> userTask = userDataQueryService.getByTaskAsignedsId(id);
+            List<UserData> userData = userDataQueryService.getByTaskAsignedsId(id);
             task = taskService.findOne(id);
-            for (UserData user : userTask){
-                user.removeTaskAsigned(task.get());
-            }
+            userData.forEach(ud -> {
+                AddUserToTaskVM addUserToTaskVM = new AddUserToTaskVM();
+                addUserToTaskVM.setLogin(ud.getUser().getLogin());
+                addUserToTaskVM.setIdTask(id);
+                addUserToTaskVM.setIdList(task.get().getTaskList().getId());
+                deleteUserToTask(addUserToTaskVM);
+            });
             taskService.delete(id);
         }
     }
