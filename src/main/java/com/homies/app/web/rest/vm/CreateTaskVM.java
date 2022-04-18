@@ -7,7 +7,7 @@ import javax.validation.constraints.Size;
 public class CreateTaskVM {
 
     @NotNull
-    private Long user;
+    private Long id;
 
     @NotNull
     private Long idGroup;
@@ -21,11 +21,11 @@ public class CreateTaskVM {
     private String description;
 
     public Long getUser() {
-        return user;
+        return id;
     }
 
-    public void setUser(Long user) {
-        this.user = user;
+    public void setUser(Long id) {
+        this.id = id;
     }
 
     public Long getIdGroup() {
@@ -55,7 +55,7 @@ public class CreateTaskVM {
     @Override
     public String toString() {
         return "CreateTaskVM{" +
-            "user=" + user +
+            "user=" + id +
             ", idGroup=" + idGroup +
             ", taskName='" + taskName + '\'' +
             ", description='" + description + '\'' +
