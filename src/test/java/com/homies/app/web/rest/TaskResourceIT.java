@@ -818,7 +818,7 @@ class TaskResourceIT {
         }
         em.persist(userCreator);
         em.flush();
-        task.setUserCreator(userCreator);
+        task.setUserData(userCreator);
         taskRepository.saveAndFlush(task);
         Long userCreatorId = userCreator.getId();
 

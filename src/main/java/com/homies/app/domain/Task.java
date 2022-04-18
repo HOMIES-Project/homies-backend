@@ -62,9 +62,9 @@ public class Task implements Serializable {
     @JsonIgnoreProperties(value = { "user", "adminGroups", "taskAsigneds", "productCreateds", "groups" }, allowSetters = true)
     private UserData userData;
 
-    @ManyToOne
-    @JsonIgnoreProperties(value = { "user", "adminGroups", "taskAsigneds", "productCreateds", "groups" }, allowSetters = true)
-    private UserData userCreator;
+    //@ManyToOne
+    //@JsonIgnoreProperties(value = { "user", "adminGroups", "taskAsigneds", "productCreateds", "groups" }, allowSetters = true)
+    //private UserData userCreator;
 
     @ManyToMany(mappedBy = "taskAsigneds", fetch = FetchType.EAGER)
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
@@ -216,18 +216,18 @@ public class Task implements Serializable {
         return this;
     }
 
-    public UserData getUserCreator() {
-        return this.userCreator;
-    }
+    //public UserData getUserCreator() {
+    //    return this.userCreator;
+    //}
 
-    public void setUserCreator(UserData userData) {
-        this.userCreator = userData;
-    }
+    //public void setUserCreator(UserData userData) {
+     //   this.userCreator = userData;
+    //}
 
-    public Task userCreator(UserData userData) {
-        this.setUserCreator(userData);
-        return this;
-    }
+    //public Task userCreator(UserData userData) {
+      //  this.setUserCreator(userData);
+        //return this;
+    //}
 
     public Set<UserData> getUserAssigneds() {
         return this.userAssigneds;
