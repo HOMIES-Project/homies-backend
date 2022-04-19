@@ -16,6 +16,7 @@ import java.util.Optional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
+import com.homies.app.web.rest.errors.Task.TaskDoesNotExist;
 import com.homies.app.web.rest.errors.Task.TaskWasNotSpecifyIdTask;
 import com.homies.app.web.rest.errors.Task.TaskWasNotSpecifyUser;
 import com.homies.app.web.rest.errors.TaskList.TaskListWasNotSpecifyTaskListId;
@@ -143,6 +144,21 @@ public class TaskResource {
         );
     }
 
+    @PostMapping("/task/delete-task")
+    public ResponseEntity<Task> deleteTask(@Valid Long id)
+        throws Exception {
+        if (id == null){
+            throw new TaskWasNotSpecifyIdTask();
+        }
+        
+        manageTaskAuxService.deleteTask(id);
+
+        return ResponseEntity
+            .noContent()
+            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, false, ENTITY_NAME, id.toString()))
+            .build();
+    }
+
     /**
      * {@code PUT  /tasks/:id} : Updates an existing task.
      *
@@ -257,7 +273,7 @@ public class TaskResource {
      * @param id the id of the task to delete.
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
-    @DeleteMapping("/tasks/{id}")
+/** @DeleteMapping("/tasks/{id}")
     public ResponseEntity<Void> deleteTask(@PathVariable Long id) {
         log.debug("REST request to delete Task : {}", id);
         taskService.delete(id);
@@ -265,5 +281,5 @@ public class TaskResource {
             .noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, false, ENTITY_NAME, id.toString()))
             .build();
-    }
+    }*/
 }
