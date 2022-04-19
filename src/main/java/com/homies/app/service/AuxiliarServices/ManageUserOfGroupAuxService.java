@@ -26,19 +26,26 @@ public class ManageUserOfGroupAuxService {
 
     private final UserDataService userDataService;
 
+    private final UserDataQueryService userDataQueryService;
+
     private final GroupService groupService;
 
     private final GroupQueryService groupQueryService;
 
-    public ManageUserOfGroupAuxService(UserService userService,
-                                       GroupService groupService,
-                                       UserDataService userDataService,
-                                       GroupQueryService groupQueryService) {
+    public ManageUserOfGroupAuxService(
+        UserService userService,
+        UserDataService userDataService,
+        UserDataQueryService userDataQueryService,
+        GroupService groupService,
+        GroupQueryService groupQueryService
+    ) {
         this.userService = userService;
-        this.groupService = groupService;
         this.userDataService = userDataService;
+        this.userDataQueryService = userDataQueryService;
+        this.groupService = groupService;
         this.groupQueryService = groupQueryService;
     }
+
     private Optional<UserData> userAdmin;
     private Optional<Group> group;
     private Optional<UserData> userData;
@@ -172,6 +179,10 @@ public class ManageUserOfGroupAuxService {
             throw new Exception();
 
         }
+
+        groupQueryService.refreshGroupEntity();
+        userDataQueryService.refreshUserDataEntity();
+
     }
 
     public Optional<Group> changeUserAdminOfTheGroup(AddUserToGroupVM addUser) throws UserPrincipalNotFoundException {

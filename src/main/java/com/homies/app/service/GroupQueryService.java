@@ -44,6 +44,10 @@ public class GroupQueryService extends QueryService<Group> {
         return groupRepository.findByIdAndUserData_User_Login(id, login);
     }
 
+    public void refreshGroupEntity() {
+        groupRepository.flush();
+    }
+
     /**
      * find group by name
      * @param nameGroup

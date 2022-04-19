@@ -44,6 +44,10 @@ public class UserDataQueryService extends QueryService<UserData> {
         return userDataRepository.getByUser_Login(login);
     }
 
+    public void refreshUserDataEntity() {
+        userDataRepository.flush();
+    }
+
     /**
      * Return a {@link List} of {@link UserData} which matches the criteria from the database.
      * @param criteria The object which holds all the filters, which the entities should match.
