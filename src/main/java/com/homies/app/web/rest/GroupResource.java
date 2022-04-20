@@ -168,9 +168,9 @@ public class GroupResource {
     private void reviewData(AddUserToGroupVM addUser) {
         log.warn(addUser.toString());
 
-        if (addUser.getIdAdminGroup() == null) {
+/*        if (addUser.getIdAdminGroup() == null) {
             throw new GroupWasNotSpecifyId();
-        }
+        }*/
         if (addUser.getIdGroup() == null) {
             throw new GroupWasNotSpecifyIdGroup();
         }

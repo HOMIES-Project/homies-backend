@@ -1,17 +1,17 @@
 package com.homies.app.service.AuxiliarServices;
 
 import com.homies.app.domain.Group;
-import com.homies.app.domain.User;
 import com.homies.app.domain.UserData;
 import com.homies.app.service.*;
 import com.homies.app.web.rest.errors.Group.GroupNotExistException;
 import com.homies.app.web.rest.errors.User.UserDoesNotExist;
 import com.homies.app.web.rest.vm.AddUserToGroupVM;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.PreRemove;
 import java.nio.file.attribute.UserPrincipalNotFoundException;
 import java.util.*;
 
@@ -19,8 +19,6 @@ import java.util.*;
 public class ManageUserOfGroupAuxService {
 
     private final Logger log = LoggerFactory.getLogger(ManageUserOfGroupAuxService.class);
-
-    private final UserService userService;
 
     private final UserDataService userDataService;
 
@@ -31,13 +29,11 @@ public class ManageUserOfGroupAuxService {
     private final GroupQueryService groupQueryService;
 
     public ManageUserOfGroupAuxService(
-        UserService userService,
         UserDataService userDataService,
         UserDataQueryService userDataQueryService,
         GroupService groupService,
         GroupQueryService groupQueryService
     ) {
-        this.userService = userService;
         this.userDataService = userDataService;
         this.userDataQueryService = userDataQueryService;
         this.groupService = groupService;
@@ -49,16 +45,13 @@ public class ManageUserOfGroupAuxService {
     private Optional<UserData> userData;
 
     public Optional<Group> addUserToGroup(AddUserToGroupVM addUser) throws UserPrincipalNotFoundException {
-        if (manageUserOfTheGroup(addUser).isPresent()) {
+        if (manageUserOfTheGroup(addUser, false).isPresent()) {
 
-            if (groupQueryService.findByIdAndUserDataUserLogin(
+            if (groupQueryService.findGroupByIdAndUserDataUserLogin(
                 addUser.getIdGroup(),
                 addUser.getLogin()).isPresent())
                 throw new UsernameAlreadyUsedException();
 
-            //in MtM relationships, the relationship with each other must be maintained in both entities.
-/*            userData.get().addGroup(group.get());
-            userDataService.save(userData.get());*/
             group.get().addUserData(userData.get());
             groupService.save(group.get());
             refreshEntities();
@@ -69,18 +62,105 @@ public class ManageUserOfGroupAuxService {
     }
 
     public Optional<Group> deleteUserToTheGroup(AddUserToGroupVM addUser) throws UserPrincipalNotFoundException {
-        if (manageUserOfTheGroup(addUser).isPresent()) {
-            if (groupQueryService.findByIdAndUserDataUserLogin(
+
+        boolean userOrAdmin = addUser.getIdAdminGroup() == null;
+        if (manageUserOfTheGroup(addUser, userOrAdmin).isPresent()) {
+            if (groupQueryService.findGroupByIdAndUserDataUserLogin(
                                     addUser.getIdGroup(),
                                     addUser.getLogin())
                                     .isEmpty())
-                throw new UserDoesNotExist();
+                throw new UsernameNotFoundException("No existe el usuario en este equipo");
 
             deleteUser();
             return groupService.findOne(group.get().getId());
 
         }
         return Optional.empty();
+
+    }
+
+    public void deleteUserAllGroups(Long id) {
+        userData = userDataService.findOne(id);
+        if (userData.isEmpty())
+            throw new UserDoesNotExist();
+
+        //Detach user of her groups
+        List<Group> useGroups = groupQueryService.getUseGroupsByUserDataId(userData.get().getId());
+
+        userData.get().setGroups(new HashSet<>());
+        userDataService.save(userData.get());
+
+        useGroups.forEach(useGroup -> {
+            useGroup.removeUserData(userData.get());
+            groupService.save(useGroup);
+        });
+        refreshEntities();
+
+        //Detach user of her admin groups
+        List<Group> adminGroups = groupQueryService.getAdminGroupsByUserDataId(userData.get().getId());
+
+        userData.get().setAdminGroups(new HashSet<>());
+        userDataService.save(userData.get());
+
+        adminGroups.forEach(adminGroup -> {
+            if (adminGroup.getUserData().size() > 0) {
+                adminGroup.setUserAdmin(adminGroup.getUserData().iterator().next());
+                groupService.save(adminGroup);
+            } else {
+               adminGroup.setUserAdmin(null);
+               groupService.save(adminGroup);
+               groupService.delete(adminGroup.getId());
+            }
+        });
+        refreshEntities();
+
+    }
+
+    public Optional<Group> changeUserAdminOfTheGroup(AddUserToGroupVM addUser) throws UserPrincipalNotFoundException {
+        if (manageUserOfTheGroup(addUser, false).isPresent()) {
+
+            if (groupQueryService.findGroupByIdAndUserDataUserLogin(
+                addUser.getIdGroup(),
+                addUser.getLogin()).isEmpty())
+                throw new UserDoesNotExist();
+
+            group.get().setUserAdmin(userData.get());
+            groupService.save(group.get());
+
+            userAdmin.get().removeAdminGroups(group.get());
+            userDataService.save(userAdmin.get());
+
+            userData.get().addAdminGroups(group.get());
+            userDataService.save(userData.get());
+
+            return groupService.findOne(group.get().getId());
+        }
+        return Optional.empty();
+    }
+
+    private Optional<Group> manageUserOfTheGroup(@NotNull AddUserToGroupVM addUser, boolean userExit) throws UserPrincipalNotFoundException {
+        userAdmin = userDataService.findOne(addUser.getIdAdminGroup());
+        group = groupService.findOne(addUser.getIdGroup());
+        userData = userDataQueryService.getByUser_Login(addUser.getLogin());
+
+        if (!userExit) {
+            if (userAdmin.isEmpty())
+                throw new UserPrincipalNotFoundException("Don't exist this admin"); //UserAdmin not exist
+
+            if (userAdmin.get().getId().longValue() != group.get().getUserAdmin().getId().longValue())
+                throw new UserPrincipalNotFoundException("UserAdmin isn't admin of this group");  //UserAdmin not is group's userAdmin.
+        }
+
+        if (userData.isEmpty())
+            throw new UserDoesNotExist(); //UserData not exist
+
+        if (group.isEmpty())
+            throw new GroupNotExistException(); //Group not exist
+
+        if (group.get().getUserAdmin() == null)
+            throw new UserPrincipalNotFoundException(addUser.getIdAdminGroup().toString()); //Group's UserAdmin not exist
+
+        return group;
 
     }
 
@@ -127,88 +207,6 @@ public class ManageUserOfGroupAuxService {
 
     }
 
-    public void deleteUserAllGroups2(Long id) {
-        userData = userDataService.findOne(id);
-        if (userData.isEmpty())
-            throw new UserDoesNotExist();
-
-        //Detach user of her groups
-        List<Group> useGroups = groupQueryService.getUseGroupsByUserDataId(userData.get().getId());
-
-        userData.get().setGroups(new HashSet<>());
-        userDataService.save(userData.get());
-
-        useGroups.forEach(useGroup -> {
-            useGroup.removeUserData(userData.get());
-            groupService.save(useGroup);
-        });
-        refreshEntities();
-
-        //Detach user of her admin groups
-        List<Group> adminGroups = groupQueryService.getAdminGroupsByUserDataId(userData.get().getId());
-
-        userData.get().setAdminGroups(new HashSet<>());
-        userDataService.save(userData.get());
-
-        adminGroups.forEach(adminGroup -> {
-            if (adminGroup.getUserData().size() > 0) {
-                adminGroup.setUserAdmin(adminGroup.getUserData().iterator().next());
-                groupService.save(adminGroup);
-            } else {
-               adminGroup.setUserAdmin(null);
-               groupService.save(adminGroup);
-               groupService.delete(adminGroup.getId());
-            }
-        });
-        refreshEntities();
-
-    }
-
-    public Optional<Group> changeUserAdminOfTheGroup(AddUserToGroupVM addUser) throws UserPrincipalNotFoundException {
-        if (manageUserOfTheGroup(addUser).isPresent()) {
-
-            if (groupQueryService.findByIdAndUserDataUserLogin(
-                addUser.getIdGroup(),
-                addUser.getLogin()).isEmpty())
-                throw new UserDoesNotExist();
-
-            group.get().setUserAdmin(userData.get());
-            groupService.save(group.get());
-
-            userAdmin.get().removeAdminGroups(group.get());
-            userDataService.save(userAdmin.get());
-
-            userData.get().addAdminGroups(group.get());
-            userDataService.save(userData.get());
-
-            return groupService.findOne(group.get().getId());
-        }
-        return Optional.empty();
-    }
-
-    private Optional<Group> manageUserOfTheGroup(AddUserToGroupVM addUser) throws UserPrincipalNotFoundException {
-        userAdmin = userDataService.findOne(addUser.getIdAdminGroup());
-        group = groupService.findOne(addUser.getIdGroup());
-        userData = userDataQueryService.getByUser_Login(addUser.getLogin());
-
-        if (userAdmin.isEmpty())
-            throw new UserPrincipalNotFoundException("Don't exist this admin"); //UserAdmin not exist
-
-        if (userData.isEmpty())
-            throw new UserDoesNotExist(); //UserData not exist
-
-        if (userAdmin.get().getId().longValue() != group.get().getUserAdmin().getId().longValue())
-            throw new UserPrincipalNotFoundException("UserAdmin isn't admin of this group");  //UserAdmin not is group's userAdmin.
-
-        if (group.isEmpty())
-            throw new GroupNotExistException(); //Group not exist
-
-        if (group.get().getUserAdmin() == null)
-            throw new UserPrincipalNotFoundException(addUser.getIdAdminGroup().toString()); //Group's UserAdmin not exist
-
-        return group;
-
-    }
 
     private void refreshEntities() {
         groupQueryService.refreshGroupEntity();
