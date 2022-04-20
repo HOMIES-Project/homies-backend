@@ -119,7 +119,7 @@ public class ExceptionTranslator implements ProblemHandling, SecurityAdviceTrait
 
     @ExceptionHandler
     public ResponseEntity<Problem> handleEmailAlreadyUsedException(
-        com.homies.app.service.EmailAlreadyUsedException ex,
+        com.homies.app.service.errors.EmailAlreadyUsedException ex,
         NativeWebRequest request
     ) {
         EmailAlreadyUsedException problem = new EmailAlreadyUsedException();

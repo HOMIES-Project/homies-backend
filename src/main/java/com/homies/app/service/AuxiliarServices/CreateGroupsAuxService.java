@@ -4,14 +4,16 @@ import com.homies.app.domain.*;
 import com.homies.app.service.*;
 import com.homies.app.web.rest.GroupResource;
 import com.homies.app.web.rest.errors.GroupAlreadyUsedException;
-import com.homies.app.web.rest.errors.User.UserAlreadyUsedException;
 import com.homies.app.web.rest.errors.User.UserDoesNotExist;
 import com.homies.app.web.rest.vm.CreateGroupVM;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import tech.jhipster.security.RandomUtil;
+
 import java.time.LocalDate;
 import java.util.Optional;
 
@@ -76,9 +78,9 @@ public class CreateGroupsAuxService {
         groupService.save(newGroup);
 
         //Add newGroup in UserData
-        userData.addGroup(newGroup);
+/*        userData.addGroup(newGroup);
         userData.addAdminGroups(newGroup);
-        userDataService.save(userData);
+        userDataService.save(userData);*/
 
         //Lists need the new group to exist in DB
 

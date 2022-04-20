@@ -2,12 +2,14 @@ package com.homies.app.web.rest;
 
 import com.homies.app.domain.UserData;
 import com.homies.app.repository.UserDataRepository;
+import com.homies.app.security.AuthoritiesConstants;
 import com.homies.app.service.AuxiliarServices.ManageUserOfGroupAuxService;
 import com.homies.app.service.UserDataQueryService;
 import com.homies.app.service.UserDataService;
 import com.homies.app.service.criteria.UserDataCriteria;
 import com.homies.app.service.AuxiliarServices.UserEditingAuxService;
 import com.homies.app.web.rest.errors.BadRequestAlertException;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -24,8 +26,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.PaginationUtil;
 import tech.jhipster.web.util.ResponseUtil;
@@ -160,13 +164,14 @@ public class UserDataResource {
     }
 
     /**
-     * {@code GET  /user-data} : get all the userData.
+     * {@code GET  /user-data} : get all the userData. ONLY FOR ADMINS
      *
      * @param pageable the pagination information.
      * @param criteria the criteria which the requested entities should match.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of userData in body.
      */
     @GetMapping("/user-data")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<List<UserData>> getAllUserData(
         UserDataCriteria criteria,
         @org.springdoc.api.annotations.ParameterObject Pageable pageable
@@ -178,12 +183,13 @@ public class UserDataResource {
     }
 
     /**
-     * {@code GET  /user-data/count} : count all the userData.
+     * {@code GET  /user-data/count} : count all the userData.  ONLY FOR ADMINS
      *
      * @param criteria the criteria which the requested entities should match.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the count in body.
      */
     @GetMapping("/user-data/count")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<Long> countUserData(UserDataCriteria criteria) {
         log.debug("REST request to count UserData by criteria: {}", criteria);
         return ResponseEntity.ok().body(userDataQueryService.countByCriteria(criteria));
@@ -216,6 +222,7 @@ public class UserDataResource {
         if (id == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
+
         manageUserOfGroupAuxService.deleteUserAllGroups(id);
         userDataService.delete(id);
 
