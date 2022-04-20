@@ -61,18 +61,18 @@ public class GroupResource {
 
     private final CreateGroupsAuxService createGroupsAux;
 
-    private final ManageUserOfGroupAuxService addUserToGroupAuxService;
+    private final ManageUserOfGroupAuxService manageUserOfGroupAuxService;
 
     public GroupResource(GroupService groupService,
                          GroupRepository groupRepository,
                          GroupQueryService groupQueryService,
                          CreateGroupsAuxService createGroupsAux,
-                         ManageUserOfGroupAuxService addUserToGroupAuxService) {
+                         ManageUserOfGroupAuxService manageUserOfGroupAuxService) {
         this.groupService = groupService;
         this.groupRepository = groupRepository;
         this.groupQueryService = groupQueryService;
         this.createGroupsAux = createGroupsAux;
-        this.addUserToGroupAuxService = addUserToGroupAuxService;
+        this.manageUserOfGroupAuxService = manageUserOfGroupAuxService;
     }
 
     /**
@@ -109,7 +109,7 @@ public class GroupResource {
 
         reviewData(addUser);
 
-        Optional<Group> result = addUserToGroupAuxService.addUserToGroup(addUser);
+        Optional<Group> result = manageUserOfGroupAuxService.addUserToGroup(addUser);
 
         return ResponseUtil.wrapOrNotFound(
             result,
@@ -130,7 +130,7 @@ public class GroupResource {
 
         reviewData(addUser);
 
-        Optional<Group> result = addUserToGroupAuxService.deleteUserToTheGroup(addUser);
+        Optional<Group> result = manageUserOfGroupAuxService.deleteUserToTheGroup(addUser);
 
         return ResponseUtil.wrapOrNotFound(
             result,
@@ -152,7 +152,7 @@ public class GroupResource {
 
         reviewData(addUser);
 
-        Optional<Group> result = addUserToGroupAuxService.changeUserAdminOfTheGroup(addUser);
+        Optional<Group> result = manageUserOfGroupAuxService.changeUserAdminOfTheGroup(addUser);
 
         return ResponseUtil.wrapOrNotFound(
             result,

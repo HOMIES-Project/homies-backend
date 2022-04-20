@@ -50,7 +50,7 @@ public class GroupQueryService extends QueryService<Group> {
     }
 
     @Transactional(readOnly = true)
-    public Optional<Group> findByIdAndUserDataUserLogin(Long id, String login){
+    public Optional<Group> findGroupByIdAndUserDataUserLogin(Long id, String login){
         return groupRepository.findByIdAndUserData_User_Login(id, login);
     }
 
