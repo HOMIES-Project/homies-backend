@@ -34,16 +34,29 @@ public class UserDataQueryService extends QueryService<UserData> {
         this.userDataRepository = userDataRepository;
     }
 
+    /**
+     * List of user task
+     * @param id
+     * @return List
+     */
     @Transactional(readOnly = true)
     public List<UserData> getByTaskAsignedsId(Long id){
         return userDataRepository.getByTaskAsigneds_Id(id);
     }
 
+    /**
+     * Get user with login user
+     * @param login
+     * @return entity
+     */
     @Transactional(readOnly = true)
     public Optional<UserData> getByUser_Login(String login){
         return userDataRepository.getByUser_Login(login);
     }
 
+    /**
+     * Only for refresh entity
+     */
     public void refreshUserDataEntity() {
         userDataRepository.flush();
     }

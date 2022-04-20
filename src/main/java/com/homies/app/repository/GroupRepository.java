@@ -32,6 +32,12 @@ public interface GroupRepository extends JpaRepository<Group, Long>, JpaSpecific
 
     List<Group> getDistinctByUserAdmin_IdOrUserData_Id(Long id, Long id1);
 
+    List<Group> getByUserData_Id(Long id);
+
+    List<Group> getByUserAdmin_Id(Long id);
+
+
+
     Optional<Group> findByIdAndUserData_User_Login(Long id, String login);
 
     @Query(

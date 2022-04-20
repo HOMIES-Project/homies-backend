@@ -40,6 +40,16 @@ public class GroupQueryService extends QueryService<Group> {
     }
 
     @Transactional(readOnly = true)
+    public List<Group> getUseGroupsByUserDataId(Long id) {
+        return groupRepository.getByUserData_Id(id);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Group> getAdminGroupsByUserDataId(Long id) {
+        return groupRepository.getByUserAdmin_Id(id);
+    }
+
+    @Transactional(readOnly = true)
     public Optional<Group> findByIdAndUserDataUserLogin(Long id, String login){
         return groupRepository.findByIdAndUserData_User_Login(id, login);
     }

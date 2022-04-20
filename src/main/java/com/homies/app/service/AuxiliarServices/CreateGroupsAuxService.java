@@ -78,9 +78,9 @@ public class CreateGroupsAuxService {
         groupService.save(newGroup);
 
         //Add newGroup in UserData
-        userData.addGroup(newGroup);
+/*        userData.addGroup(newGroup);
         userData.addAdminGroups(newGroup);
-        userDataService.save(userData);
+        userDataService.save(userData);*/
 
         //Lists need the new group to exist in DB
 
