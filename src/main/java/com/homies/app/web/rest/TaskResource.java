@@ -145,12 +145,12 @@ public class TaskResource {
     }
 
     @PostMapping("/task/delete-task")
-    public ResponseEntity<Task> deleteTask(@Valid Long id)
+    public ResponseEntity<Task> deleteTask(@Valid @PathVariable Long id)
         throws Exception {
         if (id == null){
             throw new TaskWasNotSpecifyIdTask();
         }
-        
+
         manageTaskAuxService.deleteTask(id);
 
         return ResponseEntity
