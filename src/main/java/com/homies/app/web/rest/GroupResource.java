@@ -18,10 +18,9 @@ import java.util.Objects;
 import java.util.Optional;
 import javax.validation.Valid;
 
-import com.homies.app.web.rest.errors.Group.GroupWasNotSpecifyId;
 import com.homies.app.web.rest.errors.Group.GroupWasNotSpecifyIdGroup;
 import com.homies.app.web.rest.errors.Group.GroupWasNotSpecifyLogin;
-import com.homies.app.web.rest.vm.AddUserToGroupVM;
+import com.homies.app.web.rest.vm.ManageGroupVM;
 import com.homies.app.web.rest.vm.CreateGroupVM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -99,17 +98,17 @@ public class GroupResource {
 
     /** make it posibble to add user to groups
      *
-     * @param addUser parameters to change
+     * @param manageGroupVM parameters to change
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated group,
      * @throws URISyntaxException,UserPrincipalNotFoundException
      */
     @PostMapping("/groups/add-user")
-    public ResponseEntity<Group> addUserToGroup(@Valid @RequestBody AddUserToGroupVM addUser)
+    public ResponseEntity<Group> addUserToGroup(@Valid @RequestBody ManageGroupVM manageGroupVM)
         throws URISyntaxException, UserPrincipalNotFoundException {
 
-        reviewData(addUser);
+        reviewData(manageGroupVM);
 
-        Optional<Group> result = manageUserOfGroupAuxService.addUserToGroup(addUser);
+        Optional<Group> result = manageUserOfGroupAuxService.addUserToGroup(manageGroupVM);
 
         return ResponseUtil.wrapOrNotFound(
             result,
@@ -119,18 +118,18 @@ public class GroupResource {
 
     /** make it possible to delete user to groups
      *
-     * @param addUser parameters to change
+     * @param manageGroupVM parameters to change
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated group,
      * @throws URISyntaxException,UserPrincipalNotFoundException
      */
     @PostMapping("/groups/delete-user")
     public ResponseEntity<Group> deleteUserToGroup(
-        @Valid @RequestBody AddUserToGroupVM addUser)
+        @Valid @RequestBody ManageGroupVM manageGroupVM)
         throws URISyntaxException, UserPrincipalNotFoundException {
 
-        reviewData(addUser);
+        reviewData(manageGroupVM);
 
-        Optional<Group> result = manageUserOfGroupAuxService.deleteUserToTheGroup(addUser);
+        Optional<Group> result = manageUserOfGroupAuxService.deleteUserToTheGroup(manageGroupVM);
 
         return ResponseUtil.wrapOrNotFound(
             result,
@@ -140,19 +139,19 @@ public class GroupResource {
 
     /** make it possible to change userAdmin to group
      *
-     * @param addUser parameters to change
+     * @param manageGroupVM parameters to change
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated group,
      * @throws URISyntaxException,UserPrincipalNotFoundException
      */
     @PostMapping("/groups/change-admin")
     public ResponseEntity<Group> changeUserAdminToGroup(
-        @Valid @RequestBody AddUserToGroupVM addUser)
+        @Valid @RequestBody ManageGroupVM manageGroupVM)
         throws URISyntaxException,
         UserPrincipalNotFoundException {
 
-        reviewData(addUser);
+        reviewData(manageGroupVM);
 
-        Optional<Group> result = manageUserOfGroupAuxService.changeUserAdminOfTheGroup(addUser);
+        Optional<Group> result = manageUserOfGroupAuxService.changeUserAdminOfTheGroup(manageGroupVM);
 
         return ResponseUtil.wrapOrNotFound(
             result,
@@ -165,7 +164,7 @@ public class GroupResource {
      *
      * @param addUser request
      */
-    private void reviewData(AddUserToGroupVM addUser) {
+    private void reviewData(ManageGroupVM addUser) {
         log.warn(addUser.toString());
 
 /*        if (addUser.getIdAdminGroup() == null) {
@@ -261,13 +260,14 @@ public class GroupResource {
      * @param id the id of the group to delete.
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
-    @DeleteMapping("/groups/{id}")
-    public ResponseEntity<Void> deleteGroup(@PathVariable Long id) {
-        log.debug("REST request to delete Group : {}", id);
-        groupService.delete(id);
+    @DeleteMapping("/groups")
+    public ResponseEntity<Void> deleteGroup(@Valid @RequestBody ManageGroupVM manageGroupVM) {
+        log.debug("REST request to delete Group : {}", manageGroupVM);
+        manageUserOfGroupAuxService.deleteGroup(manageGroupVM);
+        groupService.delete(manageGroupVM.getIdGroup());
         return ResponseEntity
             .noContent()
-            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, false, ENTITY_NAME, id.toString()))
+            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, false, ENTITY_NAME, manageGroupVM.getIdGroup().toString()))
             .build();
     }
 }
