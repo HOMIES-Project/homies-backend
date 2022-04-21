@@ -1,6 +1,6 @@
 package com.homies.app.web.rest.vm;
 
-public class AddUserToGroupVM {
+public class ManageGroupVM {
 
     private Long IdAdminGroup;
 
@@ -34,7 +34,7 @@ public class AddUserToGroupVM {
 
     @Override
     public String toString() {
-        return "AddUserToGroupVM{" +
+        return "ManageGroupVM{" +
             "IdAdminGroup=" + IdAdminGroup +
             ", login='" + login + '\'' +
             ", idGroup=" + idGroup +
