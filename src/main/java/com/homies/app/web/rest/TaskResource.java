@@ -144,20 +144,7 @@ public class TaskResource {
         );
     }
 
-    @PostMapping("/task/delete-task")
-    public ResponseEntity<Task> deleteTask(@Valid @PathVariable Long id)
-        throws Exception {
-        if (id == null){
-            throw new TaskWasNotSpecifyIdTask();
-        }
 
-        manageTaskAuxService.deleteTask(id);
-
-        return ResponseEntity
-            .noContent()
-            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, false, ENTITY_NAME, id.toString()))
-            .build();
-    }
 
     /**
      * {@code PUT  /tasks/:id} : Updates an existing task.
@@ -267,12 +254,28 @@ public class TaskResource {
         return ResponseUtil.wrapOrNotFound(task);
     }
 
+
     /**
      * {@code DELETE  /tasks/:id} : delete the "id" task.
      *
      * @param id the id of the task to delete.
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
+
+    @DeleteMapping("/task/delete-task/{id}")
+    public ResponseEntity<Task> deleteTask(@PathVariable Long id)
+        throws Exception {
+        if (id == null){
+            throw new TaskWasNotSpecifyIdTask();
+        }
+
+        manageTaskAuxService.deleteTask(id);
+
+        return ResponseEntity
+            .noContent()
+            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, false, ENTITY_NAME, id.toString()))
+            .build();
+    }
 /** @DeleteMapping("/tasks/{id}")
     public ResponseEntity<Void> deleteTask(@PathVariable Long id) {
         log.debug("REST request to delete Task : {}", id);
