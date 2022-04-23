@@ -192,7 +192,7 @@ public class GroupResource {
      */
     @PutMapping("/groups/{id}")
     public ResponseEntity<Group> updateGroup(
-        @PathVariable Long id,
+        @PathVariable @NotNull Long id,
         @Valid @RequestBody UpdateGroupVM group
     ) throws URISyntaxException {
         log.debug("REST request to update Group : {}, {}", id, group);
@@ -203,7 +203,7 @@ public class GroupResource {
         }
 
         Group result = manageUserOfGroupAuxService.updateGroup(group);
-            groupService.save(result);
+
         return ResponseEntity
             .ok()
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName,

@@ -10,6 +10,7 @@ import com.homies.app.web.rest.vm.ManageGroupVM;
 
 import com.homies.app.web.rest.vm.UpdateGroupVM;
 import liquibase.pro.packaged.G;
+import liquibase.pro.packaged.M;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,8 +69,33 @@ public class ManageUserOfGroupAuxService {
     }
 
     public Group updateGroup(UpdateGroupVM updateGroupVM) {
+        ManageGroupVM manageGroupVM = new ManageGroupVM();
+        if (groupQueryService.findGroupByIdAndUserDataUserLogin(
+                updateGroupVM.getIdGroup(),
+                updateGroupVM.getLogin())
+            .isEmpty())
+            throw new UsernameNotFoundException("No existe el usuario en este equipo");
+
+        //Adapting data
+        manageGroupVM.setIdAdminGroup(userDataQueryService.
+            getByUser_Login(updateGroupVM.getLogin()).get().getId());
+        manageGroupVM.setLogin(updateGroupVM.getLogin());
+        manageGroupVM.setIdGroup(updateGroupVM.getIdGroup());
+
+        try {
+            if (manageUserOfTheGroup(manageGroupVM, false, false).isPresent()) {
+                group.get().setGroupName(updateGroupVM.getGroupName());
+                group.get().setGroupRelationName(updateGroupVM.getGroupRelation());
+                groupService.save(group.get());
+            }
+
+        } catch (UserPrincipalNotFoundException e) {
+            e.printStackTrace();
+
+        }
 
         return group.get();
+
     }
 
     public Optional<Group> deleteUserToTheGroup(
