@@ -8,6 +8,8 @@ import com.homies.app.web.rest.errors.Group.GroupNotExistException;
 import com.homies.app.web.rest.errors.User.UserDoesNotExist;
 import com.homies.app.web.rest.vm.ManageGroupVM;
 
+import com.homies.app.web.rest.vm.UpdateGroupVM;
+import liquibase.pro.packaged.G;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,6 +65,11 @@ public class ManageUserOfGroupAuxService {
         }
         return Optional.empty();
 
+    }
+
+    public Group updateGroup(UpdateGroupVM updateGroupVM) {
+
+        return group.get();
     }
 
     public Optional<Group> deleteUserToTheGroup(

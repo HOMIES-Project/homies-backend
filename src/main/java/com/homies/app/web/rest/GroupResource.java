@@ -22,6 +22,8 @@ import com.homies.app.web.rest.errors.Group.GroupWasNotSpecifyIdGroup;
 import com.homies.app.web.rest.errors.Group.GroupWasNotSpecifyLogin;
 import com.homies.app.web.rest.vm.ManageGroupVM;
 import com.homies.app.web.rest.vm.CreateGroupVM;
+import com.homies.app.web.rest.vm.UpdateGroupVM;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -164,7 +166,7 @@ public class GroupResource {
      *
      * @param addUser request
      */
-    private void reviewData(ManageGroupVM addUser) {
+    private void reviewData(@Valid @NotNull ManageGroupVM addUser) {
         log.warn(addUser.toString());
 
 /*        if (addUser.getIdAdminGroup() == null) {
@@ -189,23 +191,25 @@ public class GroupResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/groups/{id}")
-    public ResponseEntity<Group> updateGroup(@PathVariable(value = "id", required = false) final Long id, @Valid @RequestBody Group group)
-        throws URISyntaxException {
+    public ResponseEntity<Group> updateGroup(
+        @PathVariable Long id,
+        @Valid @RequestBody UpdateGroupVM group
+    ) throws URISyntaxException {
         log.debug("REST request to update Group : {}, {}", id, group);
-        if (group.getId() == null) {
+        if (group.getLogin().isEmpty()) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
-        }
-        if (!Objects.equals(id, group.getId())) {
-            throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
-        }
-        if (!groupRepository.existsById(id)) {
-            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
+        } else {
+            group.setIdGroup(id);
         }
 
-        Group result = groupService.save(group);
+        Group result = manageUserOfGroupAuxService.updateGroup(group);
+            groupService.save(result);
         return ResponseEntity
             .ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, group.getId().toString()))
+            .headers(HeaderUtil.createEntityUpdateAlert(applicationName,
+                false,
+                ENTITY_NAME,
+                result.getId().toString()))
             .body(result);
     }
 
@@ -257,7 +261,7 @@ public class GroupResource {
     /**
      * {@code DELETE  /groups/:id} : delete the "id" group.
      *
-     * @param id the id of the group to delete.
+     * @param manageGroupVM the VM of the group to delete.
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/groups")
