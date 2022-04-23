@@ -219,6 +219,7 @@ public class ManageUserOfGroupAuxService {
         userData = userDataQueryService.getByUser_Login(manageGroupVM.getLogin());
 
         if (!userExit) {
+            if (deleteGroup) userAdmin = userData;
             if (userAdmin.isEmpty())
                 throw new UserPrincipalNotFoundException("Don't exist this admin"); //UserAdmin not exist
 

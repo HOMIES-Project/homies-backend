@@ -3,6 +3,7 @@ package com.homies.app.web.rest;
 import com.homies.app.domain.Group;
 import com.homies.app.repository.GroupRepository;
 import com.homies.app.security.AuthoritiesConstants;
+import com.homies.app.security.SecurityUtils;
 import com.homies.app.service.AuxiliarServices.ManageUserOfGroupAuxService;
 import com.homies.app.service.GroupQueryService;
 import com.homies.app.service.GroupService;
@@ -258,12 +259,12 @@ public class GroupResource {
         return ResponseUtil.wrapOrNotFound(group);
     }
 
-    /**
+/*    *//**
      * {@code DELETE  /groups/:id} : delete the "id" group.
      *
      * @param manageGroupVM the VM of the group to delete.
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
-     */
+     *//*
     @DeleteMapping("/groups")
     public ResponseEntity<Void> deleteGroup(@Valid @RequestBody ManageGroupVM manageGroupVM) {
         log.debug("REST request to delete Group : {}", manageGroupVM);
@@ -273,5 +274,27 @@ public class GroupResource {
             .noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, false, ENTITY_NAME, manageGroupVM.getIdGroup().toString()))
             .build();
+    }*/
+
+    /**
+     * {@code DELETE  /groups/:id} : delete the "id" group.
+     *
+     * @param id the VM of the group to delete.
+     * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
+     */
+    @DeleteMapping("/groups/{id}")
+    public ResponseEntity<Void> deleteGroup(@PathVariable @NotNull Long id) {
+        ManageGroupVM manageGroupVM = new ManageGroupVM();
+        manageGroupVM.setIdGroup(id);
+        manageGroupVM.setLogin(SecurityUtils.getCurrentUserLogin().get());
+        log.debug("REST request to delete Group : {}", manageGroupVM);
+        manageUserOfGroupAuxService.deleteGroup(manageGroupVM);
+        groupService.delete(manageGroupVM.getIdGroup());
+        return ResponseEntity
+            .noContent()
+            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, false, ENTITY_NAME, manageGroupVM.getIdGroup().toString()))
+            .build();
     }
+
+
 }
