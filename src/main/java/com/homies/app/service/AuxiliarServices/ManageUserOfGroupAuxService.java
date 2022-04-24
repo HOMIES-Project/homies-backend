@@ -2,10 +2,15 @@ package com.homies.app.service.AuxiliarServices;
 
 import com.homies.app.domain.Group;
 import com.homies.app.domain.UserData;
+import com.homies.app.security.SecurityUtils;
 import com.homies.app.service.*;
 import com.homies.app.web.rest.errors.Group.GroupNotExistException;
 import com.homies.app.web.rest.errors.User.UserDoesNotExist;
-import com.homies.app.web.rest.vm.AddUserToGroupVM;
+import com.homies.app.web.rest.vm.ManageGroupVM;
+
+import com.homies.app.web.rest.vm.UpdateGroupVM;
+import liquibase.pro.packaged.G;
+import liquibase.pro.packaged.M;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,12 +49,14 @@ public class ManageUserOfGroupAuxService {
     private Optional<Group> group;
     private Optional<UserData> userData;
 
-    public Optional<Group> addUserToGroup(AddUserToGroupVM addUser) throws UserPrincipalNotFoundException {
-        if (manageUserOfTheGroup(addUser, false).isPresent()) {
+    public Optional<Group> addUserToGroup(
+        ManageGroupVM manageGroupVM
+    ) throws UserPrincipalNotFoundException {
+        if (manageUserOfTheGroup(manageGroupVM, false, false,false).isPresent()) {
 
             if (groupQueryService.findGroupByIdAndUserDataUserLogin(
-                addUser.getIdGroup(),
-                addUser.getLogin()).isPresent())
+                manageGroupVM.getIdGroup(),
+                manageGroupVM.getLogin()).isPresent())
                 throw new UsernameAlreadyUsedException();
 
             group.get().addUserData(userData.get());
@@ -61,10 +68,35 @@ public class ManageUserOfGroupAuxService {
 
     }
 
-    public Optional<Group> deleteUserToTheGroup(AddUserToGroupVM addUser) throws UserPrincipalNotFoundException {
+    public Group updateGroup(UpdateGroupVM updateGroupVM) {
+        ManageGroupVM manageGroupVM = new ManageGroupVM();
+
+        //Adapting data
+        manageGroupVM.setLogin(SecurityUtils.getCurrentUserLogin().get());
+        manageGroupVM.setIdGroup(updateGroupVM.getIdGroup());
+
+        try {
+            if (manageUserOfTheGroup(manageGroupVM, false, true,false).isPresent()) {
+                group.get().setGroupName(updateGroupVM.getGroupName());
+                group.get().setGroupRelationName(updateGroupVM.getGroupRelation());
+                groupService.save(group.get());
+            }
+
+        } catch (UserPrincipalNotFoundException e) {
+            e.printStackTrace();
+
+        }
+
+        return group.get();
+
+    }
+
+    public Optional<Group> deleteUserToTheGroup(
+        ManageGroupVM addUser
+    ) throws UserPrincipalNotFoundException {
 
         boolean userOrAdmin = addUser.getIdAdminGroup() == null;
-        if (manageUserOfTheGroup(addUser, userOrAdmin).isPresent()) {
+        if (manageUserOfTheGroup(addUser, userOrAdmin, false,false).isPresent()) {
             if (groupQueryService.findGroupByIdAndUserDataUserLogin(
                                     addUser.getIdGroup(),
                                     addUser.getLogin())
@@ -116,12 +148,43 @@ public class ManageUserOfGroupAuxService {
 
     }
 
-    public Optional<Group> changeUserAdminOfTheGroup(AddUserToGroupVM addUser) throws UserPrincipalNotFoundException {
-        if (manageUserOfTheGroup(addUser, false).isPresent()) {
+    public Optional<Group> deleteGroup(
+        ManageGroupVM manageGroupVM
+    ) {
+        try {
+            if (manageUserOfTheGroup(manageGroupVM, false, false, true).isPresent()) {
+                //Optional<String> user = SecurityUtils.getCurrentUserLogin();
+                List<UserData> users = new ArrayList<>(group.get().getUserData());
+                for (UserData user : users) {
+                    user.removeGroup(group.get());
+                    userDataService.save(user);
+                }
+
+                userAdmin.get().removeAdminGroups(group.get());
+                userDataService.save(userAdmin.get());
+
+                group.get().setUserAdmin(null);
+                groupService.save(group.get());
+
+                refreshEntities();
+
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+
+        }
+
+        return Optional.empty();
+    }
+
+    public Optional<Group> changeUserAdminOfTheGroup(
+        ManageGroupVM manageGroupVM
+    ) throws UserPrincipalNotFoundException {
+        if (manageUserOfTheGroup(manageGroupVM, false, false,false).isPresent()) {
 
             if (groupQueryService.findGroupByIdAndUserDataUserLogin(
-                addUser.getIdGroup(),
-                addUser.getLogin()).isEmpty())
+                manageGroupVM.getIdGroup(),
+                manageGroupVM.getLogin()).isEmpty())
                 throw new UserDoesNotExist();
 
             group.get().setUserAdmin(userData.get());
@@ -138,12 +201,19 @@ public class ManageUserOfGroupAuxService {
         return Optional.empty();
     }
 
-    private Optional<Group> manageUserOfTheGroup(@NotNull AddUserToGroupVM addUser, boolean userExit) throws UserPrincipalNotFoundException {
-        userAdmin = userDataService.findOne(addUser.getIdAdminGroup());
-        group = groupService.findOne(addUser.getIdGroup());
-        userData = userDataQueryService.getByUser_Login(addUser.getLogin());
+    private Optional<Group> manageUserOfTheGroup(
+        @NotNull ManageGroupVM manageGroupVM,
+        boolean userExit,
+        boolean editGroup,
+        boolean deleteGroup
+    ) throws UserPrincipalNotFoundException {
+
+        userAdmin = userDataService.findOne(manageGroupVM.getIdAdminGroup());
+        group = groupService.findOne(manageGroupVM.getIdGroup());
+        userData = userDataQueryService.getByUser_Login(manageGroupVM.getLogin());
 
         if (!userExit) {
+            if (deleteGroup || editGroup) userAdmin = userData;
             if (userAdmin.isEmpty())
                 throw new UserPrincipalNotFoundException("Don't exist this admin"); //UserAdmin not exist
 
@@ -151,14 +221,16 @@ public class ManageUserOfGroupAuxService {
                 throw new UserPrincipalNotFoundException("UserAdmin isn't admin of this group");  //UserAdmin not is group's userAdmin.
         }
 
-        if (userData.isEmpty())
-            throw new UserDoesNotExist(); //UserData not exist
+        if (!deleteGroup & !editGroup) {
+            if (userData.isEmpty())
+                throw new UserDoesNotExist(); //UserData not exist
+        }
 
         if (group.isEmpty())
             throw new GroupNotExistException(); //Group not exist
 
         if (group.get().getUserAdmin() == null)
-            throw new UserPrincipalNotFoundException(addUser.getIdAdminGroup().toString()); //Group's UserAdmin not exist
+            throw new UserPrincipalNotFoundException(manageGroupVM.getIdAdminGroup().toString()); //Group's UserAdmin not exist
 
         return group;
 
@@ -206,7 +278,6 @@ public class ManageUserOfGroupAuxService {
         }
 
     }
-
 
     private void refreshEntities() {
         groupQueryService.refreshGroupEntity();

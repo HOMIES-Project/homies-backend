@@ -43,7 +43,7 @@ public class Group implements Serializable {
     private LocalDate addGroupDate;
 
     @ManyToOne
-    @JsonIgnoreProperties(value = { "user", "adminGroups", "taskAsigneds", "productCreateds", "groups" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "adminGroups", "taskAsigneds", "productCreateds", "groups" }, allowSetters = true)
     private UserData userAdmin;
 
     @JsonIgnoreProperties(value = { "group", "tasks" }, allowSetters = true)
@@ -64,9 +64,9 @@ public class Group implements Serializable {
     @OneToOne(mappedBy = "group", cascade = CascadeType.ALL)
     private SettingsList settingsList;
 
-    @ManyToMany(mappedBy = "groups", fetch = FetchType.EAGER, cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
+    @ManyToMany(mappedBy = "groups", fetch = FetchType.EAGER, cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.DETACH})
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-    @JsonIgnoreProperties(value = { "user", "adminGroups", "taskAsigneds", "productCreateds", "groups" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "adminGroups", "taskAsigneds", "productCreateds", "groups" }, allowSetters = true)
     private Set<UserData> userData = new HashSet<>();
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
