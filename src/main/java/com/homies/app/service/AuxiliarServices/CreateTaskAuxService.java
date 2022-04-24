@@ -72,12 +72,16 @@ public class CreateTaskAuxService {
         newTask.setUserData(userData); //add user (task creator user)
         userDataService.save(userData);
 
-        //User add taskList
+        //Task add taskList
         TaskList taskList = taskListExist(createTaskVM.getIdGroup());
         newTask.setTaskList(taskList);
         taskListService.save(taskList);
 
-        //New Group created
+        Optional<TaskList> taskList1 = taskListService.findOne(createTaskVM.getIdGroup());
+        taskList1.get().addTask(newTask);
+        taskListService.save(taskList1.get());
+
+        //New task created
         log.warn("Created Task: " + newTask);
         taskService.save(newTask);
 
