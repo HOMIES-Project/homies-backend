@@ -197,11 +197,7 @@ public class GroupResource {
         @Valid @RequestBody UpdateGroupVM group
     ) throws URISyntaxException {
         log.debug("REST request to update Group : {}, {}", id, group);
-        if (group.getLogin().isEmpty()) {
-            throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
-        } else {
-            group.setIdGroup(id);
-        }
+        group.setIdGroup(id);
 
         Group result = manageUserOfGroupAuxService.updateGroup(group);
 

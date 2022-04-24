@@ -5,16 +5,13 @@ import javax.validation.constraints.Size;
 
 public class UpdateGroupVM {
 
-    @NotNull
     private String login;
 
     private Long idGroup;
 
-    @NotNull
     @Size(min = 3, max = 50)
     private String groupName;
 
-    @NotNull
     @Size(min = 3, max = 100)
     private String groupRelation;
 
