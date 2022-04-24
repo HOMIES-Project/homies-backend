@@ -80,6 +80,16 @@ public class TaskListQueryService extends QueryService<TaskList> {
         return taskListRepository.findByIdAndTasks_TaskName(id, taskName);
     }
 
+   @Transactional(readOnly = true)
+   public Optional<TaskList> findByTasks_UserData_Id(Long id){
+        return taskListRepository.findByTasks_UserData_Id(id);
+   }
+
+   @Transactional(readOnly = true)
+   public Optional<TaskList> findByTasks_UserAssigneds_Id(Long id){
+        return taskListRepository.findByTasks_UserAssigneds_Id(id);
+   }
+
     /**
      * Function to convert {@link TaskListCriteria} to a {@link Specification}
      * @param criteria The object which holds all the filters, which the entities should match.

@@ -144,8 +144,6 @@ public class TaskResource {
         );
     }
 
-
-
     /**
      * {@code PUT  /tasks/:id} : Updates an existing task.
      *
