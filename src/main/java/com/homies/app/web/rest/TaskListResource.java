@@ -1,5 +1,6 @@
 package com.homies.app.web.rest;
 
+import com.homies.app.domain.Task;
 import com.homies.app.domain.TaskList;
 import com.homies.app.repository.TaskListRepository;
 import com.homies.app.service.AuxiliarServices.ManageListTaskAuxService;
@@ -208,9 +209,9 @@ public class TaskListResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the taskList, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/task-lists-user")
-    public ResponseEntity<TaskList> getTaskListUser(@Valid @RequestBody GetGroupTaskListVM getGroupTaskListVM) {
-        Optional<TaskList> taskList = manageListTaskAuxService.getTaskUserTaskList(getGroupTaskListVM);
-        return ResponseUtil.wrapOrNotFound(taskList);
+    public ResponseEntity<List<Task>> getTaskListUser(@Valid @RequestBody GetGroupTaskListVM getGroupTaskListVM) {
+        List<Task> result = manageListTaskAuxService.getTaskUserTaskList(getGroupTaskListVM);
+        return ResponseEntity.ok().body(result);
     }
 
     /**

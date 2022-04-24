@@ -19,5 +19,6 @@ public interface TaskListRepository extends JpaRepository<TaskList, Long>, JpaSp
 
     Optional<TaskList> findByTasks_UserAssigneds_Id(Long id);
 
+    Optional<TaskList> getByIdAndTasks_UserAssigneds_Id(Long id, Long id1);
 
 }
