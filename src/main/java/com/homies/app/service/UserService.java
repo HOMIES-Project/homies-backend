@@ -45,16 +45,20 @@ public class UserService {
 
     private final CacheManager cacheManager;
 
+    private final MailService mailService;
+
     public UserService(
         UserRepository userRepository,
         PasswordEncoder passwordEncoder,
         AuthorityRepository authorityRepository,
-        CacheManager cacheManager
+        CacheManager cacheManager,
+        MailService mailService
     ) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.authorityRepository = authorityRepository;
         this.cacheManager = cacheManager;
+        this.mailService = mailService;
     }
 
     public Optional<User> activateRegistration(String key) {
@@ -275,10 +279,17 @@ public class UserService {
                 newUser.setLogin(user.getLogin());
                 newUser.setFirstName(user.getFirstName());
                 newUser.setLastName(user.getLastName());
+                newUser.setLangKey(user.getLangKey());
                 if (user.getEmail() != null) {
                     newUser.setEmail(user.getEmail().toLowerCase());
+                    //Añadir la desactivación del usuario
+                    // new user is not active
+                    newUser.setActivated(false);
+                    // new user gets registration key
+                    newUser.setActivationKey(RandomUtil.generateActivationKey());
+                    //Añadir el envio del email de activación
+                    mailService.sendActivationEmail(newUser);
                 }
-                newUser.setLangKey(user.getLangKey());
                 this.clearUserCaches(newUser);
                 log.debug("Changed Information for User: {}", newUser);
                 complete.set(true);

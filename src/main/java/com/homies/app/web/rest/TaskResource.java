@@ -16,6 +16,7 @@ import java.util.Optional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
+import com.homies.app.web.rest.errors.Group.GroupWasNotSpecifyIdGroup;
 import com.homies.app.web.rest.errors.Task.TaskDoesNotExist;
 import com.homies.app.web.rest.errors.Task.TaskWasNotSpecifyIdTask;
 import com.homies.app.web.rest.errors.Task.TaskWasNotSpecifyUser;
@@ -24,6 +25,7 @@ import com.homies.app.web.rest.errors.User.UserWasNotSpecifyLogin;
 import com.homies.app.web.rest.vm.AddUserToTaskVM;
 
 import com.homies.app.web.rest.vm.CreateTaskVM;
+import com.homies.app.web.rest.vm.UpdateTaskVM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -144,22 +146,7 @@ public class TaskResource {
         );
     }
 
-    @PostMapping("/task/delete-task")
-    public ResponseEntity<Task> deleteTask(@Valid Long id)
-        throws Exception {
-        if (id == null){
-            throw new TaskWasNotSpecifyIdTask();
-        }
-        
-        manageTaskAuxService.deleteTask(id);
-
-        return ResponseEntity
-            .noContent()
-            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, false, ENTITY_NAME, id.toString()))
-            .build();
-    }
-
-    /**
+    /*
      * {@code PUT  /tasks/:id} : Updates an existing task.
      *
      * @param id the id of the task to save.
@@ -168,9 +155,9 @@ public class TaskResource {
      * or with status {@code 400 (Bad Request)} if the task is not valid,
      * or with status {@code 500 (Internal Server Error)} if the task couldn't be updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
-     */
+
     @PutMapping("/tasks/{id}")
-    public ResponseEntity<Task> updateTask(@PathVariable(value = "id", required = false) final Long id, @Valid @RequestBody Task task)
+    public ResponseEntity<Task> updateTask2(@PathVariable(value = "id", required = false) final Long id, @Valid @RequestBody Task task)
         throws URISyntaxException {
         log.debug("REST request to update Task : {}, {}", id, task);
         if (task.getId() == null) {
@@ -189,6 +176,26 @@ public class TaskResource {
             .ok()
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, task.getId().toString()))
             .body(result);
+    }*/
+
+    @PutMapping("/tasks/update-tasks")
+    public ResponseEntity<Task> updateTask(@Valid @RequestBody UpdateTaskVM updateTaskVM)
+        throws URISyntaxException {
+        if (updateTaskVM.getIdTask() == null) {
+            throw new TaskWasNotSpecifyIdTask();
+        }
+        if (updateTaskVM.getIdGroup() == null) {
+            throw new GroupWasNotSpecifyIdGroup();
+        }
+        if (updateTaskVM.getLogin() == null) {
+            throw new UserWasNotSpecifyLogin();
+        }
+
+        Optional<Task> result = manageTaskAuxService.updateTask(updateTaskVM);
+        return ResponseUtil.wrapOrNotFound(
+            result,
+            HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, result.get().getTaskName())
+        );
     }
 
     /**
@@ -267,12 +274,28 @@ public class TaskResource {
         return ResponseUtil.wrapOrNotFound(task);
     }
 
+
     /**
      * {@code DELETE  /tasks/:id} : delete the "id" task.
      *
      * @param id the id of the task to delete.
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
+
+    @DeleteMapping("/task/delete-task/{id}")
+    public ResponseEntity<Task> deleteTask(@PathVariable Long id)
+        throws Exception {
+        if (id == null){
+            throw new TaskWasNotSpecifyIdTask();
+        }
+
+        manageTaskAuxService.deleteTask(id);
+
+        return ResponseEntity
+            .noContent()
+            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, false, ENTITY_NAME, id.toString()))
+            .build();
+    }
 /** @DeleteMapping("/tasks/{id}")
     public ResponseEntity<Void> deleteTask(@PathVariable Long id) {
         log.debug("REST request to delete Task : {}", id);

@@ -3,6 +3,7 @@ package com.homies.app.web.rest;
 import com.homies.app.domain.Group;
 import com.homies.app.repository.GroupRepository;
 import com.homies.app.security.AuthoritiesConstants;
+import com.homies.app.security.SecurityUtils;
 import com.homies.app.service.AuxiliarServices.ManageUserOfGroupAuxService;
 import com.homies.app.service.GroupQueryService;
 import com.homies.app.service.GroupService;
@@ -22,6 +23,8 @@ import com.homies.app.web.rest.errors.Group.GroupWasNotSpecifyIdGroup;
 import com.homies.app.web.rest.errors.Group.GroupWasNotSpecifyLogin;
 import com.homies.app.web.rest.vm.ManageGroupVM;
 import com.homies.app.web.rest.vm.CreateGroupVM;
+import com.homies.app.web.rest.vm.UpdateGroupVM;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -164,7 +167,7 @@ public class GroupResource {
      *
      * @param addUser request
      */
-    private void reviewData(ManageGroupVM addUser) {
+    private void reviewData(@Valid @NotNull ManageGroupVM addUser) {
         log.warn(addUser.toString());
 
 /*        if (addUser.getIdAdminGroup() == null) {
@@ -189,23 +192,21 @@ public class GroupResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/groups/{id}")
-    public ResponseEntity<Group> updateGroup(@PathVariable(value = "id", required = false) final Long id, @Valid @RequestBody Group group)
-        throws URISyntaxException {
+    public ResponseEntity<Group> updateGroup(
+        @PathVariable @NotNull Long id,
+        @Valid @RequestBody UpdateGroupVM group
+    ) throws URISyntaxException {
         log.debug("REST request to update Group : {}, {}", id, group);
-        if (group.getId() == null) {
-            throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
-        }
-        if (!Objects.equals(id, group.getId())) {
-            throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
-        }
-        if (!groupRepository.existsById(id)) {
-            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
-        }
+        group.setIdGroup(id);
 
-        Group result = groupService.save(group);
+        Group result = manageUserOfGroupAuxService.updateGroup(group);
+
         return ResponseEntity
             .ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, group.getId().toString()))
+            .headers(HeaderUtil.createEntityUpdateAlert(applicationName,
+                false,
+                ENTITY_NAME,
+                result.getId().toString()))
             .body(result);
     }
 
@@ -254,12 +255,12 @@ public class GroupResource {
         return ResponseUtil.wrapOrNotFound(group);
     }
 
-    /**
+/*    *//**
      * {@code DELETE  /groups/:id} : delete the "id" group.
      *
-     * @param id the id of the group to delete.
+     * @param manageGroupVM the VM of the group to delete.
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
-     */
+     *//*
     @DeleteMapping("/groups")
     public ResponseEntity<Void> deleteGroup(@Valid @RequestBody ManageGroupVM manageGroupVM) {
         log.debug("REST request to delete Group : {}", manageGroupVM);
@@ -269,5 +270,27 @@ public class GroupResource {
             .noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, false, ENTITY_NAME, manageGroupVM.getIdGroup().toString()))
             .build();
+    }*/
+
+    /**
+     * {@code DELETE  /groups/:id} : delete the "id" group.
+     *
+     * @param id the VM of the group to delete.
+     * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
+     */
+    @DeleteMapping("/groups/{id}")
+    public ResponseEntity<Void> deleteGroup(@PathVariable @NotNull Long id) {
+        ManageGroupVM manageGroupVM = new ManageGroupVM();
+        manageGroupVM.setIdGroup(id);
+        manageGroupVM.setLogin(SecurityUtils.getCurrentUserLogin().get());
+        log.debug("REST request to delete Group : {}", manageGroupVM);
+        manageUserOfGroupAuxService.deleteGroup(manageGroupVM);
+        groupService.delete(manageGroupVM.getIdGroup());
+        return ResponseEntity
+            .noContent()
+            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, false, ENTITY_NAME, manageGroupVM.getIdGroup().toString()))
+            .build();
     }
+
+
 }

@@ -1,7 +1,9 @@
 package com.homies.app.web.rest;
 
+import com.homies.app.domain.Task;
 import com.homies.app.domain.TaskList;
 import com.homies.app.repository.TaskListRepository;
+import com.homies.app.service.AuxiliarServices.ManageListTaskAuxService;
 import com.homies.app.service.TaskListQueryService;
 import com.homies.app.service.TaskListService;
 import com.homies.app.service.criteria.TaskListCriteria;
@@ -14,6 +16,9 @@ import java.util.Optional;
 import java.util.stream.StreamSupport;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+
+import com.homies.app.web.rest.vm.CreateTaskVM;
+import com.homies.app.web.rest.vm.GetGroupTaskListVM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -47,14 +52,18 @@ public class TaskListResource {
 
     private final TaskListQueryService taskListQueryService;
 
+    private final ManageListTaskAuxService manageListTaskAuxService;
+
     public TaskListResource(
         TaskListService taskListService,
         TaskListRepository taskListRepository,
-        TaskListQueryService taskListQueryService
+        TaskListQueryService taskListQueryService,
+        ManageListTaskAuxService manageListTaskAuxService
     ) {
         this.taskListService = taskListService;
         this.taskListRepository = taskListRepository;
         this.taskListQueryService = taskListQueryService;
+        this.manageListTaskAuxService = manageListTaskAuxService;
     }
 
     /**
@@ -185,9 +194,33 @@ public class TaskListResource {
      */
     @GetMapping("/task-lists/{id}")
     public ResponseEntity<TaskList> getTaskList(@PathVariable Long id) {
+        if (id == null) {
+            throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
+        }
         log.debug("REST request to get TaskList : {}", id);
-        Optional<TaskList> taskList = taskListService.findOne(id);
-        return ResponseUtil.wrapOrNotFound(taskList);
+        Optional<TaskList> result = taskListService.findOne(id);
+        return ResponseUtil.wrapOrNotFound(
+            result,
+            HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, result.get().getNameList())
+        );
+    }
+
+    /*
+     * {@code GET  /task-lists-user}
+     *
+     * @param getGroupTaskListVM the id of the taskList to retrieve.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the taskList, or with status {@code 404 (Not Found)}.
+
+    @GetMapping("/task-lists-user")
+    public ResponseEntity<List<Task>> getTaskListUser(@Valid @RequestBody GetGroupTaskListVM getGroupTaskListVM) {
+        List<Task> result = manageListTaskAuxService.getTaskUserTaskList(getGroupTaskListVM);
+        return ResponseEntity.ok().body(result);
+    }*/
+
+    @GetMapping("/task-lists-user/{id}/{login}")
+    public ResponseEntity<List<Task>> getTaskListUser(@PathVariable Long id, @PathVariable String login) {
+        List<Task> result = manageListTaskAuxService.getTaskUserTaskList(id, login);
+        return ResponseEntity.ok().body(result);
     }
 
     /**
