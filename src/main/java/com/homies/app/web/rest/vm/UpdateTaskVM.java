@@ -15,17 +15,7 @@ public class UpdateTaskVM {
 
     @Size(min = 3, max = 100)
     private String description;
-
-    public UpdateTaskVM() { }
-
-    public UpdateTaskVM(Long idTask, Long idGroup, String login, String taskName, String description) {
-        this.idTask = idTask;
-        this.idGroup = idGroup;
-        this.login = login;
-        this.taskName = taskName;
-        this.description = description;
-    }
-
+    
     public Long getIdTask() {
         return idTask;
     }
