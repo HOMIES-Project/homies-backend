@@ -85,11 +85,7 @@ public class ManageTaskAuxService {
                     }
                 });
             }
-
-            if (task.get().getTaskName().equals(updateTaskVM.getTaskName())){
-                throw new TaskAlreadyUsedException();
-            }
-
+            
             taskList.get().getTasks().forEach(nameTask -> {
                 if(nameTask.getTaskName().equals(updateTaskVM.getTaskName())){
                     throw new TaskAlreadyUsedException();
