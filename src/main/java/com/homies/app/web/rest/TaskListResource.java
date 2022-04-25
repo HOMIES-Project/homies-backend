@@ -194,6 +194,9 @@ public class TaskListResource {
      */
     @GetMapping("/task-lists/{id}")
     public ResponseEntity<TaskList> getTaskList(@PathVariable Long id) {
+        if (id == null) {
+            throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
+        }
         log.debug("REST request to get TaskList : {}", id);
         Optional<TaskList> result = taskListService.findOne(id);
         return ResponseUtil.wrapOrNotFound(
