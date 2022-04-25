@@ -272,9 +272,10 @@ public class UserService {
 
     public Boolean updateUser(UserUpdateDTO user) {
         var complete = new AtomicReference<>(false);
+        Optional<User> userOldData = userRepository.findOneById(user.getId());
         SecurityUtils
             .getCurrentUserLogin()
-            .flatMap((String id) -> userRepository.findOneById(user.getId()))
+            .flatMap((String id) -> userOldData)
             .ifPresent(newUser -> {
                 newUser.setLogin(user.getLogin());
                 newUser.setFirstName(user.getFirstName());
@@ -282,13 +283,11 @@ public class UserService {
                 newUser.setLangKey(user.getLangKey());
                 if (user.getEmail() != null) {
                     newUser.setEmail(user.getEmail().toLowerCase());
-                    //Añadir la desactivación del usuario
-                    // new user is not active
-                    newUser.setActivated(false);
-                    // new user gets registration key
-                    newUser.setActivationKey(RandomUtil.generateActivationKey());
-                    //Añadir el envio del email de activación
-                    mailService.sendActivationEmail(newUser);
+                    if (!Objects.equals(user.getEmail(), userOldData.get().getEmail())){
+                        newUser.setActivated(false);
+                        newUser.setActivationKey(RandomUtil.generateActivationKey());
+                        mailService.sendActivationEmail(newUser);
+                    }
                 }
                 this.clearUserCaches(newUser);
                 log.debug("Changed Information for User: {}", newUser);
