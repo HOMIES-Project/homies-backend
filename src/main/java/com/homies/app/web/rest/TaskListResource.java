@@ -194,6 +194,9 @@ public class TaskListResource {
      */
     @GetMapping("/task-lists/{id}")
     public ResponseEntity<TaskList> getTaskList(@PathVariable Long id) {
+        if (id == null) {
+            throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
+        }
         log.debug("REST request to get TaskList : {}", id);
         Optional<TaskList> result = taskListService.findOne(id);
         return ResponseUtil.wrapOrNotFound(
@@ -202,21 +205,21 @@ public class TaskListResource {
         );
     }
 
-    /**
+    /*
      * {@code GET  /task-lists-user}
      *
      * @param getGroupTaskListVM the id of the taskList to retrieve.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the taskList, or with status {@code 404 (Not Found)}.
-     */
+
     @GetMapping("/task-lists-user")
     public ResponseEntity<List<Task>> getTaskListUser(@Valid @RequestBody GetGroupTaskListVM getGroupTaskListVM) {
         List<Task> result = manageListTaskAuxService.getTaskUserTaskList(getGroupTaskListVM);
         return ResponseEntity.ok().body(result);
-    }
+    }*/
 
     @GetMapping("/task-lists-user/{id}/{login}")
-    public ResponseEntity<List<Task>> getTaskListUser1(@PathVariable Long id, @PathVariable String login) {
-        List<Task> result = manageListTaskAuxService.getTaskUserTaskList1(id, login);
+    public ResponseEntity<List<Task>> getTaskListUser(@PathVariable Long id, @PathVariable String login) {
+        List<Task> result = manageListTaskAuxService.getTaskUserTaskList(id, login);
         return ResponseEntity.ok().body(result);
     }
 
