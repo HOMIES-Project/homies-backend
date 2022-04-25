@@ -86,23 +86,22 @@ public class ManageTaskAuxService {
                 });
             }
 
-            if (task.get().getTaskName().equals(updateTaskVM.getTaskName())){
-                throw new TaskAlreadyUsedException();
+            if (!updateTaskVM.getTaskName().equals(task.get().getTaskName())){
+                taskList.get().getTasks().forEach(nameTask -> {
+                    if(nameTask.getTaskName().equals(updateTaskVM.getTaskName())){
+                        throw new TaskAlreadyUsedException();
+                    } else {
+                        task.get().setTaskName(updateTaskVM.getTaskName());
+                    }
+                });
             }
-
-            taskList.get().getTasks().forEach(nameTask -> {
-                if(nameTask.getTaskName().equals(updateTaskVM.getTaskName())){
-                    throw new TaskAlreadyUsedException();
-                }
-            });
-
-            task.get().setTaskName(updateTaskVM.getTaskName());
-            taskService.save(task.get());
 
             if(!task.get().getDescription().equals(updateTaskVM.getDescription())){
                 task.get().setDescription(updateTaskVM.getDescription());
-                taskService.save(task.get());
             }
+
+            task.get().setCancel(updateTaskVM.isCancel());
+            taskService.save(task.get());
 
             return taskService.findOne(updateTaskVM.getIdTask());
         }
