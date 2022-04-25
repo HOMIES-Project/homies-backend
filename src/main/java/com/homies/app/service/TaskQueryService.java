@@ -39,6 +39,11 @@ public class TaskQueryService extends QueryService<Task> {
         return taskRepository.findByIdAndUserAssigneds_User_Login(id, login);
     }
 
+    @Transactional(readOnly = true)
+    public void deleteTask(Task task){
+        taskRepository.delete(task);
+    }
+
     /**
      * Return a {@link List} of {@link Task} which matches the criteria from the database.
      * @param criteria The object which holds all the filters, which the entities should match.
