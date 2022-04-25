@@ -214,6 +214,12 @@ public class TaskListResource {
         return ResponseEntity.ok().body(result);
     }
 
+    @GetMapping("/task-lists-user/{id}/{login}")
+    public ResponseEntity<List<Task>> getTaskListUser1(@PathVariable Long id, @PathVariable String login) {
+        List<Task> result = manageListTaskAuxService.getTaskUserTaskList1(id, login);
+        return ResponseEntity.ok().body(result);
+    }
+
     /**
      * {@code DELETE  /task-lists/:id} : delete the "id" taskList.
      *
