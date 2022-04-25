@@ -34,6 +34,8 @@ public final class ErrorConstants {
     public static final URI USER_ALREADY_USED_TYPE = URI.create(PROBLEM_BASE_URL + "/user-already-used");
     public static final URI USER_NOT_EXIST = URI.create(PROBLEM_BASE_URL + "/user-not-exist");
     public static final URI USER_LOGIN_NOT_SPECIFY = URI.create(PROBLEM_BASE_URL + "/user-loginnot-specify");
+    //General
+    public static final URI INCORRECT_PARAMETERS = URI.create(PROBLEM_BASE_URL + "/incorrect-parameters");
 
     private ErrorConstants() {}
 }
