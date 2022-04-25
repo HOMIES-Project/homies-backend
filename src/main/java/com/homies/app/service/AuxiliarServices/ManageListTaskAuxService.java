@@ -6,8 +6,6 @@ import com.homies.app.domain.User;
 import com.homies.app.domain.UserData;
 import com.homies.app.service.*;
 import com.homies.app.web.rest.errors.General.IncorrectParameters;
-import com.homies.app.web.rest.errors.Task.TaskWasNotSpecifyIdTask;
-import com.homies.app.web.rest.vm.GetGroupTaskListVM;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
