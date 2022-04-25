@@ -92,21 +92,16 @@ public class ManageTaskAuxService {
                         throw new TaskAlreadyUsedException();
                     } else {
                         task.get().setTaskName(updateTaskVM.getTaskName());
-                        taskService.save(task.get());
                     }
                 });
             }
 
             if(!task.get().getDescription().equals(updateTaskVM.getDescription())){
                 task.get().setDescription(updateTaskVM.getDescription());
-                taskService.save(task.get());
             }
 
-            if(updateTaskVM.isCancel()){
-                task.get().setCancel(false);
-            } else {
-                task.get().setCancel(true);
-            }
+            task.get().setCancel(updateTaskVM.isCancel());
+            taskService.save(task.get());
 
             return taskService.findOne(updateTaskVM.getIdTask());
         }

@@ -16,7 +16,7 @@ public class UpdateTaskVM {
     @Size(min = 3, max = 100)
     private String description;
 
-    private boolean cancel = false;
+    private boolean cancel;
 
     public Long getIdTask() {
         return idTask;

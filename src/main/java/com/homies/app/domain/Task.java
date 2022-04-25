@@ -41,7 +41,7 @@ public class Task implements Serializable {
     @Column(name = "description", length = 100, nullable = false)
     private String description;
 
-    @Column(name = "cancel")
+    @Column(name = "cancel", nullable = false)
     private Boolean cancel;
 
     @Lob
