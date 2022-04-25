@@ -1,6 +1,7 @@
 package com.homies.app.service.AuxiliarServices;
 
 import com.homies.app.domain.*;
+import com.homies.app.repository.TaskRepository;
 import com.homies.app.service.*;
 import com.homies.app.web.rest.TaskResource;
 import com.homies.app.web.rest.errors.General.IncorrectParameters;
@@ -31,6 +32,7 @@ public class ManageTaskAuxService {
     private TaskListService taskListService;
     private UserService userService;
     private GroupService groupService;
+    private TaskRepository taskRepository;
 
 
     public ManageTaskAuxService(TaskService taskService,
@@ -39,7 +41,8 @@ public class ManageTaskAuxService {
                                 UserDataService userDataService,
                                 TaskListService taskListService,
                                 UserService userService,
-                                GroupService groupService) {
+                                GroupService groupService,
+                                TaskRepository taskRepository) {
         this.taskService = taskService;
         this.taskQueryService = taskQueryService;
         this.userDataQueryService = userDataQueryService;
@@ -47,6 +50,7 @@ public class ManageTaskAuxService {
         this.taskListService = taskListService;
         this.userService = userService;
         this.groupService = groupService;
+        this.taskRepository = taskRepository;
     }
 
     private Optional<UserData> userData;
@@ -134,7 +138,14 @@ public class ManageTaskAuxService {
                 addUserToTaskVM.setIdList(task.get().getTaskList().getId());
                 deleteUserToTask(addUserToTaskVM);
             });
-            taskService.delete(id);
+            try {
+                task.get().userData(null);
+                taskService.save(task.get());
+                taskRepository.delete(task.get());
+            }catch (Exception e){
+                throw e;
+            }
+
         }
     }
 
