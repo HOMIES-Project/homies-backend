@@ -15,7 +15,9 @@ public class UpdateTaskVM {
 
     @Size(min = 3, max = 100)
     private String description;
-    
+
+    private boolean cancel = false;
+
     public Long getIdTask() {
         return idTask;
     }
@@ -56,6 +58,14 @@ public class UpdateTaskVM {
         this.description = description;
     }
 
+    public boolean isCancel() {
+        return cancel;
+    }
+
+    public void setCancel(boolean cancel) {
+        this.cancel = cancel;
+    }
+
     @Override
     public String toString() {
         return "UpdateTaskVM{" +
@@ -64,6 +74,7 @@ public class UpdateTaskVM {
             ", login='" + login + '\'' +
             ", taskName='" + taskName + '\'' +
             ", description='" + description + '\'' +
+            ", cancel=" + cancel +
             '}';
     }
 }
