@@ -44,6 +44,7 @@ public class UserEditingAuxService {
         userData.setPhoto(userEditingVM.getPhoto());
         userData.setPhotoContentType(userEditingVM.getPhotoContentType());
         userData.setPhone(userEditingVM.getPhone());
+        userData.setBirthDate(userEditingVM.getBirthDate());
 
         if (editUser(user) & editUserData(userData))
             return userDataService.findOne(userEditingVM.getId()).get();
