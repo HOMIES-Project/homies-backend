@@ -35,6 +35,8 @@ public final class ErrorConstants {
     public static final URI USER_NOT_EXIST = URI.create(PROBLEM_BASE_URL + "/user-not-exist");
     public static final URI USER_LOGIN_NOT_SPECIFY = URI.create(PROBLEM_BASE_URL + "/user-loginnot-specify");
     public static final URI USER_DOES_NOT_GROUP = URI.create(PROBLEM_BASE_URL + "/user-doesnot-group");
+    //ShoppingList
+    public static final URI SHOPPINGlIST_DOES_NOT_GROUP = URI.create(PROBLEM_BASE_URL + "/shoppingList-doesnot-exist");
     //General
     public static final URI INCORRECT_PARAMETERS = URI.create(PROBLEM_BASE_URL + "/incorrect-parameters");
 

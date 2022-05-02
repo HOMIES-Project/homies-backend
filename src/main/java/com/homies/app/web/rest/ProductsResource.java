@@ -2,6 +2,7 @@ package com.homies.app.web.rest;
 
 import com.homies.app.domain.Products;
 import com.homies.app.repository.ProductsRepository;
+import com.homies.app.service.AuxiliarServices.CreateProductAuxService;
 import com.homies.app.service.ProductsQueryService;
 import com.homies.app.service.ProductsService;
 import com.homies.app.service.criteria.ProductsCriteria;
@@ -13,12 +14,15 @@ import java.util.Objects;
 import java.util.Optional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+
+import com.homies.app.web.rest.vm.AddProductVM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -46,34 +50,40 @@ public class ProductsResource {
 
     private final ProductsQueryService productsQueryService;
 
+    private final CreateProductAuxService createProductAuxService;
+
     public ProductsResource(
         ProductsService productsService,
         ProductsRepository productsRepository,
-        ProductsQueryService productsQueryService
+        ProductsQueryService productsQueryService,
+        CreateProductAuxService createProductAuxService
     ) {
         this.productsService = productsService;
         this.productsRepository = productsRepository;
         this.productsQueryService = productsQueryService;
+        this.createProductAuxService = createProductAuxService;
     }
 
     /**
      * {@code POST  /products} : Create a new products.
      *
-     * @param products the products to create.
+     * @param product the products to create.
      * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new products, or with status {@code 400 (Bad Request)} if the products has already an ID.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/products")
-    public ResponseEntity<Products> createProducts(@Valid @RequestBody Products products) throws URISyntaxException {
-        log.debug("REST request to save Products : {}", products);
-        if (products.getId() != null) {
-            throw new BadRequestAlertException("A new products cannot already have an ID", ENTITY_NAME, "idexists");
-        }
-        Products result = productsService.save(products);
+    public ResponseEntity<Products> createProducts(@Valid @RequestBody AddProductVM product) throws URISyntaxException {
+        log.debug("REST request to save Products : {}", product);
+
+        Products newProduct = createProductAuxService.createNewProduct(product);
+
+        if (newProduct != null)
+            return new ResponseEntity<>(newProduct, HttpStatus.CREATED);
+
         return ResponseEntity
-            .created(new URI("/api/products/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(applicationName, false, ENTITY_NAME, result.getId().toString()))
-            .body(result);
+            .created(new URI("/api/products/" + newProduct.getId()))
+            .headers(HeaderUtil.createEntityCreationAlert(applicationName, false, ENTITY_NAME, newProduct.getId().toString()))
+            .body(newProduct);
     }
 
     /**
