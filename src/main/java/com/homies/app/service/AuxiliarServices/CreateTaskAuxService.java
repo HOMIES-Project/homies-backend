@@ -74,7 +74,7 @@ public class CreateTaskAuxService {
 
         //Task add taskList
         TaskList taskList = taskListExist(createTaskVM.getIdGroup());
-        newTask.setTaskList(taskList);
+        taskList.addTask(newTask);
         taskListService.save(taskList);
 
         //New task created

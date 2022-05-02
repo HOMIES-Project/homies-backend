@@ -140,6 +140,7 @@ public class ManageTaskAuxService {
             });
             try {
                 task.get().userData(null);
+                task.get().taskList(null);
                 taskService.save(task.get());
                 taskRepository.delete(task.get());
             }catch (Exception e){
