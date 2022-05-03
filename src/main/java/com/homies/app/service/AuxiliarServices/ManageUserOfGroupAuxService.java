@@ -2,27 +2,27 @@ package com.homies.app.service.AuxiliarServices;
 
 import com.homies.app.domain.Group;
 import com.homies.app.domain.Task;
-import com.homies.app.domain.User;
 import com.homies.app.domain.UserData;
-import com.homies.app.repository.GroupRepository;
-import com.homies.app.repository.UserRepository;
+
 import com.homies.app.security.SecurityUtils;
+
 import com.homies.app.service.*;
+
 import com.homies.app.web.rest.errors.Group.GroupNotExistException;
 import com.homies.app.web.rest.errors.User.UserDoesNotExist;
 import com.homies.app.web.rest.vm.ManageGroupVM;
-
 import com.homies.app.web.rest.vm.UpdateGroupVM;
-import liquibase.pro.packaged.G;
-import liquibase.pro.packaged.M;
+
 import org.jetbrains.annotations.NotNull;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.cache.CacheManager;
+
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.nio.file.attribute.UserPrincipalNotFoundException;
+
 import java.util.*;
 
 @Service
@@ -141,23 +141,7 @@ public class ManageUserOfGroupAuxService {
         });
 
         //Detach Task
-        List<Task> tasks = taskQueryService.getByUserData_Id(userData.get().getId());
-
-        userData.get().setTaskAsigneds(new HashSet<>());
-
-        tasks.forEach(task -> {
-            task.setUserData(null);
-            taskService.save(task);
-        });
-
-        tasks = taskQueryService.getByUserAssigneds_Id(userData.get().getId());
-
-        tasks.forEach(task -> {
-            task.removeUserAssigned(userData.get());
-            taskService.save(task);
-        });
-
-        refreshEntities();
+        detachedTasks();
 
         //Detach user of her admin groups
         List<Group> adminGroups = groupQueryService.getAdminGroupsByUserDataId(userData.get().getId());
@@ -179,10 +163,6 @@ public class ManageUserOfGroupAuxService {
         });
         refreshEntities();
 
-
-
-
-
     }
 
     public Optional<Group> deleteGroup(
@@ -197,12 +177,8 @@ public class ManageUserOfGroupAuxService {
                     userDataService.save(user);
                 }
 
-                refreshEntities();
-
                 userAdmin.get().removeAdminGroups(group.get());
                 //userDataService.save(userAdmin.get());
-
-                refreshEntities();
 
                 group.get().setUserAdmin(null);
                 groupService.save(group.get());
@@ -240,6 +216,26 @@ public class ManageUserOfGroupAuxService {
             return groupService.findOne(group.get().getId());
         }
         return Optional.empty();
+    }
+
+    private void detachedTasks(){
+        List<Task> tasks = taskQueryService.getByUserData_Id(userData.get().getId());
+
+        userData.get().setTaskAsigneds(new HashSet<>());
+
+        tasks.forEach(task -> {
+            task.setUserData(null);
+            taskService.save(task);
+        });
+
+        tasks = taskQueryService.getByUserAssigneds_Id(userData.get().getId());
+
+        tasks.forEach(task -> {
+            task.removeUserAssigned(userData.get());
+            taskService.save(task);
+        });
+
+        refreshEntities();
     }
 
     private Optional<Group> manageUserOfTheGroup(
@@ -281,6 +277,8 @@ public class ManageUserOfGroupAuxService {
         try {
             userData.get().removeGroup(group.get());
             userDataService.save(userData.get());
+
+            detachedTasks(); //Falta probar esto.
 
             group.get().removeUserData(userData.get());
             groupService.save(group.get());
