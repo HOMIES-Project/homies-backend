@@ -81,6 +81,10 @@ public class TaskQueryService extends QueryService<Task> {
         return taskRepository.count(specification);
     }
 
+    public void refreshUserDataEntity() {
+        taskRepository.flush();
+    }
+
     /**
      * Function to convert {@link TaskCriteria} to a {@link Specification}
      * @param criteria The object which holds all the filters, which the entities should match.

@@ -1,11 +1,13 @@
 package com.homies.app.service.AuxiliarServices;
 
 import com.homies.app.domain.*;
+import com.homies.app.repository.UserDataRepository;
 import com.homies.app.service.*;
 import com.homies.app.web.rest.GroupResource;
 import com.homies.app.web.rest.errors.Group.GroupNotExistException;
 import com.homies.app.web.rest.errors.Task.TaskAlreadyUsedException;
 import com.homies.app.web.rest.errors.Task.TaskUserDoesNotExist;
+import com.homies.app.web.rest.vm.AddUserToTaskVM;
 import com.homies.app.web.rest.vm.CreateTaskVM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,9 +20,6 @@ import java.util.Optional;
 @Service
 public class CreateTaskAuxService {
 
-    private final TaskQueryService taskQueryService;
-
-
 
     private final TaskService taskService;
 
@@ -32,20 +31,28 @@ public class CreateTaskAuxService {
 
     private final UserDataService userDataService;
 
+    private final UserDataQueryService userDataQueryService;
+
+    private final TaskQueryService taskQueryService;
+
+
     private final Logger log = LoggerFactory.getLogger(GroupResource.class);
 
-    public CreateTaskAuxService(TaskQueryService taskQueryService,
-                                TaskService taskService,
+    public CreateTaskAuxService(TaskService taskService,
                                 GroupService groupService,
                                 TaskListService taskListService,
                                 TaskListQueryService taskListQueryService,
-                                UserDataService userDataService) {
-        this.taskQueryService = taskQueryService;
+                                UserDataService userDataService,
+                                UserDataQueryService userDataQueryService,
+                                TaskQueryService taskQueryService) {
+
         this.taskService = taskService;
         this.groupService = groupService;
         this.taskListService = taskListService;
         this.taskListQueryService = taskListQueryService;
         this.userDataService = userDataService;
+        this.userDataQueryService = userDataQueryService;
+        this.taskQueryService = taskQueryService;
     }
 
     public Task createNewTask(CreateTaskVM createTaskVM) {
@@ -67,21 +74,27 @@ public class CreateTaskAuxService {
         newTask.setDescription(createTaskVM.getDescription()); //description
         newTask.setDataCreate(LocalDate.now()); //Date of creation
 
+        //New task created
+        log.warn("Created Task: " + newTask);
+        taskService.save(newTask);
+
         //User add task
         UserData userData = userExist(createTaskVM.getUser());
         newTask.setUserData(userData); //add user (task creator user)
         userDataService.save(userData);
+
+        //User Assigned
+        UserData userData1 = userDataQueryService.getByUser_Login(createTaskVM.getLogin()).get();
+        userData1.addTaskAsigned(newTask);
+        userDataService.save(userData1);
 
         //Task add taskList
         TaskList taskList = taskListExist(createTaskVM.getIdGroup());
         taskList.addTask(newTask);
         taskListService.save(taskList);
 
-        //New task created
-        log.warn("Created Task: " + newTask);
         taskService.save(newTask);
-
-        return newTask;
+        return taskService.findOne(newTask.getId()).get();
     }
 
     @Transactional(readOnly = true)
@@ -111,6 +124,8 @@ public class CreateTaskAuxService {
         return taskListQueryService.findByIdAndTasks_TaskName(id, taskName);
     }
 
-
-
+    private void refreshEntities() {
+        taskQueryService.refreshUserDataEntity();
+        userDataQueryService.refreshUserDataEntity();
+    }
 }

@@ -84,28 +84,27 @@ public class ManageTaskAuxService {
 
             if (group.get().getUserData() != null){
                 group.get().getUserData().forEach(userData1 -> {
-                    if(!userData1.getId().equals(userData.get().getId())){
+                    if(userData1.getId().equals(userData.get().getId())){
+                        if (!updateTaskVM.getTaskName().equals(task.get().getTaskName())){
+                            taskList.get().getTasks().forEach(nameTask -> {
+                                if(nameTask.getTaskName().equals(updateTaskVM.getTaskName())){
+                                    throw new TaskAlreadyUsedException();
+                                } else {
+                                    task.get().setTaskName(updateTaskVM.getTaskName());
+                                }
+                            });
+                        }
+
+                        if(!task.get().getDescription().equals(updateTaskVM.getDescription())){
+                            task.get().setDescription(updateTaskVM.getDescription());
+                        }
+
+                        taskService.save(task.get());
+                    } else {
                         throw new UserDoesNotExistInGroup();
                     }
                 });
             }
-
-            if (!updateTaskVM.getTaskName().equals(task.get().getTaskName())){
-                taskList.get().getTasks().forEach(nameTask -> {
-                    if(nameTask.getTaskName().equals(updateTaskVM.getTaskName())){
-                        throw new TaskAlreadyUsedException();
-                    } else {
-                        task.get().setTaskName(updateTaskVM.getTaskName());
-                    }
-                });
-            }
-
-            if(!task.get().getDescription().equals(updateTaskVM.getDescription())){
-                task.get().setDescription(updateTaskVM.getDescription());
-            }
-
-            task.get().setCancel(updateTaskVM.isCancel());
-            taskService.save(task.get());
 
             return taskService.findOne(updateTaskVM.getIdTask());
         }
@@ -132,16 +131,11 @@ public class ManageTaskAuxService {
             List<UserData> userData = userDataQueryService.getByTaskAsignedsId(id);
             task = taskService.findOne(id);
             userData.forEach(ud -> {
-                AddUserToTaskVM addUserToTaskVM = new AddUserToTaskVM();
-                addUserToTaskVM.setLogin(ud.getUser().getLogin());
-                addUserToTaskVM.setIdTask(id);
-                addUserToTaskVM.setIdList(task.get().getTaskList().getId());
-                deleteUserToTask(addUserToTaskVM);
+                ud.removeTaskAsigned(task.get());
             });
             try {
+                task.get().userAssigneds(null);
                 task.get().userData(null);
-                task.get().taskList(null);
-                taskService.save(task.get());
                 taskRepository.delete(task.get());
             }catch (Exception e){
                 throw e;
