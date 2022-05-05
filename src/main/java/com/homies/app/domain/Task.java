@@ -203,7 +203,7 @@ public class Task implements Serializable {
         return this;
     }
 
-    public UserData getUserData() {
+/*    public UserData getUserData() {
         return this.userData;
     }
 
@@ -214,7 +214,7 @@ public class Task implements Serializable {
     public Task userData(UserData userData) {
         this.setUserData(userData);
         return this;
-    }
+    }*/
 
     //public UserData getUserCreator() {
     //    return this.userCreator;

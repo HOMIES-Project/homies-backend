@@ -78,10 +78,10 @@ public class CreateTaskAuxService {
         log.warn("Created Task: " + newTask);
         taskService.save(newTask);
 
-        //User add task
+/*        //User add task
         UserData userData = userExist(createTaskVM.getUser());
         newTask.setUserData(userData); //add user (task creator user)
-        userDataService.save(userData);
+        userDataService.save(userData);*/
 
         //User Assigned
         UserData userData1 = userDataQueryService.getByUser_Login(createTaskVM.getLogin()).get();

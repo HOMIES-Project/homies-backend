@@ -13,6 +13,7 @@ import com.homies.app.web.rest.errors.User.UserDoesNotExist;
 import com.homies.app.web.rest.vm.ManageGroupVM;
 import com.homies.app.web.rest.vm.UpdateGroupVM;
 
+import liquibase.pro.packaged.G;
 import org.jetbrains.annotations.NotNull;
 
 import org.slf4j.Logger;
@@ -165,6 +166,21 @@ public class ManageUserOfGroupAuxService {
 
     }
 
+    public Optional<Group> deleteGroup2(
+        ManageGroupVM manageGroupVM
+    ){
+        try {
+            if (manageUserOfTheGroup(manageGroupVM, false, false, true).isPresent()){
+
+            }
+        } catch (UserPrincipalNotFoundException e) {
+            e.printStackTrace();
+        }
+
+
+        return Optional.empty();
+    }
+
     public Optional<Group> deleteGroup(
         ManageGroupVM manageGroupVM
     ) {
@@ -179,6 +195,8 @@ public class ManageUserOfGroupAuxService {
 
                 userAdmin.get().removeAdminGroups(group.get());
                 //userDataService.save(userAdmin.get());
+
+                detachedTasks();
 
                 group.get().setUserAdmin(null);
                 groupService.save(group.get());
@@ -224,7 +242,7 @@ public class ManageUserOfGroupAuxService {
         userData.get().setTaskAsigneds(new HashSet<>());
 
         tasks.forEach(task -> {
-            task.setUserData(null);
+            //task.setUserData(null);
             taskService.save(task);
         });
 

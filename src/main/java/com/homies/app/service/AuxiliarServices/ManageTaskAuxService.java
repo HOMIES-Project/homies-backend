@@ -135,7 +135,7 @@ public class ManageTaskAuxService {
             });
             try {
                 task.get().userAssigneds(null);
-                task.get().userData(null);
+                //task.get().userData(null);
                 taskRepository.delete(task.get());
             }catch (Exception e){
                 throw e;
