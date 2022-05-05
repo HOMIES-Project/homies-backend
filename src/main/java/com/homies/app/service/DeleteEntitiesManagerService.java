@@ -4,6 +4,10 @@ import com.homies.app.domain.*;
 import com.homies.app.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.HashSet;
+import java.util.Set;
+
+
 public class DeleteEntitiesManagerService {
 
     @Autowired
@@ -60,8 +64,58 @@ public class DeleteEntitiesManagerService {
         this.userPendingRepository = userPendingRepository;
     }
 
-    private void detachUser(UserData user){}
-    private void detachGroup(Group group){}
+    private UserData user;
+    private Group group;
+    private Task task;
+    private Products products;
+    private Spending spending;
+    private UserPending userPending;
+    private TaskList taskList;
+    private ShoppingList shoppingList;
+    private SpendingList spendingList;
+
+    private void deleteUser(UserData user){
+        /* Delete of groups os user*/
+        Set<Group> groups = user.getGroups();
+        groups.forEach(group ->{
+            group.getUserData().remove(user);
+            groupRepository.save(group);
+        });
+        user.setGroups(new HashSet<>());
+
+        /* Delete of groups of admin */
+        groups = user.getAdminGroups();
+        groups.forEach(group ->{
+            group.getUserAdmin().setUser(
+                groupRepository.findById(
+                    group.getId()
+                ).get().getUserData().iterator().next().getUser()
+            );
+            groupRepository.save(group);
+        });
+
+        /* Delete of task assigned */
+        Set<Task> tasks = user.getTaskAsigneds();
+        tasks.forEach(task -> {
+            task.getUserAssigneds().remove(user);
+            taskRepository.save(task);
+        });
+
+        /* Delete of products */
+        Set<Products> allProducts = user.getProductCreateds();
+        allProducts.forEach(product -> {
+            product.setUserCreator(null);
+            productsRepository.save(product);
+        });
+
+        userDataRepository.save(user);
+
+    }
+
+    private void deleteGroup(Group group){
+        
+    }
+
     private void detachTask(Task task){}
     private void detachProduct(Products products){}
     private void detachSpending(Spending spending){}
