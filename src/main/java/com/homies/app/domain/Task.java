@@ -54,7 +54,7 @@ public class Task implements Serializable {
     @Column(name = "puntuacion")
     private String puntuacion;
 
-    @ManyToOne
+    @ManyToOne(cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.DETACH})
     @JsonIgnoreProperties(value = { "group", "tasks" }, allowSetters = true)
     private TaskList taskList;
 

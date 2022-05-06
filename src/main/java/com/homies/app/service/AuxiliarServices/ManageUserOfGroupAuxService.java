@@ -19,6 +19,7 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -41,7 +42,13 @@ public class ManageUserOfGroupAuxService {
 
     private final TaskService taskService;
 
-    private final  TaskQueryService taskQueryService;
+    private final TaskQueryService taskQueryService;
+
+    private final TaskListService taskListService;
+
+    private final TaskListQueryService taskListQueryService;
+
+    private final DeleteEntitiesManagerService deleteEntitiesManager;
 
     public ManageUserOfGroupAuxService(
         UserDataService userDataService,
@@ -49,14 +56,20 @@ public class ManageUserOfGroupAuxService {
         GroupService groupService,
         GroupQueryService groupQueryService,
         TaskService taskService,
-        TaskQueryService taskQueryService
+        TaskQueryService taskQueryService,
+        TaskListService taskListService,
+        TaskListQueryService taskListQueryService,
+        DeleteEntitiesManagerService deleteEntitiesManager
     ) {
         this.userDataService = userDataService;
         this.userDataQueryService = userDataQueryService;
         this.groupService = groupService;
         this.groupQueryService = groupQueryService;
         this.taskService = taskService;
+        this.taskListService = taskListService;
+        this.taskListQueryService = taskListQueryService;
         this.taskQueryService = taskQueryService;
+        this.deleteEntitiesManager = deleteEntitiesManager;
     }
 
     private Optional<UserData> userAdmin;
@@ -76,6 +89,11 @@ public class ManageUserOfGroupAuxService {
             group.get().addUserData(userData.get());
             groupService.save(group.get());
             refreshEntities();
+
+            //Add newGroup in UserData
+            userData.get().addGroup(group.get());
+            userDataService.save(userData.get());
+
             return groupService.findOne(group.get().getId());
         }
         return Optional.empty();
@@ -130,7 +148,9 @@ public class ManageUserOfGroupAuxService {
         if (userData.isEmpty())
             throw new UserDoesNotExist();
 
-        //Detach user of her groups
+        deleteEntitiesManager.deleteUser(id);
+
+/*        //Detach user of her groups
         List<Group> useGroups = groupQueryService.getUseGroupsByUserDataId(userData.get().getId());
 
         userData.get().setGroups(new HashSet<>());
@@ -162,7 +182,7 @@ public class ManageUserOfGroupAuxService {
                groupService.delete(adminGroup.getId());
             }
         });
-        refreshEntities();
+        refreshEntities();*/
 
     }
 
@@ -198,6 +218,8 @@ public class ManageUserOfGroupAuxService {
 
                 detachedTasks();
 
+                //taskListService.de
+
                 group.get().setUserAdmin(null);
                 groupService.save(group.get());
 
@@ -209,7 +231,7 @@ public class ManageUserOfGroupAuxService {
 
         }
 
-        return Optional.empty();
+        return groupService.findOne(group.get().getId());
     }
 
     public Optional<Group> changeUserAdminOfTheGroup(
@@ -237,16 +259,17 @@ public class ManageUserOfGroupAuxService {
     }
 
     private void detachedTasks(){
-        List<Task> tasks = taskQueryService.getByUserData_Id(userData.get().getId());
+        /*List<Task> tasks = taskQueryService.getByUserData_Id(userData.get().getId());
 
         userData.get().setTaskAsigneds(new HashSet<>());
 
         tasks.forEach(task -> {
-            //task.setUserData(null);
-            taskService.save(task);
-        });
+*//*            task.getUserAssigneds().remove(userData);
+            taskService.save(task);*//*
+            taskService.delete(task.getId());
+        });*/
 
-        tasks = taskQueryService.getByUserAssigneds_Id(userData.get().getId());
+        List<Task> tasks = taskQueryService.getByUserAssigneds_Id(userData.get().getId());
 
         tasks.forEach(task -> {
             task.removeUserAssigned(userData.get());
@@ -272,8 +295,12 @@ public class ManageUserOfGroupAuxService {
             if (userAdmin.isEmpty())
                 throw new UserPrincipalNotFoundException("Don't exist this admin"); //UserAdmin not exist
 
-            if (userAdmin.get().getId().longValue() != group.get().getUserAdmin().getId().longValue())
-                throw new UserPrincipalNotFoundException("UserAdmin isn't admin of this group");  //UserAdmin not is group's userAdmin.
+
+            if (group.get().getUserAdmin() != null)
+                if (!Objects.equals(userAdmin.get().getId(), group.get().getUserAdmin().getId()))
+                    throw new UserPrincipalNotFoundException("UserAdmin isn't admin of this group");  //UserAdmin not is group's userAdmin.
+
+
         }
 
         if (!deleteGroup & !editGroup) {
@@ -284,9 +311,9 @@ public class ManageUserOfGroupAuxService {
         if (group.isEmpty())
             throw new GroupNotExistException(); //Group not exist
 
-        if (group.get().getUserAdmin() == null)
+       /* if (group.get().getUserAdmin() == null)
             throw new UserPrincipalNotFoundException(manageGroupVM.getIdAdminGroup().toString()); //Group's UserAdmin not exist
-
+*/
         return group;
 
     }

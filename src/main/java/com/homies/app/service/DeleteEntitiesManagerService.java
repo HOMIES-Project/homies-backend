@@ -3,11 +3,12 @@ package com.homies.app.service;
 import com.homies.app.domain.*;
 import com.homies.app.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
 import java.util.Set;
 
-
+@Service
 public class DeleteEntitiesManagerService {
 
     @Autowired
@@ -74,46 +75,57 @@ public class DeleteEntitiesManagerService {
     private ShoppingList shoppingList;
     private SpendingList spendingList;
 
-    private void deleteUser(UserData user){
+    public void deleteUser(Long id){
+        UserData user = userDataRepository.findById(id).get();
         /* Delete of groups os user*/
         Set<Group> groups = user.getGroups();
         groups.forEach(group ->{
             group.getUserData().remove(user);
-            groupRepository.save(group);
+            groupRepository.saveAndFlush(group);
+
+            taskListRepository.findById(group.getId()).get().getTasks().remove(user.getTaskAsigneds());
+            taskList = taskListRepository.findById(group.getId()).get();
+            taskListRepository.saveAndFlush(taskList);
+
         });
         user.setGroups(new HashSet<>());
 
         /* Delete of groups of admin */
-        groups = user.getAdminGroups();
-        groups.forEach(group ->{
-            group.getUserAdmin().setUser(
-                groupRepository.findById(
-                    group.getId()
-                ).get().getUserData().iterator().next().getUser()
+        Set<Group> groupsAdmin = user.getAdminGroups();
+        groupsAdmin.forEach(group ->{
+            UserData admin = null;
+            if (group.getUserData().size() > 0) {
+                if (user != group.getUserData().iterator().next()) {
+                    admin = group.getUserData().iterator().next();
+                }
+            }
+            group.setUserAdmin(
+                admin
             );
-            groupRepository.save(group);
+            groupRepository.saveAndFlush(group);
         });
+        user.setAdminGroups(new HashSet<>());
 
         /* Delete of task assigned */
         Set<Task> tasks = user.getTaskAsigneds();
-        tasks.forEach(task -> {
-            task.getUserAssigneds().remove(user);
-            taskRepository.save(task);
-        });
+        tasks.forEach(taskRepository::delete);
+        user.setTaskAsigneds(new HashSet<>());
 
         /* Delete of products */
         Set<Products> allProducts = user.getProductCreateds();
         allProducts.forEach(product -> {
             product.setUserCreator(null);
-            productsRepository.save(product);
+            productsRepository.saveAndFlush(product);
         });
+        user.setProductCreateds(new HashSet<>());
 
-        userDataRepository.save(user);
+        userDataRepository.saveAndFlush(user);
+
 
     }
 
     private void deleteGroup(Group group){
-        
+
     }
 
     private void detachTask(Task task){}

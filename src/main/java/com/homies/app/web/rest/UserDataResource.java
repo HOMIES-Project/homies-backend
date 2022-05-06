@@ -224,7 +224,7 @@ public class UserDataResource {
         }
 
         manageUserOfGroupAuxService.deleteUserAllGroups(id);
-        userDataService.delete(id);
+        //userDataService.delete(id);
 
         return ResponseEntity
             .noContent()
