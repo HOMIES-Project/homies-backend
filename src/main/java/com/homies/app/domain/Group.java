@@ -6,10 +6,15 @@ import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.Table;
+import javax.swing.*;
 import javax.validation.constraints.*;
+
+import org.hibernate.annotations.*;
 import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Fetch;
+import org.junit.Ignore;
 
 /**
  * A Group.
@@ -44,29 +49,31 @@ public class Group implements Serializable {
 
     @ManyToOne
     @JsonIgnoreProperties(value = { "adminGroups", "taskAsigneds", "productCreateds", "groups" }, allowSetters = true)
+    @NotFound(action = NotFoundAction.IGNORE)
     private UserData userAdmin;
 
     @JsonIgnoreProperties(value = { "group", "tasks" }, allowSetters = true)
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = {CascadeType.ALL})
     @MapsId
     @JoinColumn(name = "id")
     private TaskList taskList;
 
     @JsonIgnoreProperties(value = { "spendings", "settingsLists", "group" }, allowSetters = true)
-    @OneToOne(mappedBy = "group", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "group", cascade = {CascadeType.ALL})
     private SpendingList spendingList;
 
     @JsonIgnoreProperties(value = { "products", "group" }, allowSetters = true)
-    @OneToOne(mappedBy = "group", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "group", cascade = {CascadeType.ALL})
     private ShoppingList shoppingList;
 
     @JsonIgnoreProperties(value = { "spendingList", "userPendings", "group" }, allowSetters = true)
-    @OneToOne(mappedBy = "group", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "group", cascade = {CascadeType.ALL})
     private SettingsList settingsList;
 
     @ManyToMany(mappedBy = "groups", fetch = FetchType.EAGER)
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @JsonIgnoreProperties(value = { "adminGroups", "taskAsigneds", "productCreateds", "groups" }, allowSetters = true)
+    @NotFound(action = NotFoundAction.IGNORE)
     private Set<UserData> userData = new HashSet<>();
 
     // jhipster-needle-entity-add-field - JHipster will add fields here

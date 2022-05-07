@@ -15,6 +15,8 @@ import javax.validation.constraints.*;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
 
 /**
  * A UserData.
@@ -62,9 +64,10 @@ public class UserData implements Serializable {
         value = { "userAdmin", "taskList", "spendingList", "shoppingList", "settingsList", "userData" },
         allowSetters = true
     )
+    @NotFound(action = NotFoundAction.IGNORE)
     private Set<Group> adminGroups = new HashSet<>();
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.DETACH})
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
         name = "rel_user_data__task_asigned",
         joinColumns = @JoinColumn(name = "user_data_id"),
@@ -90,6 +93,7 @@ public class UserData implements Serializable {
         value = { "userAdmin", "taskList", "spendingList", "shoppingList", "settingsList", "userData" },
         allowSetters = true
     )
+    @NotFound(action = NotFoundAction.IGNORE)
     private Set<Group> groups = new HashSet<>();
 
     // jhipster-needle-entity-add-field - JHipster will add fields here

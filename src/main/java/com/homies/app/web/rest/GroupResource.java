@@ -285,10 +285,10 @@ public class GroupResource {
         manageGroupVM.setLogin(SecurityUtils.getCurrentUserLogin().get());
         log.debug("REST request to delete Group : {}", manageGroupVM);
         Optional<Group> result = manageUserOfGroupAuxService.deleteGroup(manageGroupVM);
-        groupService.delete(result.get().getId());
+
         return ResponseEntity
             .noContent()
-            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, false, ENTITY_NAME, manageGroupVM.getIdGroup().toString()))
+
             .build();
     }
 

@@ -2,6 +2,7 @@ package com.homies.app.service.AuxiliarServices;
 
 import com.homies.app.domain.Group;
 import com.homies.app.domain.Task;
+import com.homies.app.domain.TaskList;
 import com.homies.app.domain.UserData;
 
 import com.homies.app.security.SecurityUtils;
@@ -13,13 +14,11 @@ import com.homies.app.web.rest.errors.User.UserDoesNotExist;
 import com.homies.app.web.rest.vm.ManageGroupVM;
 import com.homies.app.web.rest.vm.UpdateGroupVM;
 
-import liquibase.pro.packaged.G;
 import org.jetbrains.annotations.NotNull;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -216,13 +215,37 @@ public class ManageUserOfGroupAuxService {
                 userAdmin.get().removeAdminGroups(group.get());
                 //userDataService.save(userAdmin.get());
 
-                detachedTasks();
+                Optional<TaskList> taskList = taskListService.findOne(group.get().getId());
+                List<Task> tasks = new ArrayList<>(taskList.get().getTasks());
 
-                //taskListService.de
+                tasks.forEach(task -> {
+                    if (task.getUserAssigneds().size() > 0){
+                        userData = Optional.ofNullable(task.getUserAssigneds().iterator().next());
+                        userData.get().getTaskAsigneds().remove(task);
+                        userDataService.save(userData.get());
+                    }
+
+                    task.setTaskList(null);
+                    taskService.save(task);
+                });
+
+                taskList.get().setTasks(new HashSet<>());
+                taskListService.save(taskList.get());
+                taskListService.delete(taskList.get().getId());
+
+                taskList.get().setGroup(null);
+                //refreshEntities();
+
+                tasks.forEach(task -> {
+                    taskService.delete(task.getId());
+                });
+
+                //refreshEntities();
 
                 group.get().setUserAdmin(null);
+                //group.get().setTaskList(null);
                 groupService.save(group.get());
-
+                groupService.delete(group.get().getId());
                 refreshEntities();
 
             }
@@ -231,7 +254,7 @@ public class ManageUserOfGroupAuxService {
 
         }
 
-        return groupService.findOne(group.get().getId());
+        return Optional.empty();
     }
 
     public Optional<Group> changeUserAdminOfTheGroup(
@@ -276,7 +299,13 @@ public class ManageUserOfGroupAuxService {
             taskService.save(task);
         });
 
-        refreshEntities();
+        userDataService.save(userData.get());
+
+        List<Task> tasksEmpty = taskQueryService.getByUserAssigneds_Id(userData.get().getId());
+        log.warn(tasksEmpty.toString());
+
+
+        //refreshEntities();
     }
 
     private Optional<Group> manageUserOfTheGroup(
@@ -366,6 +395,9 @@ public class ManageUserOfGroupAuxService {
     private void refreshEntities() {
         groupQueryService.refreshGroupEntity();
         userDataQueryService.refreshUserDataEntity();
+        taskQueryService.refreshTaskEntity();
+        taskListQueryService.refreshTaskListEntity();
+
     }
 
 /*    private void clearUserCaches(User user) {
