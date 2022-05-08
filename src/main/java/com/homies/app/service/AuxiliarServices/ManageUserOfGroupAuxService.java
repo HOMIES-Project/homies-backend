@@ -229,11 +229,13 @@ public class ManageUserOfGroupAuxService {
                     taskService.save(task);
                 });
 
+                //taskList.get().setGroup(null);
+
                 taskList.get().setTasks(new HashSet<>());
                 taskListService.save(taskList.get());
-                taskListService.delete(taskList.get().getId());
+                //taskListService.delete(taskList.get().getId());
 
-                taskList.get().setGroup(null);
+
                 //refreshEntities();
 
                 tasks.forEach(task -> {

@@ -54,7 +54,7 @@ public class Task implements Serializable {
     @Column(name = "puntuacion")
     private String puntuacion;
 
-    @ManyToOne(cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.DETACH})
+    @ManyToOne()
     @JsonIgnoreProperties(value = { "group", "tasks" }, allowSetters = true)
     private TaskList taskList;
 
@@ -66,7 +66,7 @@ public class Task implements Serializable {
     //@JsonIgnoreProperties(value = { "user", "adminGroups", "taskAsigneds", "productCreateds", "groups" }, allowSetters = true)
     //private UserData userCreator;
 
-    @ManyToMany(mappedBy = "taskAsigneds", fetch = FetchType.EAGER, cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.DETACH})
+    @ManyToMany(mappedBy = "taskAsigneds", fetch = FetchType.EAGER)
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @JsonIgnoreProperties(value = { "user", "adminGroups", "taskAsigneds", "productCreateds", "groups" }, allowSetters = true)
     private Set<UserData> userAssigneds = new HashSet<>();

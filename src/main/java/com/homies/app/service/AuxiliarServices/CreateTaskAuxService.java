@@ -87,13 +87,13 @@ public class CreateTaskAuxService {
         UserData userData = userDataQueryService.getByUser_Login(createTaskVM.getLogin()).get();
         userData.addTaskAsigned(newTask);
         newTask.addUserAssigned(userData);
-        //userDataService.save(userData);
+        userDataService.save(userData);
 
         //Task add taskList
         TaskList taskList = taskListExist(createTaskVM.getIdGroup());
         taskList.addTask(newTask);
         newTask.setTaskList(taskList);
-        //taskListService.save(taskList);
+        taskListService.save(taskList);
 
         taskService.save(newTask);
 
