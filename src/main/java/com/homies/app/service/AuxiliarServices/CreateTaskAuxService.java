@@ -7,6 +7,7 @@ import com.homies.app.web.rest.GroupResource;
 import com.homies.app.web.rest.errors.Group.GroupNotExistException;
 import com.homies.app.web.rest.errors.Task.TaskAlreadyUsedException;
 import com.homies.app.web.rest.errors.Task.TaskUserDoesNotExist;
+import com.homies.app.web.rest.errors.User.UserDoesNotExistInGroup;
 import com.homies.app.web.rest.vm.AddUserToTaskVM;
 import com.homies.app.web.rest.vm.CreateTaskVM;
 import org.slf4j.Logger;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -55,6 +57,8 @@ public class CreateTaskAuxService {
         this.taskQueryService = taskQueryService;
     }
 
+    private Optional<Group> group;
+
     public Task createNewTask(CreateTaskVM createTaskVM) {
         if (userExist(createTaskVM.getUser()) == null)
             throw new TaskUserDoesNotExist();
@@ -85,7 +89,17 @@ public class CreateTaskAuxService {
 
         //User Assigned
         UserData userData1 = userDataQueryService.getByUser_Login(createTaskVM.getLogin()).get();
-        userData1.addTaskAsigned(newTask);
+        group = groupService.findOne(createTaskVM.getIdGroup());
+
+        if(group.get().getUserData() != null){
+            group.get().getUserData().forEach(ud -> {
+                if(Objects.equals(ud.getId(), userData1.getId())){
+                    userData1.addTaskAsigned(newTask);
+                } else {
+                    throw new UserDoesNotExistInGroup();
+                }
+            });
+        }
         userDataService.save(userData1);
 
         //Task add taskList
