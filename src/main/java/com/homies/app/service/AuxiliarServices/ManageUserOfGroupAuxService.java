@@ -75,6 +75,7 @@ public class ManageUserOfGroupAuxService {
     private Optional<Group> group;
     private Optional<UserData> userData;
 
+    //Funciona
     public Optional<Group> addUserToGroup(
         ManageGroupVM manageGroupVM
     ) throws UserPrincipalNotFoundException {
@@ -149,7 +150,7 @@ public class ManageUserOfGroupAuxService {
 
         deleteEntitiesManager.deleteUser(id);
 
-/*        //Detach user of her groups
+        //Detach user of her groups
         List<Group> useGroups = groupQueryService.getUseGroupsByUserDataId(userData.get().getId());
 
         userData.get().setGroups(new HashSet<>());
@@ -181,31 +182,17 @@ public class ManageUserOfGroupAuxService {
                groupService.delete(adminGroup.getId());
             }
         });
-        refreshEntities();*/
+        refreshEntities();
 
     }
 
-    public Optional<Group> deleteGroup2(
-        ManageGroupVM manageGroupVM
-    ){
-        try {
-            if (manageUserOfTheGroup(manageGroupVM, false, false, true).isPresent()){
-
-            }
-        } catch (UserPrincipalNotFoundException e) {
-            e.printStackTrace();
-        }
-
-
-        return Optional.empty();
-    }
-
+    //Funciona. ---Trasladar a DeleteEntitiesManagerService
     public Optional<Group> deleteGroup(
         ManageGroupVM manageGroupVM
     ) {
         try {
             if (manageUserOfTheGroup(manageGroupVM, false, false, true).isPresent()) {
-                //Optional<String> user = SecurityUtils.getCurrentUserLogin();
+
                 List<UserData> users = new ArrayList<>(group.get().getUserData());
                 for (UserData user : users) {
                     user.removeGroup(group.get());
@@ -213,7 +200,6 @@ public class ManageUserOfGroupAuxService {
                 }
 
                 userAdmin.get().removeAdminGroups(group.get());
-                //userDataService.save(userAdmin.get());
 
                 Optional<TaskList> taskList = taskListService.findOne(group.get().getId());
                 List<Task> tasks = new ArrayList<>(taskList.get().getTasks());
@@ -229,20 +215,12 @@ public class ManageUserOfGroupAuxService {
                     taskService.save(task);
                 });
 
-                //taskList.get().setGroup(null);
-
                 taskList.get().setTasks(new HashSet<>());
                 taskListService.save(taskList.get());
-                //taskListService.delete(taskList.get().getId());
-
-
-                //refreshEntities();
 
                 tasks.forEach(task -> {
                     taskService.delete(task.getId());
                 });
-
-                //refreshEntities();
 
                 group.get().setUserAdmin(null);
                 //group.get().setTaskList(null);
@@ -284,15 +262,6 @@ public class ManageUserOfGroupAuxService {
     }
 
     private void detachedTasks(){
-        /*List<Task> tasks = taskQueryService.getByUserData_Id(userData.get().getId());
-
-        userData.get().setTaskAsigneds(new HashSet<>());
-
-        tasks.forEach(task -> {
-*//*            task.getUserAssigneds().remove(userData);
-            taskService.save(task);*//*
-            taskService.delete(task.getId());
-        });*/
 
         List<Task> tasks = taskQueryService.getByUserAssigneds_Id(userData.get().getId());
 
@@ -306,10 +275,9 @@ public class ManageUserOfGroupAuxService {
         List<Task> tasksEmpty = taskQueryService.getByUserAssigneds_Id(userData.get().getId());
         log.warn(tasksEmpty.toString());
 
-
-        //refreshEntities();
     }
 
+    //Funciona, pero hay que hacer ajustes
     private Optional<Group> manageUserOfTheGroup(
         @NotNull ManageGroupVM manageGroupVM,
         boolean userExit,
@@ -401,12 +369,5 @@ public class ManageUserOfGroupAuxService {
         taskListQueryService.refreshTaskListEntity();
 
     }
-
-/*    private void clearUserCaches(User user) {
-        Objects.requireNonNull(cacheManager.getCache(GroupRepository)).evict(user.getLogin());
-        if (user.getEmail() != null) {
-            Objects.requireNonNull(cacheManager.getCache(UserRepository.USERS_BY_EMAIL_CACHE)).evict(user.getEmail());
-        }
-    }*/
 
 }
