@@ -70,7 +70,7 @@ public class Group implements Serializable {
     @OneToOne(mappedBy = "group", cascade = {CascadeType.ALL})
     private SettingsList settingsList;
 
-    @ManyToMany(mappedBy = "groups", fetch = FetchType.EAGER)
+    @ManyToMany(mappedBy = "groups", fetch = FetchType.EAGER, cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.DETACH})
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @JsonIgnoreProperties(value = { "adminGroups", "taskAsigneds", "productCreateds", "groups" }, allowSetters = true)
     @NotFound(action = NotFoundAction.IGNORE)

@@ -82,7 +82,7 @@ public class UserData implements Serializable {
     @JsonIgnoreProperties(value = { "userCreator", "shoppingList" }, allowSetters = true)
     private Set<Products> productCreateds = new HashSet<>();
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.DETACH})
+    @ManyToMany(fetch = FetchType.EAGER)//, cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.DETACH})
     @JoinTable(
         name = "rel_user_data__group",
         joinColumns = @JoinColumn(name = "user_data_id"),
