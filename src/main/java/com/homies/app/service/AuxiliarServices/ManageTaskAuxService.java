@@ -108,6 +108,28 @@ public class ManageTaskAuxService {
         throw new IncorrectParameters();
     }
 
+    public Optional<Task> updateTaskCancel(UpdateTaskVM updateTaskVM){
+        if(managerUpdateOfTheTask(updateTaskVM).isPresent()){
+            task = taskService.findOne(updateTaskVM.getIdTask());
+            group = groupService.findOne(updateTaskVM.getIdGroup());
+            Optional<User> user = userService.getUser(updateTaskVM.getLogin());
+            userData = userDataService.findOne(user.get().getId());
+
+            if (group.get().getUserData() != null){
+                group.get().getUserData().forEach(userData1 -> {
+                    if(Objects.equals(userData1.getId(), userData.get().getId())){
+                        task.get().setCancel(updateTaskVM.isCancel());
+                        taskService.save(task.get());
+                    } else {
+                        throw new UserDoesNotExistInGroup();
+                    }
+                });
+            }
+            return taskService.findOne(updateTaskVM.getIdTask());
+        }
+        throw new IncorrectParameters();
+    }
+
     public Optional<Task> deleteUserToTask(AddUserToTaskVM addUserToTaskVM){
         if(managerUserOfTheTask(addUserToTaskVM).isPresent()){
             if (taskQueryService.findByIdAndUserAssignedsUserLogin(

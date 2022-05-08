@@ -145,7 +145,7 @@ public class TaskResource {
             HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, result.get().getUserData().toString())
         );
     }
-
+    
     /*
      * {@code PUT  /tasks/:id} : Updates an existing task.
      *
@@ -192,6 +192,26 @@ public class TaskResource {
         }
 
         Optional<Task> result = manageTaskAuxService.updateTask(updateTaskVM);
+        return ResponseUtil.wrapOrNotFound(
+            result,
+            HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, result.get().getTaskName())
+        );
+    }
+
+    @PutMapping("/tasks/cancel")
+    public ResponseEntity<Task> updateTaskCancel(@Valid @RequestBody UpdateTaskVM updateTaskVM)
+        throws URISyntaxException {
+        if (updateTaskVM.getIdTask() == null) {
+            throw new TaskWasNotSpecifyIdTask();
+        }
+        if (updateTaskVM.getIdGroup() == null) {
+            throw new GroupWasNotSpecifyIdGroup();
+        }
+        if (updateTaskVM.getLogin() == null) {
+            throw new UserWasNotSpecifyLogin();
+        }
+
+        Optional<Task> result = manageTaskAuxService.updateTaskCancel(updateTaskVM);
         return ResponseUtil.wrapOrNotFound(
             result,
             HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, result.get().getTaskName())
