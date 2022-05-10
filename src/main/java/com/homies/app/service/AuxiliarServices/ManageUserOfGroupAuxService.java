@@ -19,6 +19,7 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -30,23 +31,23 @@ import java.util.*;
 public class ManageUserOfGroupAuxService {
 
     private final Logger log = LoggerFactory.getLogger(ManageUserOfGroupAuxService.class);
-
+    @Autowired
     private final UserDataService userDataService;
-
+    @Autowired
     private final UserDataQueryService userDataQueryService;
-
+    @Autowired
     private final GroupService groupService;
-
+    @Autowired
     private final GroupQueryService groupQueryService;
-
+    @Autowired
     private final TaskService taskService;
-
+    @Autowired
     private final TaskQueryService taskQueryService;
-
+    @Autowired
     private final TaskListService taskListService;
-
+    @Autowired
     private final TaskListQueryService taskListQueryService;
-
+    @Autowired
     private final DeleteEntitiesManagerService deleteEntitiesManager;
 
     public ManageUserOfGroupAuxService(
@@ -91,8 +92,8 @@ public class ManageUserOfGroupAuxService {
             refreshEntities();
 
             //Add newGroup in UserData
-            //userData.get().addGroup(group.get());
-            //userDataService.save(userData.get());
+            userData.get().addGroup(group.get());
+            userDataService.save(userData.get());
 
             return groupService.findOne(group.get().getId());
         }
@@ -157,15 +158,28 @@ public class ManageUserOfGroupAuxService {
         //Detach Task
         List<Task> tasks = taskQueryService.getByUserAssigneds_Id(userData.get().getId());
 
+        tasks.forEach(task -> {
+            task.removeUserAssigned(userData.get());
+            userData.get().getTaskAsigneds().remove(task);
+            taskService.save(task);
+        });
+        userData.get().setTaskAsigneds(new HashSet<>());
+        //refreshEntities();
 
-        userData.get().setGroups(new HashSet<>());
-        userData.get().setAdminGroups(new HashSet<>());
-        userDataService.save(userData.get());
+        //userDataService.save(userData.get());
 
         useGroups.forEach(useGroup -> {
             useGroup.removeUserData(userData.get());
             groupService.save(useGroup);
         });
+        userData.get().setGroups(new HashSet<>());
+        //refreshEntities();
+
+
+
+
+        userData.get().setAdminGroups(new HashSet<>());
+        userDataService.save(userData.get());
 
         adminGroups.forEach(adminGroup -> {
 
@@ -173,27 +187,33 @@ public class ManageUserOfGroupAuxService {
             //Jorge de mañana, gestiona que el usuario que pueda adquirir la admin del grupo no sea el propio usuario
             //que se quiere eliminar, podría ser simplenete con revisar que haya mas de 1 usuario
 
-            if (adminGroup.getUserData().size() > 0) {
+            if (adminGroup.getUserData().size() > 1) {
+                adminGroup.setUserAdmin(null);
                 adminGroup.setUserAdmin(adminGroup.getUserData().iterator().next());
                 groupService.save(adminGroup);
-                userDataService.save(userData.get());
+                //userDataService.save(userData.get());
             } else {
                 adminGroup.setUserAdmin(null);
-                deleteGroup(null); //Jorge del mañana, esto no se pude hacer, hya que pasar los datos.
+                ManageGroupVM mgv = new ManageGroupVM();
+                mgv.setLogin(SecurityUtils.getCurrentUserLogin().get());
+                mgv.setIdAdminGroup(id);
+                mgv.setIdGroup(adminGroup.getId());
+                deleteGroup(mgv); //Jorge del mañana, esto no se pude hacer, hya que pasar los datos.
                 //groupService.save(adminGroup);
                 //groupService.delete(adminGroup.getId());
             }
         });
 
-        tasks.forEach(task -> {
-            task.removeUserAssigned(userData.get());
-            userData.get().getTaskAsigneds().remove(task);
-            taskService.save(task);
-        });
+        //userDataService.save(userData.get());
+
+        //refreshEntities();
+
+
 
         userDataService.save(userData.get());
-
         refreshEntities();
+        userDataService.delete(id);
+
 
     }
 
@@ -234,7 +254,7 @@ public class ManageUserOfGroupAuxService {
                 });
 
                 group.get().setUserAdmin(null);
-                groupService.save(group.get());
+                //groupService.save(group.get());
                 groupService.delete(group.get().getId());
                 refreshEntities();
 
@@ -271,10 +291,6 @@ public class ManageUserOfGroupAuxService {
         return Optional.empty();
     }
 
-    private void detachedTasks(){
-
-
-    }
 
     //Funciona, pero hay que hacer ajustes
     private Optional<Group> manageUserOfTheGroup(
@@ -293,11 +309,9 @@ public class ManageUserOfGroupAuxService {
             if (userAdmin.isEmpty())
                 throw new UserPrincipalNotFoundException("Don't exist this admin"); //UserAdmin not exist
 
-
             if (group.get().getUserAdmin() != null)
                 if (!Objects.equals(userAdmin.get().getId(), group.get().getUserAdmin().getId()))
                     throw new UserPrincipalNotFoundException("UserAdmin isn't admin of this group");  //UserAdmin not is group's userAdmin.
-
 
         }
 
@@ -369,4 +383,21 @@ public class ManageUserOfGroupAuxService {
 
     }
 
+    /** Función demostrativa para eliminar */
+    private void pruebaSeguridad() {
+        //Prueba de seguridades
+        Optional<String> uno = SecurityUtils.getCurrentUserLogin();
+        Optional<String> dos = SecurityUtils.getCurrentUserJWT();
+        boolean tres = SecurityUtils.hasCurrentUserAnyOfAuthorities(); //tiene el usuario actual cualquiera de las autoridades??
+        boolean cuatro = SecurityUtils.hasCurrentUserNoneOfAuthorities(); //tiene Usuario actual Ninguna de las autoridades??
+        boolean cinco = SecurityUtils.hasCurrentUserThisAuthority(dos.get()); //tiene el usuario actual esta autoridad
+        boolean seis = SecurityUtils.isAuthenticated();
+
+        log.warn("Uno : " + uno.get());
+        log.warn("Dos : " + dos.get());
+        log.warn("tres : " + tres);
+        log.warn("cuatro : " + cuatro);
+        log.warn("Cinco : " + cinco);
+        log.warn("Seis : " + seis);
+    }
 }

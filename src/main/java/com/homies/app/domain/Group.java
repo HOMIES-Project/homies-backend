@@ -8,6 +8,8 @@ import java.util.Set;
 import javax.persistence.*;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.swing.*;
 import javax.validation.constraints.*;
@@ -21,6 +23,9 @@ import org.junit.Ignore;
  */
 @Entity
 @Table(name = "jhi_group")
+@NamedQueries({
+    @NamedQuery(name = "Group.deleteByUserAdmin", query = "delete from Group g where g.userAdmin = :userAdmin")
+})
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Group implements Serializable {
 
@@ -47,7 +52,7 @@ public class Group implements Serializable {
     @Column(name = "add_group_date")
     private LocalDate addGroupDate;
 
-    @ManyToOne
+    @ManyToOne(cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.DETACH})
     @JsonIgnoreProperties(value = { "adminGroups", "taskAsigneds", "productCreateds", "groups" }, allowSetters = true)
     @NotFound(action = NotFoundAction.IGNORE)
     private UserData userAdmin;
@@ -70,7 +75,7 @@ public class Group implements Serializable {
     @OneToOne(mappedBy = "group", cascade = {CascadeType.ALL})
     private SettingsList settingsList;
 
-    @ManyToMany(mappedBy = "groups", fetch = FetchType.EAGER, cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.DETACH})
+    @ManyToMany(mappedBy = "groups", fetch = FetchType.EAGER)//, cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.DETACH})
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @JsonIgnoreProperties(value = { "adminGroups", "taskAsigneds", "productCreateds", "groups" }, allowSetters = true)
     @NotFound(action = NotFoundAction.IGNORE)

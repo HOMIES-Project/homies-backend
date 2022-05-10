@@ -9,6 +9,8 @@ import javax.persistence.*;
 import javax.validation.constraints.*;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
 
 /**
  * A Task.
@@ -69,6 +71,7 @@ public class Task implements Serializable {
     @ManyToMany(mappedBy = "taskAsigneds", fetch = FetchType.EAGER)
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @JsonIgnoreProperties(value = { "user", "adminGroups", "taskAsigneds", "productCreateds", "groups" }, allowSetters = true)
+    @NotFound(action = NotFoundAction.IGNORE)
     private Set<UserData> userAssigneds = new HashSet<>();
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
