@@ -87,13 +87,22 @@ public class ManageUserOfGroupAuxService {
                 manageGroupVM.getLogin()).isPresent())
                 throw new UsernameAlreadyUsedException();
 
-            group.get().addUserData(userData.get());
-            groupService.save(group.get());
-            refreshEntities();
+            //group.get().addUserData(userData.get());
 
             //Add newGroup in UserData
             userData.get().addGroup(group.get());
             userDataService.save(userData.get());
+            group.get().addUserData(userData.get());
+            groupService.save(group.get());
+            refreshEntities();
+            /*UserData oldUser = group.get().getUserData().stream().filter(userData1 -> userData1.equals(userData)).findAny().orElse(null);
+
+            if (oldUser == null) {
+
+                groupService.save(group.get());
+            }*/
+
+
 
             return groupService.findOne(group.get().getId());
         }
@@ -136,7 +145,7 @@ public class ManageUserOfGroupAuxService {
                                     .isEmpty())
                 throw new UsernameNotFoundException("No existe el usuario en este equipo");
 
-            deleteUser();
+            removeUserFromTheGroup();
             return groupService.findOne(group.get().getId());
 
         }
@@ -144,56 +153,47 @@ public class ManageUserOfGroupAuxService {
 
     }
 
-    public void deleteUserAllGroups(Long id) {
+    public void deleteUserAndRelationships(Long id) {
         userData = userDataService.findOne(id);
         if (userData.isEmpty())
             throw new UserDoesNotExist();
 
-        //Detach user of her groups
-        List<Group> useGroups = groupQueryService.getUseGroupsByUserDataId(userData.get().getId());
-
-        //Detach user of her admin groups
-        List<Group> adminGroups = groupQueryService.getAdminGroupsByUserDataId(userData.get().getId());
-
         //Detach Task
         List<Task> tasks = taskQueryService.getByUserAssigneds_Id(userData.get().getId());
-
         tasks.forEach(task -> {
             task.removeUserAssigned(userData.get());
             userData.get().getTaskAsigneds().remove(task);
             taskService.save(task);
         });
         userData.get().setTaskAsigneds(new HashSet<>());
-        //refreshEntities();
+        userDataService.save(userData.get());
+        refreshEntities();
 
-        //userDataService.save(userData.get());
-
+        //Detach user of her groups
+        List<Group> useGroups = groupQueryService.getUseGroupsByUserDataId(userData.get().getId());
         useGroups.forEach(useGroup -> {
             useGroup.removeUserData(userData.get());
             groupService.save(useGroup);
         });
         userData.get().setGroups(new HashSet<>());
-        //refreshEntities();
+        userDataService.save(userData.get());
+        refreshEntities();
 
-
-
-
+        //Detach user of her admin groups
+        List<Group> adminGroups = groupQueryService.getAdminGroupsByUserDataId(userData.get().getId());
         userData.get().setAdminGroups(new HashSet<>());
         userDataService.save(userData.get());
-
         adminGroups.forEach(adminGroup -> {
-
-
-            //Jorge de mañana, gestiona que el usuario que pueda adquirir la admin del grupo no sea el propio usuario
-            //que se quiere eliminar, podría ser simplenete con revisar que haya mas de 1 usuario
 
             if (adminGroup.getUserData().size() > 1) {
                 adminGroup.setUserAdmin(null);
                 adminGroup.setUserAdmin(adminGroup.getUserData().iterator().next());
+                userDataService.save(userData.get());
                 groupService.save(adminGroup);
                 //userDataService.save(userData.get());
             } else {
-                adminGroup.setUserAdmin(null);
+                //adminGroup.setUserAdmin(null);
+                //groupService.save(adminGroup);
                 ManageGroupVM mgv = new ManageGroupVM();
                 mgv.setLogin(SecurityUtils.getCurrentUserLogin().get());
                 mgv.setIdAdminGroup(id);
@@ -204,16 +204,9 @@ public class ManageUserOfGroupAuxService {
             }
         });
 
-        //userDataService.save(userData.get());
-
-        //refreshEntities();
-
-
-
-        userDataService.save(userData.get());
         refreshEntities();
-        userDataService.delete(id);
 
+        userDataService.delete(id);
 
     }
 
@@ -330,7 +323,7 @@ public class ManageUserOfGroupAuxService {
 
     }
 
-    private void deleteUser() {
+    private void removeUserFromTheGroup() {
         try {
             userData.get().removeGroup(group.get());
             userDataService.save(userData.get());

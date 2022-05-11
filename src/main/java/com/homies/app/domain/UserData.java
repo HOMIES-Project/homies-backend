@@ -70,6 +70,7 @@ public class UserData implements Serializable {
     )
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @JsonIgnoreProperties(value = { "taskList", "userData", "userCreator", "userAssigneds" }, allowSetters = true)
+    @NotFound(action = NotFoundAction.IGNORE)
     private Set<Task> taskAsigneds = new HashSet<>();
 
     @OneToMany(mappedBy = "userCreator", fetch = FetchType.EAGER)
