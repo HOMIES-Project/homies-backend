@@ -38,7 +38,7 @@ public class GroupServiceImpl implements GroupService {
         log.debug("Request to save Group : {}", group);
         Long taskListId = group.getTaskList().getId();
         taskListRepository.findById(taskListId).ifPresent(group::taskList);
-        return groupRepository.saveAndFlush(group);
+        return groupRepository.save(group);
     }
 
     @Override
