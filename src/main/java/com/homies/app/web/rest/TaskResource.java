@@ -145,7 +145,7 @@ public class TaskResource {
             HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, result.get().getUserData().toString())
         );
     }
-    
+
     /*
      * {@code PUT  /tasks/:id} : Updates an existing task.
      *
