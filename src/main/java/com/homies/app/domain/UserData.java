@@ -53,7 +53,7 @@ public class UserData implements Serializable {
     @JoinColumn(name = "id")
     private User user;
 
-    @OneToMany(mappedBy = "userAdmin", fetch = FetchType.EAGER)//, cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.DETACH})
+    @OneToMany(mappedBy = "userAdmin", fetch = FetchType.EAGER, cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.DETACH})
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @JsonIgnoreProperties(
         value = { "userAdmin", "taskList", "spendingList", "shoppingList", "settingsList", "userData" },
@@ -62,7 +62,7 @@ public class UserData implements Serializable {
     @NotFound(action = NotFoundAction.IGNORE)
     private Set<Group> adminGroups = new HashSet<>();
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.DETACH})
     @JoinTable(
         name = "rel_user_data__task_asigned",
         joinColumns = @JoinColumn(name = "user_data_id"),

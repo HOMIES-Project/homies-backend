@@ -218,12 +218,13 @@ public class ManageUserOfGroupAuxService {
             if (manageUserOfTheGroup(manageGroupVM, false, false, true).isPresent()) {
 
                 List<UserData> users = new ArrayList<>(group.get().getUserData());
-                for (UserData user : users) {
+                users.forEach(user -> {
                     user.removeGroup(group.get());
                     userDataService.save(user);
-                }
+                });
 
                 userAdmin.get().removeAdminGroups(group.get());
+                userDataService.save(userAdmin.get());
 
                 Optional<TaskList> taskList = taskListService.findOne(group.get().getId());
                 List<Task> tasks = new ArrayList<>(taskList.get().getTasks());
@@ -247,7 +248,7 @@ public class ManageUserOfGroupAuxService {
                 });
 
                 group.get().setUserAdmin(null);
-                //groupService.save(group.get());
+                groupService.save(group.get());
                 groupService.delete(group.get().getId());
                 refreshEntities();
 
