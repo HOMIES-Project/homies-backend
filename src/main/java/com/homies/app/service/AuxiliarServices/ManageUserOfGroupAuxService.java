@@ -271,14 +271,59 @@ public class ManageUserOfGroupAuxService {
                 manageGroupVM.getLogin()).isEmpty())
                 throw new UserDoesNotExist();
 
-            group.get().setUserAdmin(userData.get());
-            groupService.save(group.get());
+           /* userData.get().setAdminGroups(new HashSet<>());
+        userDataService.save(userData.get());
 
-            userAdmin.get().removeAdminGroups(group.get());
+                adminGroup.setUserAdmin(null);
+                adminGroup.setUserAdmin(adminGroup.getUserData().iterator().next());
+
+                userDataService.save(userData.get());
+
+                groupService.save(adminGroup);*/
+
+            Set<Group> userAdminGroupsA = userAdmin.get().getAdminGroups();
+            userAdminGroupsA.remove(group.get());
+            userAdmin.get().setAdminGroups(userAdminGroupsA);
+            //userAdmin.get().getAdminGroups().remove(group.get());
             userDataService.save(userAdmin.get());
 
-            userData.get().addAdminGroups(group.get());
+            Set<Group> userDataGroupsA = userData.get().getAdminGroups();
+            userDataGroupsA.add(group.get());
+            userData.get().setAdminGroups(userDataGroupsA);
+            //userData.get().addAdminGroups(group.get());
             userDataService.save(userData.get());
+
+
+            group.get().setUserAdmin(null);
+            group.get().setUserAdmin(userData.get());
+
+            refreshEntities();
+
+            groupService.save(group.get());
+
+            //userDataService.save(userAdmin.get());
+            //userDataService.save(userData.get());
+
+
+
+            //userData.get().addAdminGroups(group.get());
+
+
+
+            //group = Optional.ofNullable(groupService.save(group.get()));
+
+            //userData = (userDataService.findOne(userData.get().getId()));
+
+
+
+            //group.get().setUserAdmin(userData.get());
+            //groupService.save(group.get());
+
+
+
+
+
+
 
             return groupService.findOne(group.get().getId());
         }
