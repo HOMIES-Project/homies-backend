@@ -335,6 +335,14 @@ public class ManageUserOfGroupAuxService {
             groupService.save(group.get());
 
             if (userData.get().getId().longValue() == group.get().getUserAdmin().getId().longValue()) {
+                Set<UserData> userDataSet = group.get().getUserData();
+                boolean changeAdmin = false;
+                if (userDataSet.size() > 0) {
+                    userData = userDataService.findOne(userDataSet.iterator().next().getId());
+                    if (userData.get().getId().longValue() == group.get().getUserAdmin().getId().longValue())
+                        changeAdmin = true;
+
+                }
 
                 group.get().setUserAdmin(null);
                 groupService.save(group.get());
@@ -342,22 +350,19 @@ public class ManageUserOfGroupAuxService {
                 userData.get().removeAdminGroups(group.get());
                 userDataService.partialUpdate(userData.get());
 
-                Set<UserData> userDataSet = group.get().getUserData();
+                ManageGroupVM mgv = new ManageGroupVM();
+                mgv.setLogin(SecurityUtils.getCurrentUserLogin().get());
+                mgv.setIdAdminGroup(userData.get().getId());
+                mgv.setIdGroup(group.get().getId());
 
-                if (userDataSet.size() > 1) {
-
-                    userData = userDataService.findOne(userDataSet.iterator().next().getId());
-
-                    group.get().setUserAdmin(userData.get());
-                    groupService.save(group.get());
-
-                    userData.get().addAdminGroups(group.get());
-                    userDataService.save(userData.get());
+                if (changeAdmin) {
+                    changeUserAdminOfTheGroup(mgv);
                     refreshEntities();
                 } else {
-                    groupService.delete(group.get().getId());
+                    deleteGroup(mgv);
                     refreshEntities();
                 }
+
             }
         } catch (Exception e){
             e.printStackTrace();
