@@ -13,6 +13,7 @@ import com.homies.app.web.rest.vm.AddUserToTaskVM;
 import com.homies.app.web.rest.vm.UpdateTaskVM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -24,15 +25,21 @@ import java.util.Set;
 public class ManageTaskAuxService {
 
     private final Logger log = LoggerFactory.getLogger(TaskResource.class);
+    @Autowired
+    private final TaskService taskService;
+    @Autowired
+    private final TaskQueryService taskQueryService;
+    @Autowired
+    private final UserDataQueryService userDataQueryService;
+    @Autowired
+    private final UserDataService userDataService;
+    @Autowired
+    private final TaskListService taskListService;
+    @Autowired
+    private final UserService userService;
+    @Autowired
+    private final GroupService groupService;
 
-    private TaskService taskService;
-    private TaskQueryService taskQueryService;
-    private UserDataQueryService userDataQueryService;
-    private UserDataService userDataService;
-    private TaskListService taskListService;
-    private UserService userService;
-    private GroupService groupService;
-    private TaskRepository taskRepository;
 
 
     public ManageTaskAuxService(TaskService taskService,
@@ -41,8 +48,7 @@ public class ManageTaskAuxService {
                                 UserDataService userDataService,
                                 TaskListService taskListService,
                                 UserService userService,
-                                GroupService groupService,
-                                TaskRepository taskRepository) {
+                                GroupService groupService) {
         this.taskService = taskService;
         this.taskQueryService = taskQueryService;
         this.userDataQueryService = userDataQueryService;
@@ -50,7 +56,6 @@ public class ManageTaskAuxService {
         this.taskListService = taskListService;
         this.userService = userService;
         this.groupService = groupService;
-        this.taskRepository = taskRepository;
     }
 
     private Optional<UserData> userData;
@@ -128,17 +133,33 @@ public class ManageTaskAuxService {
         if(taskService.findOne(id).isEmpty()){
             throw new TaskDoesNotExist();
         } else {
-            List<UserData> userData = userDataQueryService.getByTaskAsignedsId(id);
-            task = taskService.findOne(id);
-            userData.forEach(ud -> {
-                ud.removeTaskAsigned(task.get());
-            });
             try {
-                task.get().userAssigneds(null);
-                //task.get().userData(null);
-                taskRepository.delete(task.get());
+                task = taskService.findOne(id);
+                Set<UserData> usersData = task.get().getUserAssigneds();
+                TaskList taskList = new TaskList();
+                boolean isTaskList = false;
+                if (task.get().getTaskList() != null){
+                    isTaskList = true;
+                    taskList = task.get().getTaskList();
+                }
+
+                usersData.forEach(userData -> {
+                    userData.removeTaskAsigned(task.get());
+                    userDataService.save(userData);
+                });
+
+                task.get().setTaskList(null);
+                taskService.save(task.get());
+
+                if (isTaskList){
+                    taskList.removeTask(task.get());
+                    taskListService.save(taskList);
+                }
+
+                taskService.delete(task.get().getId());
+
             }catch (Exception e){
-                throw e;
+                e.printStackTrace();
             }
 
         }

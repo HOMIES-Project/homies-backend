@@ -301,30 +301,6 @@ public class ManageUserOfGroupAuxService {
 
             groupService.save(group.get());
 
-            //userDataService.save(userAdmin.get());
-            //userDataService.save(userData.get());
-
-
-
-            //userData.get().addAdminGroups(group.get());
-
-
-
-            //group = Optional.ofNullable(groupService.save(group.get()));
-
-            //userData = (userDataService.findOne(userData.get().getId()));
-
-
-
-            //group.get().setUserAdmin(userData.get());
-            //groupService.save(group.get());
-
-
-
-
-
-
-
             return groupService.findOne(group.get().getId());
         }
         return Optional.empty();
