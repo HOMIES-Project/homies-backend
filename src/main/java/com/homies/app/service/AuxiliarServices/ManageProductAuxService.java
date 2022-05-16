@@ -1,0 +1,99 @@
+package com.homies.app.service.AuxiliarServices;
+
+import com.homies.app.domain.*;
+import com.homies.app.service.*;
+import com.homies.app.web.rest.TaskResource;
+import com.homies.app.web.rest.errors.General.IncorrectParameters;
+import com.homies.app.web.rest.errors.User.UserDoesNotExistInGroup;
+import com.homies.app.web.rest.vm.AddUserToTaskVM;
+import com.homies.app.web.rest.vm.UpdateProductVM;
+import com.homies.app.web.rest.vm.UpdateTaskVM;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
+import java.util.Objects;
+import java.util.Optional;
+
+@Service
+public class ManageProductAuxService {
+
+    private final Logger log = LoggerFactory.getLogger(TaskResource.class);
+
+    private ProductsService productsService;
+
+    private ShoppingListService shoppingListService;
+
+    private UserService userService;
+
+    private UserDataQueryService userDataQueryService;
+
+    private UserDataService userDataService;
+
+    private GroupService groupService;
+
+    public ManageProductAuxService(ProductsService productsService,
+                                   ShoppingListService shoppingListService,
+                                   UserService userService,
+                                   UserDataQueryService userDataQueryService,
+                                   UserDataService userDataService,
+                                   GroupService groupService) {
+        this.productsService = productsService;
+        this.shoppingListService = shoppingListService;
+        this.userService = userService;
+        this.userDataQueryService = userDataQueryService;
+        this.userDataService = userDataService;
+        this.groupService = groupService;
+    }
+
+    private Optional<Products> products;
+
+    private Optional<ShoppingList> shoppingList;
+
+    private Optional<Group> group;
+
+    private Optional<UserData> userData;
+
+
+    public Optional<Products> updateProduct(UpdateProductVM updateProductVM){
+        if(managerUpdateOfTheProduct(updateProductVM).isPresent()){
+            products = productsService.findOne(updateProductVM.getIdProduct());
+            shoppingList = shoppingListService.findOne(updateProductVM.getIdGroup());
+            group = groupService.findOne(updateProductVM.getIdGroup());
+
+            if(group.get().getUserData() != null){
+                group.get().getUserData().forEach(userData1 -> {
+                    if(Objects.equals(userData1.getId(), userData.get().getId())){
+                        if(!updateProductVM.getName().equals(products.get().getName())){
+                            products.get().setName(updateProductVM.getName());
+                        }
+
+                        if(!products.get().getUnits().equals(updateProductVM.getUnits())){
+                            products.get().setUnits(updateProductVM.getUnits());
+                        }
+
+                        productsService.save(products.get());
+                    }else{
+                        throw new UserDoesNotExistInGroup();
+                    }
+                });
+            }
+            return productsService.findOne(updateProductVM.getIdProduct());
+        }
+        throw new IncorrectParameters();
+    }
+
+    private Optional<Products> managerUpdateOfTheProduct(UpdateProductVM updateProductVM){
+
+        products = productsService.findOne(updateProductVM.getIdProduct());
+        shoppingList = shoppingListService.findOne(updateProductVM.getIdGroup());
+        Optional<User> user = userService.getUser(updateProductVM.getLogin());
+        userData = userDataService.findOne(user.get().getId());
+
+        if (userData.isEmpty() || products.isEmpty() || shoppingList.isEmpty()){
+            return Optional.empty();
+        }
+        return products;
+    }
+
+}
