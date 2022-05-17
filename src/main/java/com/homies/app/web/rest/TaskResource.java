@@ -107,6 +107,7 @@ public class TaskResource {
     @PostMapping("/tasks/add-user")
     public ResponseEntity<Task> addUserToTask(@Valid @RequestBody AddUserToTaskVM addUserToTaskVM)
     throws URISyntaxException{
+        log.warn("REST request to add user to task : {}", addUserToTaskVM);
         if(addUserToTaskVM.getIdTask() == null){
             throw new TaskWasNotSpecifyIdTask();
         }
@@ -128,6 +129,7 @@ public class TaskResource {
     @PostMapping("/task/delete-user")
     public ResponseEntity<Task> deleteUserToTask(@Valid @RequestBody AddUserToTaskVM addUserToTaskVM)
         throws URISyntaxException{
+        log.warn("REST request to delete user to task : {}", addUserToTaskVM);
         if(addUserToTaskVM.getIdTask() == null){
             throw new TaskWasNotSpecifyIdTask();
         }
@@ -145,42 +147,10 @@ public class TaskResource {
             HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, result.get().getUserAssigneds().toString())
         );
     }
-
-    /*
-     * {@code PUT  /tasks/:id} : Updates an existing task.
-     *
-     * @param id the id of the task to save.
-     * @param task the task to update.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated task,
-     * or with status {@code 400 (Bad Request)} if the task is not valid,
-     * or with status {@code 500 (Internal Server Error)} if the task couldn't be updated.
-     * @throws URISyntaxException if the Location URI syntax is incorrect.
-
-    @PutMapping("/tasks/{id}")
-    public ResponseEntity<Task> updateTask2(@PathVariable(value = "id", required = false) final Long id, @Valid @RequestBody Task task)
-        throws URISyntaxException {
-        log.debug("REST request to update Task : {}, {}", id, task);
-        if (task.getId() == null) {
-            throw new TaskWasNotSpecifyUser();
-        }
-        if (!Objects.equals(id, task.getId())) {
-            throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
-        }
-
-        if (!taskRepository.existsById(id)) {
-            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
-        }
-
-        Task result = taskService.save(task);
-        return ResponseEntity
-            .ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, task.getId().toString()))
-            .body(result);
-    }*/
-
     @PutMapping("/tasks/update-tasks")
     public ResponseEntity<Task> updateTask(@Valid @RequestBody UpdateTaskVM updateTaskVM)
         throws URISyntaxException {
+        log.warn("REST request to update task : {}", updateTaskVM);
         if (updateTaskVM.getIdTask() == null) {
             throw new TaskWasNotSpecifyIdTask();
         }

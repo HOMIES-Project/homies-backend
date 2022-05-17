@@ -1,7 +1,6 @@
 package com.homies.app.service.AuxiliarServices;
 
 import com.homies.app.domain.*;
-import com.homies.app.repository.TaskRepository;
 import com.homies.app.service.*;
 import com.homies.app.web.rest.TaskResource;
 import com.homies.app.web.rest.errors.General.IncorrectParameters;
@@ -16,10 +15,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Service
 public class ManageTaskAuxService {
@@ -87,29 +85,40 @@ public class ManageTaskAuxService {
             Optional<User> user = userService.getUser(updateTaskVM.getLogin());
             userData = userDataService.findOne(user.get().getId());
 
+            AtomicBoolean userExist = new AtomicBoolean(false);
             if (group.get().getUserData() != null){
                 group.get().getUserData().forEach(userData1 -> {
                     if(userData1.getId().equals(userData.get().getId())){
-                        if (!updateTaskVM.getTaskName().equals(task.get().getTaskName())){
-                            taskList.get().getTasks().forEach(nameTask -> {
-                                if(nameTask.getTaskName().equals(updateTaskVM.getTaskName())){
-                                    throw new TaskAlreadyUsedException();
-                                } else {
-                                    task.get().setTaskName(updateTaskVM.getTaskName());
-                                }
-                            });
-                        }
-
-                        if(!task.get().getDescription().equals(updateTaskVM.getDescription())){
-                            task.get().setDescription(updateTaskVM.getDescription());
-                        }
-
-                        taskService.save(task.get());
-                    } else {
-                        throw new UserDoesNotExistInGroup();
+                        userExist.set(true);
                     }
                 });
+
+
+                if(userExist.get()){
+                    if (!updateTaskVM.getTaskName().equals(task.get().getTaskName())){
+                        taskList.get().getTasks().forEach(nameTask -> {
+                            if(nameTask.getTaskName().equals(updateTaskVM.getTaskName())){
+                                throw new TaskAlreadyUsedException();
+                            } else {
+                                task.get().setTaskName(updateTaskVM.getTaskName());
+                            }
+                        });
+                    }
+
+                    if(!task.get().getDescription().equals(updateTaskVM.getDescription())){
+                        task.get().setDescription(updateTaskVM.getDescription());
+                    }
+
+                    taskService.save(task.get());
+                } else {
+                    throw new UserDoesNotExistInGroup();
+                }
+
+
+
             }
+
+
 
             return taskService.findOne(updateTaskVM.getIdTask());
         }
