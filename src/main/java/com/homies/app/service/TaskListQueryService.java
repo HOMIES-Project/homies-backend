@@ -95,6 +95,10 @@ public class TaskListQueryService extends QueryService<TaskList> {
         return taskListRepository.getByIdAndTasks_UserAssigneds_Id(TaskList, idUserData);
    }
 
+    public void refreshTaskListEntity() {
+        taskListRepository.flush();
+    }
+
     /**
      * Function to convert {@link TaskListCriteria} to a {@link Specification}
      * @param criteria The object which holds all the filters, which the entities should match.

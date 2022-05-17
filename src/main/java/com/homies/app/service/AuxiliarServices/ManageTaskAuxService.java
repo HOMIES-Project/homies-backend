@@ -1,7 +1,6 @@
 package com.homies.app.service.AuxiliarServices;
 
 import com.homies.app.domain.*;
-import com.homies.app.repository.TaskRepository;
 import com.homies.app.service.*;
 import com.homies.app.web.rest.TaskResource;
 import com.homies.app.web.rest.errors.General.IncorrectParameters;
@@ -13,26 +12,32 @@ import com.homies.app.web.rest.vm.AddUserToTaskVM;
 import com.homies.app.web.rest.vm.UpdateTaskVM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Service
 public class ManageTaskAuxService {
 
     private final Logger log = LoggerFactory.getLogger(TaskResource.class);
+    @Autowired
+    private final TaskService taskService;
+    @Autowired
+    private final TaskQueryService taskQueryService;
+    @Autowired
+    private final UserDataQueryService userDataQueryService;
+    @Autowired
+    private final UserDataService userDataService;
+    @Autowired
+    private final TaskListService taskListService;
+    @Autowired
+    private final UserService userService;
+    @Autowired
+    private final GroupService groupService;
 
-    private TaskService taskService;
-    private TaskQueryService taskQueryService;
-    private UserDataQueryService userDataQueryService;
-    private UserDataService userDataService;
-    private TaskListService taskListService;
-    private UserService userService;
-    private GroupService groupService;
-    private TaskRepository taskRepository;
 
 
     public ManageTaskAuxService(TaskService taskService,
@@ -41,8 +46,7 @@ public class ManageTaskAuxService {
                                 UserDataService userDataService,
                                 TaskListService taskListService,
                                 UserService userService,
-                                GroupService groupService,
-                                TaskRepository taskRepository) {
+                                GroupService groupService) {
         this.taskService = taskService;
         this.taskQueryService = taskQueryService;
         this.userDataQueryService = userDataQueryService;
@@ -50,7 +54,6 @@ public class ManageTaskAuxService {
         this.taskListService = taskListService;
         this.userService = userService;
         this.groupService = groupService;
-        this.taskRepository = taskRepository;
     }
 
     private Optional<UserData> userData;
@@ -82,29 +85,40 @@ public class ManageTaskAuxService {
             Optional<User> user = userService.getUser(updateTaskVM.getLogin());
             userData = userDataService.findOne(user.get().getId());
 
+            AtomicBoolean userExist = new AtomicBoolean(false);
             if (group.get().getUserData() != null){
                 group.get().getUserData().forEach(userData1 -> {
                     if(userData1.getId().equals(userData.get().getId())){
-                        if (!updateTaskVM.getTaskName().equals(task.get().getTaskName())){
-                            taskList.get().getTasks().forEach(nameTask -> {
-                                if(nameTask.getTaskName().equals(updateTaskVM.getTaskName())){
-                                    throw new TaskAlreadyUsedException();
-                                } else {
-                                    task.get().setTaskName(updateTaskVM.getTaskName());
-                                }
-                            });
-                        }
-
-                        if(!task.get().getDescription().equals(updateTaskVM.getDescription())){
-                            task.get().setDescription(updateTaskVM.getDescription());
-                        }
-
-                        taskService.save(task.get());
-                    } else {
-                        throw new UserDoesNotExistInGroup();
+                        userExist.set(true);
                     }
                 });
+
+
+                if(userExist.get()){
+                    if (!updateTaskVM.getTaskName().equals(task.get().getTaskName())){
+                        taskList.get().getTasks().forEach(nameTask -> {
+                            if(nameTask.getTaskName().equals(updateTaskVM.getTaskName())){
+                                throw new TaskAlreadyUsedException();
+                            } else {
+                                task.get().setTaskName(updateTaskVM.getTaskName());
+                            }
+                        });
+                    }
+
+                    if(!task.get().getDescription().equals(updateTaskVM.getDescription())){
+                        task.get().setDescription(updateTaskVM.getDescription());
+                    }
+
+                    taskService.save(task.get());
+                } else {
+                    throw new UserDoesNotExistInGroup();
+                }
+
+
+
             }
+
+
 
             return taskService.findOne(updateTaskVM.getIdTask());
         }
@@ -128,17 +142,33 @@ public class ManageTaskAuxService {
         if(taskService.findOne(id).isEmpty()){
             throw new TaskDoesNotExist();
         } else {
-            List<UserData> userData = userDataQueryService.getByTaskAsignedsId(id);
-            task = taskService.findOne(id);
-            userData.forEach(ud -> {
-                ud.removeTaskAsigned(task.get());
-            });
             try {
-                task.get().userAssigneds(null);
-                task.get().userData(null);
-                taskRepository.delete(task.get());
+                task = taskService.findOne(id);
+                Set<UserData> usersData = task.get().getUserAssigneds();
+                TaskList taskList = new TaskList();
+                boolean isTaskList = false;
+                if (task.get().getTaskList() != null){
+                    isTaskList = true;
+                    taskList = task.get().getTaskList();
+                }
+
+                usersData.forEach(userData -> {
+                    userData.removeTaskAsigned(task.get());
+                    userDataService.save(userData);
+                });
+
+                task.get().setTaskList(null);
+                taskService.save(task.get());
+
+                if (isTaskList){
+                    taskList.removeTask(task.get());
+                    taskListService.save(taskList);
+                }
+
+                taskService.delete(task.get().getId());
+
             }catch (Exception e){
-                throw e;
+                e.printStackTrace();
             }
 
         }

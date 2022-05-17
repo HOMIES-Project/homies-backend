@@ -792,7 +792,7 @@ class TaskResourceIT {
         }
         em.persist(userData);
         em.flush();
-        task.setUserData(userData);
+        //task.setUserData(userData);
         taskRepository.saveAndFlush(task);
         Long userDataId = userData.getId();
 
@@ -818,7 +818,7 @@ class TaskResourceIT {
         }
         em.persist(userCreator);
         em.flush();
-        task.setUserData(userCreator);
+        //task.setUserData(userCreator);
         taskRepository.saveAndFlush(task);
         Long userCreatorId = userCreator.getId();
 
