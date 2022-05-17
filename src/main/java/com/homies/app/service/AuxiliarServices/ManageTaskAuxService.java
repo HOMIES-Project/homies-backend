@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -120,6 +121,32 @@ public class ManageTaskAuxService {
 
 
 
+            return taskService.findOne(updateTaskVM.getIdTask());
+        }
+        throw new IncorrectParameters();
+    }
+
+    public Optional<Task> updateTaskCancel(UpdateTaskVM updateTaskVM){
+        if(managerUpdateOfTheTask(updateTaskVM).isPresent()){
+            task = taskService.findOne(updateTaskVM.getIdTask());
+            group = groupService.findOne(updateTaskVM.getIdGroup());
+            Optional<User> user = userService.getUser(updateTaskVM.getLogin());
+            userData = userDataService.findOne(user.get().getId());
+
+            AtomicBoolean userExist = new AtomicBoolean(false);
+            if (group.get().getUserData() != null){
+                group.get().getUserData().forEach(userData1 -> {
+                    if(userData1.getId().equals(userData.get().getId())){
+                        userExist.set(true);
+                    }
+                });
+                if(userExist.get()){
+                    task.get().setCancel(updateTaskVM.isCancel());
+                    taskService.save(task.get());
+                } else {
+                    throw new UserDoesNotExistInGroup();
+                }
+            }
             return taskService.findOne(updateTaskVM.getIdTask());
         }
         throw new IncorrectParameters();

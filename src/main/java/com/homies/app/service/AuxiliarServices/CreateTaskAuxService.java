@@ -7,6 +7,7 @@ import com.homies.app.web.rest.GroupResource;
 import com.homies.app.web.rest.errors.Group.GroupNotExistException;
 import com.homies.app.web.rest.errors.Task.TaskAlreadyUsedException;
 import com.homies.app.web.rest.errors.Task.TaskUserDoesNotExist;
+import com.homies.app.web.rest.errors.User.UserDoesNotExistInGroup;
 import com.homies.app.web.rest.vm.AddUserToTaskVM;
 import com.homies.app.web.rest.vm.CreateTaskVM;
 import org.slf4j.Logger;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -54,6 +56,8 @@ public class CreateTaskAuxService {
         this.userDataQueryService = userDataQueryService;
         this.taskQueryService = taskQueryService;
     }
+
+    private Optional<Group> group;
 
     public Task createNewTask(CreateTaskVM createTaskVM) {
         if (userExist(createTaskVM.getUser()) == null)

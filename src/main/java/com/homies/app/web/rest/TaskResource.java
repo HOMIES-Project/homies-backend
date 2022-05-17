@@ -168,6 +168,26 @@ public class TaskResource {
         );
     }
 
+    @PutMapping("/tasks/cancel")
+    public ResponseEntity<Task> updateTaskCancel(@Valid @RequestBody UpdateTaskVM updateTaskVM)
+        throws URISyntaxException {
+        if (updateTaskVM.getIdTask() == null) {
+            throw new TaskWasNotSpecifyIdTask();
+        }
+        if (updateTaskVM.getIdGroup() == null) {
+            throw new GroupWasNotSpecifyIdGroup();
+        }
+        if (updateTaskVM.getLogin() == null) {
+            throw new UserWasNotSpecifyLogin();
+        }
+
+        Optional<Task> result = manageTaskAuxService.updateTaskCancel(updateTaskVM);
+        return ResponseUtil.wrapOrNotFound(
+            result,
+            HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, result.get().getTaskName())
+        );
+    }
+
     /**
      * {@code PATCH  /tasks/:id} : Partial updates given fields of an existing task, field will ignore if it is null
      *

@@ -1,8 +1,10 @@
 package com.homies.app.web.rest;
 
 import com.homies.app.domain.Products;
+import com.homies.app.domain.Task;
 import com.homies.app.repository.ProductsRepository;
 import com.homies.app.service.AuxiliarServices.CreateProductAuxService;
+import com.homies.app.service.AuxiliarServices.ManageProductAuxService;
 import com.homies.app.service.ProductsQueryService;
 import com.homies.app.service.ProductsService;
 import com.homies.app.service.criteria.ProductsCriteria;
@@ -15,7 +17,12 @@ import java.util.Optional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
+import com.homies.app.web.rest.errors.Group.GroupWasNotSpecifyIdGroup;
+import com.homies.app.web.rest.errors.Task.TaskWasNotSpecifyIdTask;
+import com.homies.app.web.rest.errors.User.UserWasNotSpecifyLogin;
 import com.homies.app.web.rest.vm.AddProductVM;
+import com.homies.app.web.rest.vm.UpdateProductVM;
+import com.homies.app.web.rest.vm.UpdateTaskVM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -52,16 +59,20 @@ public class ProductsResource {
 
     private final CreateProductAuxService createProductAuxService;
 
+    private final ManageProductAuxService manageProductAuxService;
+
     public ProductsResource(
         ProductsService productsService,
         ProductsRepository productsRepository,
         ProductsQueryService productsQueryService,
-        CreateProductAuxService createProductAuxService
+        CreateProductAuxService createProductAuxService,
+        ManageProductAuxService manageProductAuxService
     ) {
         this.productsService = productsService;
         this.productsRepository = productsRepository;
         this.productsQueryService = productsQueryService;
         this.createProductAuxService = createProductAuxService;
+        this.manageProductAuxService = manageProductAuxService;
     }
 
     /**
@@ -86,7 +97,7 @@ public class ProductsResource {
             .body(newProduct);
     }
 
-    /**
+    /*
      * {@code PUT  /products/:id} : Updates an existing products.
      *
      * @param id the id of the products to save.
@@ -95,7 +106,7 @@ public class ProductsResource {
      * or with status {@code 400 (Bad Request)} if the products is not valid,
      * or with status {@code 500 (Internal Server Error)} if the products couldn't be updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
-     */
+
     @PutMapping("/products/{id}")
     public ResponseEntity<Products> updateProducts(
         @PathVariable(value = "id", required = false) final Long id,
@@ -118,6 +129,26 @@ public class ProductsResource {
             .ok()
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, products.getId().toString()))
             .body(result);
+    }*/
+
+    @PutMapping("/products/update-products")
+    public ResponseEntity<Products> updateProduct(@Valid @RequestBody UpdateProductVM updateProductVM)
+        throws URISyntaxException {
+        if (updateProductVM.getIdProduct() == null) {
+            throw new TaskWasNotSpecifyIdTask();
+        }
+        if (updateProductVM.getIdGroup() == null) {
+            throw new GroupWasNotSpecifyIdGroup();
+        }
+        if (updateProductVM.getLogin() == null) {
+            throw new UserWasNotSpecifyLogin();
+        }
+
+        Optional<Products> result = manageProductAuxService.updateProduct(updateProductVM);
+        return ResponseUtil.wrapOrNotFound(
+            result,
+            HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, result.get().getName())
+        );
     }
 
     /**
