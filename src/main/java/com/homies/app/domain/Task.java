@@ -9,6 +9,8 @@ import javax.persistence.*;
 import javax.validation.constraints.*;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
 
 /**
  * A Task.
@@ -54,7 +56,7 @@ public class Task implements Serializable {
     @Column(name = "puntuacion")
     private String puntuacion;
 
-    @ManyToOne
+    @ManyToOne()
     @JsonIgnoreProperties(value = { "group", "tasks" }, allowSetters = true)
     private TaskList taskList;
 
@@ -69,6 +71,7 @@ public class Task implements Serializable {
     @ManyToMany(mappedBy = "taskAsigneds", fetch = FetchType.EAGER)
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @JsonIgnoreProperties(value = {"adminGroups", "taskAsigneds", "productCreateds", "groups" }, allowSetters = true)
+    @NotFound(action = NotFoundAction.IGNORE)
     private Set<UserData> userAssigneds = new HashSet<>();
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
@@ -203,7 +206,7 @@ public class Task implements Serializable {
         return this;
     }
 
-    public UserData getUserData() {
+/*    public UserData getUserData() {
         return this.userData;
     }
 
@@ -214,7 +217,7 @@ public class Task implements Serializable {
     public Task userData(UserData userData) {
         this.setUserData(userData);
         return this;
-    }
+    }*/
 
     //public UserData getUserCreator() {
     //    return this.userCreator;

@@ -82,32 +82,26 @@ public class CreateTaskAuxService {
         log.warn("Created Task: " + newTask);
         taskService.save(newTask);
 
-        //User add task
+/*        //User add task
         UserData userData = userExist(createTaskVM.getUser());
         newTask.setUserData(userData); //add user (task creator user)
-        userDataService.save(userData);
+        userDataService.save(userData);*/
 
         //User Assigned
-        UserData userData1 = userDataQueryService.getByUser_Login(createTaskVM.getLogin()).get();
-        group = groupService.findOne(createTaskVM.getIdGroup());
-
-        if(group.get().getUserData() != null){
-            group.get().getUserData().forEach(ud -> {
-                if(Objects.equals(ud.getId(), userData1.getId())){
-                    userData1.addTaskAsigned(newTask);
-                } else {
-                    throw new UserDoesNotExistInGroup();
-                }
-            });
-        }
-        userDataService.save(userData1);
+        UserData userData = userDataQueryService.getByUser_Login(createTaskVM.getLogin()).get();
+        userData.addTaskAsigned(newTask);
+        newTask.addUserAssigned(userData);
+        userDataService.save(userData);
 
         //Task add taskList
         TaskList taskList = taskListExist(createTaskVM.getIdGroup());
         taskList.addTask(newTask);
+        newTask.setTaskList(taskList);
         taskListService.save(taskList);
 
         taskService.save(newTask);
+
+        refreshEntities();
         return taskService.findOne(newTask.getId()).get();
     }
 
@@ -139,7 +133,8 @@ public class CreateTaskAuxService {
     }
 
     private void refreshEntities() {
-        taskQueryService.refreshUserDataEntity();
+        taskQueryService.refreshTaskEntity();
+        taskListQueryService.refreshTaskListEntity();
         userDataQueryService.refreshUserDataEntity();
     }
 }

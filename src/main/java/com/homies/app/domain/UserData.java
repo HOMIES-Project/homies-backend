@@ -1,20 +1,17 @@
 package com.homies.app.domain;
 
-import com.fasterxml.jackson.annotation.JsonFilter;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
-import java.lang.annotation.ElementType;
 import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 import javax.persistence.*;
 import javax.validation.constraints.*;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
 
 /**
  * A UserData.
@@ -56,15 +53,16 @@ public class UserData implements Serializable {
     @JoinColumn(name = "id")
     private User user;
 
-    @OneToMany(mappedBy = "userAdmin", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "userAdmin", fetch = FetchType.EAGER, cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.DETACH})
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @JsonIgnoreProperties(
         value = { "userAdmin", "taskList", "spendingList", "shoppingList", "settingsList", "userData" },
         allowSetters = true
     )
+    @NotFound(action = NotFoundAction.IGNORE)
     private Set<Group> adminGroups = new HashSet<>();
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.DETACH})
     @JoinTable(
         name = "rel_user_data__task_asigned",
         joinColumns = @JoinColumn(name = "user_data_id"),
@@ -72,6 +70,7 @@ public class UserData implements Serializable {
     )
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @JsonIgnoreProperties(value = { "taskList", "userData", "userCreator", "userAssigneds" }, allowSetters = true)
+    @NotFound(action = NotFoundAction.IGNORE)
     private Set<Task> taskAsigneds = new HashSet<>();
 
     @OneToMany(mappedBy = "userCreator", fetch = FetchType.EAGER)
@@ -79,7 +78,7 @@ public class UserData implements Serializable {
     @JsonIgnoreProperties(value = { "userCreator", "shoppingList" }, allowSetters = true)
     private Set<Products> productCreateds = new HashSet<>();
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.DETACH})
     @JoinTable(
         name = "rel_user_data__group",
         joinColumns = @JoinColumn(name = "user_data_id"),
@@ -90,6 +89,7 @@ public class UserData implements Serializable {
         value = { "userAdmin", "taskList", "spendingList", "shoppingList", "settingsList", "userData" },
         allowSetters = true
     )
+    @NotFound(action = NotFoundAction.IGNORE)
     private Set<Group> groups = new HashSet<>();
 
     // jhipster-needle-entity-add-field - JHipster will add fields here

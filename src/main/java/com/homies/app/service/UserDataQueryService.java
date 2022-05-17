@@ -49,7 +49,7 @@ public class UserDataQueryService extends QueryService<UserData> {
      * @param login
      * @return entity
      */
-    @Transactional(readOnly = true)
+    @Transactional
     public Optional<UserData> getByUser_Login(String login){
         return userDataRepository.getByUser_Login(login);
     }

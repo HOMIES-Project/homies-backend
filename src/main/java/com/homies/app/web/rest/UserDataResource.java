@@ -223,8 +223,8 @@ public class UserDataResource {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
 
-        manageUserOfGroupAuxService.deleteUserAllGroups(id);
-        userDataService.delete(id);
+        manageUserOfGroupAuxService.deleteUserAndRelationships(id);
+        //userDataService.delete(id);
 
         return ResponseEntity
             .noContent()

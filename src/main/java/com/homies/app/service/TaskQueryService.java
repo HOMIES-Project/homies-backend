@@ -7,6 +7,7 @@ import com.homies.app.service.criteria.TaskCriteria;
 import java.util.List;
 import java.util.Optional;
 import javax.persistence.criteria.JoinType;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -32,6 +33,15 @@ public class TaskQueryService extends QueryService<Task> {
 
     public TaskQueryService(TaskRepository taskRepository) {
         this.taskRepository = taskRepository;
+    }
+
+
+    public List<Task> getByUserData_Id(Long id){
+        return taskRepository.getByUserData_Id(id);
+    }
+
+    public List<Task> getByUserAssigneds_Id(Long id){
+        return taskRepository.getByUserAssigneds_Id(id);
     }
 
     @Transactional(readOnly = true)
@@ -81,7 +91,7 @@ public class TaskQueryService extends QueryService<Task> {
         return taskRepository.count(specification);
     }
 
-    public void refreshUserDataEntity() {
+    public void refreshTaskEntity() {
         taskRepository.flush();
     }
 

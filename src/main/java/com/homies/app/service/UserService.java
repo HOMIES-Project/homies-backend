@@ -282,11 +282,13 @@ public class UserService {
                 newUser.setLastName(user.getLastName());
                 newUser.setLangKey(user.getLangKey());
                 if (user.getEmail() != null) {
-                    newUser.setEmail(user.getEmail().toLowerCase());
                     if (!Objects.equals(user.getEmail(), userOldData.get().getEmail())){
+                        newUser.setEmail(user.getEmail().toLowerCase());
                         newUser.setActivated(false);
                         newUser.setActivationKey(RandomUtil.generateActivationKey());
                         mailService.sendActivationEmail(newUser);
+                    } else {
+                        newUser.setEmail(user.getEmail().toLowerCase());
                     }
                 }
                 this.clearUserCaches(newUser);

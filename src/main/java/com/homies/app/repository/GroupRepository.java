@@ -14,6 +14,8 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface GroupRepository extends JpaRepository<Group, Long>, JpaSpecificationExecutor<Group> {
+    //String GROUP_BY_USERDATA = "userData"
+
     default Optional<Group> findOneWithEagerRelationships(Long id) {
         return this.findOneWithToOneRelationships(id);
     }
