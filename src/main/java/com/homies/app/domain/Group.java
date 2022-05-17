@@ -41,7 +41,7 @@ public class Group implements Serializable {
 
     @NotNull
     @Size(min = 3, max = 50)
-    @Column(name = "group_name", length = 50, nullable = false, unique = true)
+    @Column(name = "group_name", length = 50, nullable = false)//, unique = true)
     private String groupName;
 
     @NotNull
