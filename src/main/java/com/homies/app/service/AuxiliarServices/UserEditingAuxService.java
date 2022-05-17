@@ -15,7 +15,6 @@ import java.util.Optional;
 
 @Service
 public class UserEditingAuxService {
-    @Autowired
     private final Logger log = LoggerFactory.getLogger(UserEditingAuxService.class);
     @Autowired
     private final UserService userService;

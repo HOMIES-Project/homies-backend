@@ -34,7 +34,7 @@ public class CreateGroupsAuxService {
     private final SettingsListService settingsListService;
     @Autowired
     private final UserDataService userDataService;
-    @Autowired
+
     private final Logger log = LoggerFactory.getLogger(GroupResource.class);
 
     public CreateGroupsAuxService(GroupQueryService groupQueryService,

@@ -16,7 +16,7 @@ import java.util.Optional;
 @Service
 @Transactional
 public class CreateUserDataForUserAuxService {
-    @Autowired
+
     private final Logger log = LoggerFactory.getLogger(CreateUserDataForUserAuxService.class);
     @Autowired
     private final UserRepository userRepository;

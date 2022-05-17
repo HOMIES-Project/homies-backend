@@ -24,7 +24,7 @@ public class CreateProductAuxService {
     private final ProductsService productsService;
     @Autowired
     private final ShoppingListService shoppingListService;
-    @Autowired
+
     private final Logger log = LoggerFactory.getLogger(GroupResource.class);
 
     public CreateProductAuxService(UserDataService userDataService,

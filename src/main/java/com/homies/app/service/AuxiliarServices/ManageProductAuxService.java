@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 @Service
 public class ManageProductAuxService {
-    @Autowired
+
     private final Logger log = LoggerFactory.getLogger(TaskResource.class);
     @Autowired
     private ProductsService productsService;
