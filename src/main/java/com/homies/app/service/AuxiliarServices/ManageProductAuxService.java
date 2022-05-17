@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Service
 public class ManageProductAuxService {
@@ -60,23 +61,28 @@ public class ManageProductAuxService {
             products = productsService.findOne(updateProductVM.getIdProduct());
             shoppingList = shoppingListService.findOne(updateProductVM.getIdGroup());
             group = groupService.findOne(updateProductVM.getIdGroup());
+            AtomicBoolean userExist = new AtomicBoolean(false);
 
             if(group.get().getUserData() != null){
                 group.get().getUserData().forEach(userData1 -> {
-                    if(Objects.equals(userData1.getId(), userData.get().getId())){
-                        if(!updateProductVM.getName().equals(products.get().getName())){
-                            products.get().setName(updateProductVM.getName());
-                        }
-
-                        if(!products.get().getUnits().equals(updateProductVM.getUnits())){
-                            products.get().setUnits(updateProductVM.getUnits());
-                        }
-
-                        productsService.save(products.get());
-                    }else{
-                        throw new UserDoesNotExistInGroup();
+                    if(userData1.getId().equals(userData.get().getId())){
+                        userExist.set(true);
                     }
                 });
+                if(userExist.get()){
+                    if(!updateProductVM.getName().equals(products.get().getName())){
+                        products.get().setName(updateProductVM.getName());
+                    }
+
+                    if(!products.get().getUnits().equals(updateProductVM.getUnits())){
+                        products.get().setUnits(updateProductVM.getUnits());
+                    }
+
+                    productsService.save(products.get());
+
+                }else{
+                    throw new UserDoesNotExistInGroup();
+                }
             }
             return productsService.findOne(updateProductVM.getIdProduct());
         }
