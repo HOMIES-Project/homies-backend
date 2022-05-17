@@ -24,6 +24,7 @@ import com.homies.app.web.rest.errors.Group.GroupWasNotSpecifyLogin;
 import com.homies.app.web.rest.vm.ManageGroupVM;
 import com.homies.app.web.rest.vm.CreateGroupVM;
 import com.homies.app.web.rest.vm.UpdateGroupVM;
+
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -282,9 +283,10 @@ public class GroupResource {
 
         Optional<Group> result = manageUserOfGroupAuxService.deleteGroup(manageGroupVM);
 
-        return ResponseUtil.wrapOrNotFound(result);
-
+        if (result.isPresent()) {
+            throw new BadRequestAlertException("Group cannot be deleted", ENTITY_NAME, "groupcannotbedeleted");
+        } else {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
     }
-
-
 }
