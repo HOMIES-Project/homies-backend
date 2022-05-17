@@ -9,6 +9,7 @@ import com.homies.app.web.rest.vm.CreateGroupVM;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,21 +20,21 @@ import java.util.Optional;
 
 @Service
 public class CreateGroupsAuxService {
-
+    @Autowired
     private final GroupQueryService groupQueryService;
-
+    @Autowired
     private final GroupService groupService;
-
+    @Autowired
     private final TaskListService taskListService;
-
+    @Autowired
     private final SpendingListService spendingListService;
-
+    @Autowired
     private final ShoppingListService shoppingListService;
-
+    @Autowired
     private final SettingsListService settingsListService;
-
+    @Autowired
     private final UserDataService userDataService;
-
+    @Autowired
     private final Logger log = LoggerFactory.getLogger(GroupResource.class);
 
     public CreateGroupsAuxService(GroupQueryService groupQueryService,

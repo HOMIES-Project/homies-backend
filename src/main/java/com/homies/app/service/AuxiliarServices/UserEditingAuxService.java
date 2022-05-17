@@ -8,17 +8,18 @@ import com.homies.app.service.dto.UserUpdateDTO;
 import com.homies.app.web.rest.vm.UserEditingVM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
 @Service
 public class UserEditingAuxService {
-
+    @Autowired
     private final Logger log = LoggerFactory.getLogger(UserEditingAuxService.class);
-
+    @Autowired
     private final UserService userService;
-
+    @Autowired
     private final UserDataService userDataService;
 
     public UserEditingAuxService(UserService userService,
