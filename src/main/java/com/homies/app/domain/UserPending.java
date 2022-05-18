@@ -31,11 +31,11 @@ public class UserPending implements Serializable {
     @Column(name = "paid")
     private Boolean paid;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JsonIgnoreProperties(value = { "spendings", "settingsLists", "group" }, allowSetters = true)
     private SpendingList spendingList;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER, cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH })
     @JoinTable(
         name = "rel_user_pending__spending",
         joinColumns = @JoinColumn(name = "user_pending_id"),
