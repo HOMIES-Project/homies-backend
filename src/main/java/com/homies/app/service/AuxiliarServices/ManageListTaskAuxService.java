@@ -6,6 +6,7 @@ import com.homies.app.domain.User;
 import com.homies.app.domain.UserData;
 import com.homies.app.service.*;
 import com.homies.app.web.rest.errors.General.IncorrectParameters;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -14,10 +15,13 @@ import java.util.Optional;
 
 @Service
 public class ManageListTaskAuxService {
-
+    @Autowired
     private TaskListService taskListService;
+    @Autowired
     private UserDataService userDataService;
+    @Autowired
     private UserService userService;
+    @Autowired
     private TaskQueryService taskQueryService;
 
     public ManageListTaskAuxService(TaskListService taskListService,

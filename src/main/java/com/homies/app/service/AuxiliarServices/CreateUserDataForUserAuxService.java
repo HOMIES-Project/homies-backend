@@ -5,6 +5,7 @@ import com.homies.app.repository.UserDataRepository;
 import com.homies.app.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,9 +18,9 @@ import java.util.Optional;
 public class CreateUserDataForUserAuxService {
 
     private final Logger log = LoggerFactory.getLogger(CreateUserDataForUserAuxService.class);
-
+    @Autowired
     private final UserRepository userRepository;
-
+    @Autowired
     private final UserDataRepository userDataRepository;
 
     public CreateUserDataForUserAuxService(UserRepository userRepository, UserDataRepository userDataRepository) {

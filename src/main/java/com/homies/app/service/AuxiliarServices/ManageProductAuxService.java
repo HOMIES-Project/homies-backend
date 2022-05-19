@@ -10,6 +10,7 @@ import com.homies.app.web.rest.vm.UpdateProductVM;
 import com.homies.app.web.rest.vm.UpdateTaskVM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
@@ -20,17 +21,17 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class ManageProductAuxService {
 
     private final Logger log = LoggerFactory.getLogger(TaskResource.class);
-
+    @Autowired
     private ProductsService productsService;
-
+    @Autowired
     private ShoppingListService shoppingListService;
-
+    @Autowired
     private UserService userService;
-
+    @Autowired
     private UserDataQueryService userDataQueryService;
-
+    @Autowired
     private UserDataService userDataService;
-
+    @Autowired
     private GroupService groupService;
 
     public ManageProductAuxService(ProductsService productsService,

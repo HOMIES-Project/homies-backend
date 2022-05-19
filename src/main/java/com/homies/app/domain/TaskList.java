@@ -39,7 +39,7 @@ public class TaskList implements Serializable {
 
     @OneToMany(mappedBy = "taskList", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-    @JsonIgnoreProperties(value = { "taskList", "userData", "userCreator", "userAssigneds" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "taskList", "userData", "userCreator" }, allowSetters = true)
     @NotFound(action = NotFoundAction.IGNORE)
     private Set<Task> tasks = new HashSet<>();
 

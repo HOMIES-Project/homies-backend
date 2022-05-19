@@ -12,6 +12,7 @@ import com.homies.app.web.rest.vm.AddUserToTaskVM;
 import com.homies.app.web.rest.vm.CreateTaskVM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,19 +23,19 @@ import java.util.Optional;
 @Service
 public class CreateTaskAuxService {
 
-
+    @Autowired
     private final TaskService taskService;
-
+    @Autowired
     private final GroupService groupService;
-
+    @Autowired
     private final TaskListService taskListService;
-
+    @Autowired
     private final TaskListQueryService taskListQueryService;
-
+    @Autowired
     private final UserDataService userDataService;
-
+    @Autowired
     private final UserDataQueryService userDataQueryService;
-
+    @Autowired
     private final TaskQueryService taskQueryService;
 
 
