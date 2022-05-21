@@ -134,7 +134,16 @@ public class GroupResource {
         throws URISyntaxException, UserPrincipalNotFoundException {
         reviewData(manageGroupVM);
 
-        Optional<Group> result = manageUserOfGroupAuxService.deleteUserToTheGroup(manageGroupVM);
+        groupRepository.deleteByIdAndUserAdmin(
+            manageGroupVM.getIdGroup(),
+            groupService.findOne(manageGroupVM.getIdGroup()).get().getUserAdmin());
+
+        return ResponseEntity
+            .ok()
+            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, false, ENTITY_NAME, manageGroupVM.getIdGroup().toString()))
+            .build();
+
+        /*Optional<Group> result = manageUserOfGroupAuxService.deleteUserToTheGroup(manageGroupVM);
         if (result.isPresent()) {
             return ResponseUtil.wrapOrNotFound(
                 result,
@@ -142,7 +151,7 @@ public class GroupResource {
             );
         } else {
             return new ResponseEntity<>(Objects.requireNonNull(HttpStatus.resolve(204)));
-        }
+        }*/
 
     }
 
@@ -160,16 +169,27 @@ public class GroupResource {
         UserPrincipalNotFoundException {
         reviewData(manageGroupVM);
 
-        Optional<Group> result = manageUserOfGroupAuxService.changeUserAdminOfTheGroup(manageGroupVM);
+        //Optional<Group> result = manageUserOfGroupAuxService.changeUserAdminOfTheGroup(manageGroupVM);
 
-        if (result.isPresent()) {
+        int result = groupRepository.updateUserAdmin(
+            groupService.findOne(manageGroupVM.getIdGroup()).get().getUserAdmin(),
+            manageGroupVM.getIdGroup(),
+            groupService.findOne(manageGroupVM.getIdGroup()).get().getUserData().iterator().next());
+
+        return groupService.findOne(manageGroupVM.getIdGroup())
+            .map(group -> ResponseEntity.ok()
+                .headers(HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, group.getId().toString()))
+                .body(group))
+            .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+
+        /*if (result.isPresent()) {
             return ResponseUtil.wrapOrNotFound(
                 result,
                 HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, result.get().getUserData().toString())
             );
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        }*/
     }
 
     /**

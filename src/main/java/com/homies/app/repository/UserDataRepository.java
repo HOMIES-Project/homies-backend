@@ -31,6 +31,14 @@ public interface UserDataRepository
 
     List<UserData> getByTaskAsigneds_Id(Long id);
 
+
+    //V2
+
+
+
+
+
+
     @Query(
         value = "select distinct userData from UserData userData left join fetch userData.user",
         countQuery = "select count(distinct userData) from UserData userData"

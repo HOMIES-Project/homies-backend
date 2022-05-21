@@ -190,17 +190,12 @@ public class ManageUserOfGroupAuxService {
                 adminGroup.setUserAdmin(adminGroup.getUserData().iterator().next());
                 userDataService.save(userData.get());
                 groupService.save(adminGroup);
-                //userDataService.save(userData.get());
             } else {
-                //adminGroup.setUserAdmin(null);
-                //groupService.save(adminGroup);
                 ManageGroupVM mgv = new ManageGroupVM();
                 mgv.setLogin(SecurityUtils.getCurrentUserLogin().get());
                 mgv.setIdAdminGroup(id);
                 mgv.setIdGroup(adminGroup.getId());
-                deleteGroup(mgv); //Jorge del mañana, esto no se pude hacer, hya que pasar los datos.
-                //groupService.save(adminGroup);
-                //groupService.delete(adminGroup.getId());
+                deleteGroup(mgv);
             }
         });
 
@@ -271,28 +266,16 @@ public class ManageUserOfGroupAuxService {
                 manageGroupVM.getLogin()).isEmpty())
                 throw new UserDoesNotExist();
 
-           /* userData.get().setAdminGroups(new HashSet<>());
-        userDataService.save(userData.get());
-
-                adminGroup.setUserAdmin(null);
-                adminGroup.setUserAdmin(adminGroup.getUserData().iterator().next());
-
-                userDataService.save(userData.get());
-
-                groupService.save(adminGroup);*/
 
             Set<Group> userAdminGroupsA = userAdmin.get().getAdminGroups();
             userAdminGroupsA.remove(group.get());
             userAdmin.get().setAdminGroups(userAdminGroupsA);
-            //userAdmin.get().getAdminGroups().remove(group.get());
             userDataService.save(userAdmin.get());
 
             Set<Group> userDataGroupsA = userData.get().getAdminGroups();
             userDataGroupsA.add(group.get());
             userData.get().setAdminGroups(userDataGroupsA);
-            //userData.get().addAdminGroups(group.get());
             userDataService.save(userData.get());
-
 
             group.get().setUserAdmin(null);
             group.get().setUserAdmin(userData.get());
@@ -350,29 +333,30 @@ public class ManageUserOfGroupAuxService {
             userData.get().removeGroup(group.get());
             userDataService.save(userData.get());
 
-            //detachedTasks(); //Falta probar esto.
-
             group.get().removeUserData(userData.get());
             groupService.save(group.get());
 
             if (userData.get().getId().longValue() == group.get().getUserAdmin().getId().longValue()) {
-                Set<UserData> userDataSet = group.get().getUserData();
-                boolean changeAdmin = false;
-                if (userDataSet.size() > 0) {
-                    userData = userDataService.findOne(userDataSet.iterator().next().getId());
-                    if (userData.get().getId().longValue() == group.get().getUserAdmin().getId().longValue())
-                        changeAdmin = true;
-
-                }
-
-                group.get().setUserAdmin(null);
-                groupService.save(group.get());
 
                 userData.get().removeAdminGroups(group.get());
                 userDataService.partialUpdate(userData.get());
 
+                //group.get().setUserAdmin(null);
+                //groupService.save(group.get());
+
+                Set<UserData> userDataSet = group.get().getUserData();
+                boolean changeAdmin = false;
+                if (userDataSet.size() > 0) {
+                    userData = userDataService.findOne(userDataSet.iterator().next().getId());
+                    if (!Objects.equals(userData.get().getId(), group.get().getUserAdmin().getId()))
+                        changeAdmin = true;
+
+                }
+
+
+
                 ManageGroupVM mgv = new ManageGroupVM();
-                mgv.setLogin(SecurityUtils.getCurrentUserLogin().get());
+                mgv.setLogin(userData.get().getUser().getLogin());
                 mgv.setIdAdminGroup(userData.get().getId());
                 mgv.setIdGroup(group.get().getId());
 
