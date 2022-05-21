@@ -89,7 +89,7 @@ public class ManageUserOfGroupServiceV2 {
                 userData.get().addGroup(group.get());
                 userDataRepository.save(userData.get());
 
-                return groupRepository.findById(group.get().getId());
+                return returnGroup();
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -102,23 +102,23 @@ public class ManageUserOfGroupServiceV2 {
             if (userIsAuthenticated(manageGroupVM, MethodName.REMOVE_USER_FROM_GROUP)) {
 
                 userData.get().removeGroup(group.get());
-                userDataRepository.saveAndFlush(userData.get());
+                userDataRepository.save(userData.get());
+                groupRepository.save(group.get());
 
                 updateEntities(manageGroupVM);
 
-                if (Objects.equals(userAdmin.get().getId(), group.get().getUserAdmin().getId())) {
+                if (Objects.equals(userAdmin.get().getId(), userData.get().getId())) {
                     if (group.get().getUserData().size() > 0) {
-                        manageGroupVM.setLogin(
-                            group.get().getUserData().stream().findFirst()
-                                .get().getUser().getLogin()
-                        );
-                        changeAdminOfGroup(manageGroupVM);
+
+                        userData = group.get().getUserData().stream().findFirst();
+                        changeAdmin();
+
                     } else {
                         deleteGroup(manageGroupVM);
                     }
                 }
 
-                return groupRepository.findById(group.get().getId());
+                return returnGroup();
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -129,19 +129,22 @@ public class ManageUserOfGroupServiceV2 {
     public Optional<Group> changeAdminOfGroup(@NotNull ManageGroupVM manageGroupVM) {
         try {
             if (userIsAuthenticated(manageGroupVM, MethodName.CHANGE_ADMIN_OF_GROUP)) {
+                changeAdmin();
 
-                groupRepository.updateUserAdmin(
-                    userAdmin.get(),
-                    group.get().getId(),
-                    userData.get()
-                );
-
-                return groupRepository.findById(group.get().getId());
+                return returnGroup();
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
         return Optional.empty();
+    }
+
+    private void changeAdmin() {
+        groupRepository.updateUserAdmin(
+            userAdmin.get(),
+            group.get().getId(),
+            userData.get()
+        );
     }
 
     public Optional<Group> updateGroup(@NotNull ManageGroupVM manageGroupVM,
@@ -153,7 +156,7 @@ public class ManageUserOfGroupServiceV2 {
                 group.get().setGroupRelationName(updateGroupVM.getGroupRelation());
                 groupRepository.save(group.get());
 
-                return groupRepository.findById(group.get().getId());
+                return returnGroup();
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -166,11 +169,12 @@ public class ManageUserOfGroupServiceV2 {
             if (userIsAuthenticated(manageGroupVM, MethodName.DELETE_GROUP)) {
 
                 groupRepository.deleteByIdAndUserAdmin(
-                    manageGroupVM.getIdGroup(),
+                    group.get().getId(),
                     userAdmin.get()
                 );
 
-                return groupRepository.findById(group.get().getId());
+                /** esto no puede ser*/
+                return returnGroup();
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -178,6 +182,10 @@ public class ManageUserOfGroupServiceV2 {
         return Optional.empty();
     }
 
+
+    private Optional<Group> returnGroup() {
+        return groupRepository.findById(group.get().getId());
+    }
 
     private boolean userIsAuthenticated(ManageGroupVM manageGroupVM, MethodName methodName) throws Exception {
         if (!SecurityUtils.isAuthenticated())
