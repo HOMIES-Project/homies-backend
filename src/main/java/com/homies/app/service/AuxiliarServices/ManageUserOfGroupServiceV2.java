@@ -7,6 +7,7 @@ import com.homies.app.service.*;
 import com.homies.app.web.rest.SpendingResource;
 import com.homies.app.web.rest.errors.Group.GroupNotExistException;
 import com.homies.app.web.rest.errors.Group.GroupUserLoginNotAdmin;
+import com.homies.app.web.rest.errors.GroupAlreadyUsedException;
 import com.homies.app.web.rest.errors.User.UserDoesNotExist;
 import com.homies.app.web.rest.vm.ManageGroupVM;
 import com.homies.app.web.rest.vm.UpdateGroupVM;
@@ -18,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.file.attribute.UserPrincipalNotFoundException;
@@ -80,23 +82,108 @@ public class ManageUserOfGroupServiceV2 {
     Optional<SpendingList> spendingList = Optional.empty();
     Optional<UserPending> userPending = Optional.empty();*/
 
+    public Optional<Group> addUserToGroup(@NotNull ManageGroupVM manageGroupVM) {
+        try {
+            if (userIsAuthenticated(manageGroupVM, MethodName.ADD_USER_TO_GROUP)) {
 
-    
+                userData.get().addGroup(group.get());
+                userDataRepository.save(userData.get());
+
+                return groupRepository.findById(group.get().getId());
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return Optional.empty();
+    }
+
+    public Optional<Group> removeUserFromGroup(@NotNull ManageGroupVM manageGroupVM) {
+        try {
+            if (userIsAuthenticated(manageGroupVM, MethodName.REMOVE_USER_FROM_GROUP)) {
+
+                userData.get().removeGroup(group.get());
+                userDataRepository.saveAndFlush(userData.get());
+
+                updateEntities(manageGroupVM);
+
+                if (Objects.equals(userAdmin.get().getId(), group.get().getUserAdmin().getId())) {
+                    if (group.get().getUserData().size() > 0) {
+                        manageGroupVM.setLogin(
+                            group.get().getUserData().stream().findFirst()
+                                .get().getUser().getLogin()
+                        );
+                        changeAdminOfGroup(manageGroupVM);
+                    } else {
+                        deleteGroup(manageGroupVM);
+                    }
+                }
+
+                return groupRepository.findById(group.get().getId());
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return Optional.empty();
+    }
+
+    public Optional<Group> changeAdminOfGroup(@NotNull ManageGroupVM manageGroupVM) {
+        try {
+            if (userIsAuthenticated(manageGroupVM, MethodName.CHANGE_ADMIN_OF_GROUP)) {
+
+                groupRepository.updateUserAdmin(
+                    userAdmin.get(),
+                    group.get().getId(),
+                    userData.get()
+                );
+
+                return groupRepository.findById(group.get().getId());
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return Optional.empty();
+    }
+
+    public Optional<Group> updateGroup(@NotNull ManageGroupVM manageGroupVM,
+                                       @NotNull UpdateGroupVM updateGroupVM) {
+        try {
+            if (userIsAuthenticated(manageGroupVM, MethodName.UPDATE_GROUP)) {
+
+                group.get().setGroupName(updateGroupVM.getGroupName());
+                group.get().setGroupRelationName(updateGroupVM.getGroupRelation());
+                groupRepository.save(group.get());
+
+                return groupRepository.findById(group.get().getId());
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return Optional.empty();
+    }
+
+    public Optional<Group> deleteGroup(@NotNull ManageGroupVM manageGroupVM) {
+        try {
+            if (userIsAuthenticated(manageGroupVM, MethodName.DELETE_GROUP)) {
+
+                groupRepository.deleteByIdAndUserAdmin(
+                    manageGroupVM.getIdGroup(),
+                    userAdmin.get()
+                );
+
+                return groupRepository.findById(group.get().getId());
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return Optional.empty();
+    }
 
 
-
-    @Transactional(readOnly = true)
-    private boolean userIsAuthenticated(ManageGroupVM mg, MethodName methodName) throws Exception {
-        if (SecurityUtils.isAuthenticated())
+    private boolean userIsAuthenticated(ManageGroupVM manageGroupVM, MethodName methodName) throws Exception {
+        if (!SecurityUtils.isAuthenticated())
             throw new Exception("User Is Not Authenticated");
 
-        try {
-            userData = userDataRepository.getByUser_Login(SecurityUtils.getCurrentUserLogin().get());
-            group = groupRepository.findById(mg.getIdGroup());
-            userAdmin = userDataRepository.findById(mg.getIdAdminGroup());
-        } catch (UsernameNotFoundException e) {
-            throw new DatabaseException("Invalid or non-existent data provided");
-        }
+        updateEntities(manageGroupVM);
 
         switch (methodName) {
             case ADD_USER_TO_GROUP:
@@ -105,7 +192,7 @@ public class ManageUserOfGroupServiceV2 {
                         return true;
                 break;
             case REMOVE_USER_FROM_GROUP:
-            case CHANGE_ADMIN:
+            case CHANGE_ADMIN_OF_GROUP:
                 if (isAdmin())
                     if (isUserInGroup())
                         return true;
@@ -122,15 +209,23 @@ public class ManageUserOfGroupServiceV2 {
         return false;
     }
 
-    @Transactional(readOnly = true)
-    private boolean isAdmin(){
-        if (Objects.equals(userAdmin.get(), group.get().getUserAdmin()))
-            throw new GroupUserLoginNotAdmin();
-        return true;
+    private void updateEntities(ManageGroupVM manageGroupVM) throws DatabaseException {
+        try {
+            userData = userDataRepository.getByUser_Login(manageGroupVM.getLogin());
+            group = groupRepository.findById(manageGroupVM.getIdGroup());
+            userAdmin = userDataRepository.getByUser_Login(SecurityUtils.getCurrentUserLogin().get());
+        } catch (UsernameNotFoundException e) {
+            throw new DatabaseException("Invalid or non-existent data provided");
+        }
     }
 
-    @Transactional(readOnly = true)
-    private boolean isUserInGroup(){
+    private boolean isAdmin() {
+        if (Objects.equals(userAdmin.get(), group.get().getUserAdmin()))
+            return true;
+        throw new GroupUserLoginNotAdmin();
+    }
+
+    private boolean isUserInGroup() {
         return group.get().getUserData().contains(userData.get());
     }
 
@@ -159,7 +254,7 @@ enum MethodName {
     ADD_USER_TO_GROUP,
     REMOVE_USER_FROM_GROUP,
     REMOVE_ADMIN_FROM_GROUP,
+    CHANGE_ADMIN_OF_GROUP,
     UPDATE_GROUP,
-    CHANGE_ADMIN,
     DELETE_GROUP
 }

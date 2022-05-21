@@ -5,6 +5,7 @@ import com.homies.app.repository.GroupRepository;
 import com.homies.app.security.AuthoritiesConstants;
 import com.homies.app.security.SecurityUtils;
 import com.homies.app.service.AuxiliarServices.ManageUserOfGroupAuxService;
+import com.homies.app.service.AuxiliarServices.ManageUserOfGroupServiceV2;
 import com.homies.app.service.GroupQueryService;
 import com.homies.app.service.GroupService;
 import com.homies.app.service.criteria.GroupCriteria;
@@ -66,17 +67,21 @@ public class GroupResource {
     private final CreateGroupsAuxService createGroupsAux;
     @Autowired
     private final ManageUserOfGroupAuxService manageUserOfGroupAuxService;
+    @Autowired
+    private final ManageUserOfGroupServiceV2 manageUserOfGroupServiceV2;
 
     public GroupResource(GroupService groupService,
                          GroupRepository groupRepository,
                          GroupQueryService groupQueryService,
                          CreateGroupsAuxService createGroupsAux,
-                         ManageUserOfGroupAuxService manageUserOfGroupAuxService) {
+                         ManageUserOfGroupAuxService manageUserOfGroupAuxService,
+                         ManageUserOfGroupServiceV2 manageUserOfGroupServiceV2) {
         this.groupService = groupService;
         this.groupRepository = groupRepository;
         this.groupQueryService = groupQueryService;
         this.createGroupsAux = createGroupsAux;
         this.manageUserOfGroupAuxService = manageUserOfGroupAuxService;
+        this.manageUserOfGroupServiceV2 = manageUserOfGroupServiceV2;
     }
 
     /**
@@ -113,8 +118,10 @@ public class GroupResource {
 
         reviewData(manageGroupVM);
 
-        Optional<Group> result = manageUserOfGroupAuxService.addUserToGroup(manageGroupVM);
+        Optional<Group> result = manageUserOfGroupServiceV2.addUserToGroup(manageGroupVM);
 
+        /*Optional<Group> result = manageUserOfGroupAuxService.addUserToGroup(manageGroupVM);
+         */
         return ResponseUtil.wrapOrNotFound(
             result,
             HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, result.get().getUserData().toString())
@@ -126,33 +133,18 @@ public class GroupResource {
      *
      * @param manageGroupVM parameters to change
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated group,
-     * @throws URISyntaxException,UserPrincipalNotFoundException
      */
     @PostMapping("/groups/delete-user")
     public ResponseEntity<Group> deleteUserToGroup(
-        @Valid @RequestBody ManageGroupVM manageGroupVM)
-        throws URISyntaxException, UserPrincipalNotFoundException {
+        @Valid @RequestBody ManageGroupVM manageGroupVM) {
         reviewData(manageGroupVM);
 
-        groupRepository.deleteByIdAndUserAdmin(
-            manageGroupVM.getIdGroup(),
-            groupService.findOne(manageGroupVM.getIdGroup()).get().getUserAdmin());
+        Optional<Group> result = manageUserOfGroupServiceV2.removeUserFromGroup(manageGroupVM);
 
-        return ResponseEntity
-            .ok()
-            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, false, ENTITY_NAME, manageGroupVM.getIdGroup().toString()))
-            .build();
-
-        /*Optional<Group> result = manageUserOfGroupAuxService.deleteUserToTheGroup(manageGroupVM);
-        if (result.isPresent()) {
-            return ResponseUtil.wrapOrNotFound(
-                result,
-                HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, result.get().getUserData().toString())
-            );
-        } else {
-            return new ResponseEntity<>(Objects.requireNonNull(HttpStatus.resolve(204)));
-        }*/
-
+        return ResponseUtil.wrapOrNotFound(
+            result,
+            HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, result.get().getUserData().toString())
+        );
     }
 
     /**
@@ -160,36 +152,19 @@ public class GroupResource {
      *
      * @param manageGroupVM parameters to change
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated group,
-     * @throws URISyntaxException,UserPrincipalNotFoundException
      */
     @PostMapping("/groups/change-admin")
     public ResponseEntity<Group> changeUserAdminToGroup(
-        @Valid @RequestBody ManageGroupVM manageGroupVM)
-        throws URISyntaxException,
-        UserPrincipalNotFoundException {
+        @Valid @RequestBody ManageGroupVM manageGroupVM
+    ) {
         reviewData(manageGroupVM);
 
-        //Optional<Group> result = manageUserOfGroupAuxService.changeUserAdminOfTheGroup(manageGroupVM);
+        Optional<Group> result = manageUserOfGroupServiceV2.changeAdminOfGroup(manageGroupVM);
 
-        int result = groupRepository.updateUserAdmin(
-            groupService.findOne(manageGroupVM.getIdGroup()).get().getUserAdmin(),
-            manageGroupVM.getIdGroup(),
-            groupService.findOne(manageGroupVM.getIdGroup()).get().getUserData().iterator().next());
-
-        return groupService.findOne(manageGroupVM.getIdGroup())
-            .map(group -> ResponseEntity.ok()
-                .headers(HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, group.getId().toString()))
-                .body(group))
-            .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
-
-        /*if (result.isPresent()) {
-            return ResponseUtil.wrapOrNotFound(
-                result,
-                HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, result.get().getUserData().toString())
-            );
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }*/
+        return ResponseUtil.wrapOrNotFound(
+            result,
+            HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, result.get().getUserData().toString())
+        );
     }
 
     /**
@@ -229,15 +204,18 @@ public class GroupResource {
         log.debug("REST request to update Group : {}, {}", id, group);
         group.setIdGroup(id);
 
-        Group result = manageUserOfGroupAuxService.updateGroup(group);
+        ManageGroupVM mg = new ManageGroupVM();
+        mg.setIdGroup(id);
+        mg.setIdAdminGroup(null);
+        mg.setLogin(SecurityUtils.getCurrentUserLogin().get());
 
-        return ResponseEntity
-            .ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(applicationName,
-                false,
-                ENTITY_NAME,
-                result.getId().toString()))
-            .body(result);
+        //Group result = manageUserOfGroupAuxService.updateGroup(group);
+        Optional<Group> result = manageUserOfGroupServiceV2.updateGroup(mg, group);
+
+        return ResponseUtil.wrapOrNotFound(
+            result,
+            HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, id.toString())
+        );
     }
 
     /**
@@ -301,7 +279,7 @@ public class GroupResource {
         manageGroupVM.setLogin(SecurityUtils.getCurrentUserLogin().get());
         log.debug("REST request to delete Group : {}", manageGroupVM);
 
-        Optional<Group> result = manageUserOfGroupAuxService.deleteGroup(manageGroupVM);
+        Optional<Group> result = manageUserOfGroupServiceV2.deleteGroup(manageGroupVM);
 
         if (result.isPresent()) {
             throw new BadRequestAlertException("Group cannot be deleted", ENTITY_NAME, "groupcannotbedeleted");
