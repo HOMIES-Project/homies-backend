@@ -78,6 +78,10 @@ public class ManageProductAuxService {
                         products.get().setUnits(updateProductVM.getUnits());
                     }
 
+                    if(!updateProductVM.getTypeUnit().equals(products.get().getTypeUnit())){
+                        products.get().setTypeUnit(updateProductVM.getTypeUnit());
+                    }
+
                     productsService.save(products.get());
 
                 }else{

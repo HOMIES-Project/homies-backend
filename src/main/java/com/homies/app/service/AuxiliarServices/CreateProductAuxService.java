@@ -51,6 +51,7 @@ public class CreateProductAuxService {
         Products newproducts = new Products();
         newproducts.setName(addProductVM.getNameProduct());
         newproducts.setUnits(addProductVM.getUnits());
+        newproducts.setTypeUnit(addProductVM.getTypeUnit());
 
         //Product add ShoppingList
         ShoppingList shoppingList = shoppingListExist(addProductVM.getIdGroup());
