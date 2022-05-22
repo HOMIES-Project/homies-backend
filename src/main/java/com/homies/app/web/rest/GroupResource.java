@@ -1,11 +1,9 @@
 package com.homies.app.web.rest;
 
 import com.homies.app.domain.Group;
-import com.homies.app.repository.GroupRepository;
 import com.homies.app.security.AuthoritiesConstants;
 import com.homies.app.security.SecurityUtils;
-import com.homies.app.service.AuxiliarServices.ManageUserOfGroupAuxService;
-import com.homies.app.service.AuxiliarServices.ManageGroupService;
+import com.homies.app.service.AuxiliarServices.ManageUserAndGroupsAuxService;
 import com.homies.app.service.GroupQueryService;
 import com.homies.app.service.GroupService;
 import com.homies.app.service.criteria.GroupCriteria;
@@ -59,45 +57,40 @@ public class GroupResource {
     @Autowired
     private final GroupService groupService;
     @Autowired
-    private final GroupRepository groupRepository;
-    @Autowired
     private final GroupQueryService groupQueryService;
     @Autowired
     private final CreateGroupsAuxService createGroupsAux;
     @Autowired
-    private final ManageUserOfGroupAuxService manageUserOfGroupAuxService;
-    @Autowired
-    private final ManageGroupService manageGroupService;
+    private final ManageUserAndGroupsAuxService manageUserAndGroupsAuxService;
+
 
     public GroupResource(GroupService groupService,
-                         GroupRepository groupRepository,
                          GroupQueryService groupQueryService,
                          CreateGroupsAuxService createGroupsAux,
-                         ManageUserOfGroupAuxService manageUserOfGroupAuxService,
-                         ManageGroupService manageGroupService) {
+                         ManageUserAndGroupsAuxService manageUserAndGroupsAuxService
+    ) {
         this.groupService = groupService;
-        this.groupRepository = groupRepository;
         this.groupQueryService = groupQueryService;
         this.createGroupsAux = createGroupsAux;
-        this.manageUserOfGroupAuxService = manageUserOfGroupAuxService;
-        this.manageGroupService = manageGroupService;
+        this.manageUserAndGroupsAuxService = manageUserAndGroupsAuxService;
     }
 
     /**
      * {@code POST  /groups} : Create a new group.
      *
-     * @param group the group to create.
+     * @param createGroupVM the group to create.
      * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new group, or with status {@code 400 (Bad Request)} if the group has already an ID.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/groups")
-    public ResponseEntity<Group> createGroup(@Valid @RequestBody CreateGroupVM group) throws URISyntaxException {
-        log.debug("REST request to save Group : {}", group);
-        Group newGrop = createGroupsAux.createNewGroup(group);
+    public ResponseEntity<Group> createGroup(@Valid @RequestBody CreateGroupVM createGroupVM) throws URISyntaxException {
+        log.info("@@@@ Homies::REST request to save Group : {}", createGroupVM);
+        Group newGrop = createGroupsAux.createNewGroup(createGroupVM);
 
         if (newGrop != null)
             return new ResponseEntity<>(newGrop, HttpStatus.CREATED);
 
+        assert false;
         return ResponseEntity
             .created(new URI("/api/groups/" + newGrop.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, false, ENTITY_NAME, newGrop.getId().toString()))
@@ -109,18 +102,16 @@ public class GroupResource {
      *
      * @param manageGroupVM parameters to change
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated group,
-     * @throws URISyntaxException,UserPrincipalNotFoundException
      */
     @PostMapping("/groups/add-user")
     public ResponseEntity<Group> addUserToGroup(@Valid @RequestBody ManageGroupVM manageGroupVM)
         throws URISyntaxException, UserPrincipalNotFoundException {
+        log.info("@@@@ Homies::REST request to add user to group : {}", manageGroupVM);
 
         reviewData(manageGroupVM);
 
-        Optional<Group> result = manageGroupService.addUserToGroup(manageGroupVM);
+        Optional<Group> result = manageUserAndGroupsAuxService.addUserToGroup(manageGroupVM);
 
-        /*Optional<Group> result = manageUserOfGroupAuxService.addUserToGroup(manageGroupVM);
-         */
         return ResponseUtil.wrapOrNotFound(
             result,
             HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, result.get().getUserData().toString())
@@ -136,9 +127,11 @@ public class GroupResource {
     @PostMapping("/groups/delete-user")
     public ResponseEntity<Group> deleteUserToGroup(
         @Valid @RequestBody ManageGroupVM manageGroupVM) {
+        log.info("@@@@ Homies::REST request to delete user to group : {}", manageGroupVM);
+
         reviewData(manageGroupVM);
 
-        Optional<Group> result = manageGroupService.removeUserFromGroup(manageGroupVM);
+        Optional<Group> result = manageUserAndGroupsAuxService.deleteUserToTheGroup(manageGroupVM);
 
         return ResponseUtil.wrapOrNotFound(
             result,
@@ -155,10 +148,11 @@ public class GroupResource {
     @PostMapping("/groups/change-admin")
     public ResponseEntity<Group> changeUserAdminToGroup(
         @Valid @RequestBody ManageGroupVM manageGroupVM
-    ) {
+    ){
+        log.info("@@@@ Homies::REST request to change userAdmin to group : {}", manageGroupVM);
         reviewData(manageGroupVM);
 
-        Optional<Group> result = manageGroupService.changeAdminOfGroup(manageGroupVM);
+        Optional<Group> result = manageUserAndGroupsAuxService.changeUserAdminOfTheGroup(manageGroupVM);
 
         return ResponseUtil.wrapOrNotFound(
             result,
@@ -174,9 +168,6 @@ public class GroupResource {
     private void reviewData(@Valid @NotNull ManageGroupVM addUser) {
         log.warn(addUser.toString());
 
-/*        if (addUser.getIdAdminGroup() == null) {
-            throw new GroupWasNotSpecifyId();
-        }*/
         if (addUser.getIdGroup() == null) {
             throw new GroupWasNotSpecifyIdGroup();
         }
@@ -189,7 +180,7 @@ public class GroupResource {
      * {@code PUT  /groups/:id} : Updates an existing group.
      *
      * @param id    the id of the group to save.
-     * @param group the group to update.
+     * @param updateGroupVM the group to update.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated group,
      * or with status {@code 400 (Bad Request)} if the group is not valid,
      * or with status {@code 500 (Internal Server Error)} if the group couldn't be updated.
@@ -198,18 +189,12 @@ public class GroupResource {
     @PutMapping("/groups/{id}")
     public ResponseEntity<Group> updateGroup(
         @PathVariable @NotNull Long id,
-        @Valid @RequestBody UpdateGroupVM group
+        @Valid @RequestBody UpdateGroupVM updateGroupVM
     ) throws URISyntaxException {
-        log.debug("REST request to update Group : {}, {}", id, group);
-        group.setIdGroup(id);
+        log.info("@@@@ Homies::REST request to update Group : {}, {}", id, updateGroupVM);
+        updateGroupVM.setIdGroup(id);
 
-        ManageGroupVM mg = new ManageGroupVM();
-        mg.setIdGroup(id);
-        mg.setIdAdminGroup(null);
-        mg.setLogin(SecurityUtils.getCurrentUserLogin().get());
-
-        //Group result = manageUserOfGroupAuxService.updateGroup(group);
-        Optional<Group> result = manageGroupService.updateGroup(mg, group);
+        Optional<Group> result = manageUserAndGroupsAuxService.updateGroup(updateGroupVM);
 
         return ResponseUtil.wrapOrNotFound(
             result,
@@ -230,7 +215,7 @@ public class GroupResource {
         GroupCriteria criteria,
         @org.springdoc.api.annotations.ParameterObject Pageable pageable
     ) {
-        log.debug("REST request to get Groups by criteria: {}", criteria);
+        log.info("@@@@ Homies::REST request to get Groups by criteria: {}", criteria);
         Page<Group> page = groupQueryService.findByCriteria(criteria, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
 
@@ -246,7 +231,7 @@ public class GroupResource {
     @GetMapping("/groups/count")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<Long> countGroups(GroupCriteria criteria) {
-        log.debug("REST request to count Groups by criteria: {}", criteria);
+        log.info("@@@@ Homies::REST request to count Groups by criteria: {}", criteria);
 
         return ResponseEntity.ok().body(groupQueryService.countByCriteria(criteria));
     }
@@ -259,7 +244,7 @@ public class GroupResource {
      */
     @GetMapping("/groups/{id}")
     public ResponseEntity<Group> getGroup(@PathVariable Long id) {
-        log.debug("REST request to get Group : {}", id);
+        log.info("@@@@ Homies::REST request to get Group : {}", id);
         Optional<Group> group = groupService.findOne(id);
 
         return ResponseUtil.wrapOrNotFound(group);
@@ -276,9 +261,10 @@ public class GroupResource {
         ManageGroupVM manageGroupVM = new ManageGroupVM();
         manageGroupVM.setIdGroup(id);
         manageGroupVM.setLogin(SecurityUtils.getCurrentUserLogin().get());
-        log.debug("REST request to delete Group : {}", manageGroupVM);
 
-        Optional<Group> result = manageGroupService.deleteGroup(manageGroupVM);
+        log.info("@@@@ Homies::REST request to delete Group : {}", id);
+
+        Optional<Group> result = manageUserAndGroupsAuxService.deleteGroup(manageGroupVM);
 
         if (result.isPresent()) {
             throw new BadRequestAlertException("Group cannot be deleted", ENTITY_NAME, "groupcannotbedeleted");

@@ -32,6 +32,8 @@ public interface TaskRepository extends JpaRepository<Task, Long>, JpaSpecificat
 
     List<Task> getByUserAssigneds_Id(Long id);
 
+    List<Task> findByTaskList_IdAndUserAssigneds_Id(Long idList, Long idUser);
+
     @Query(
         value = "select distinct task from Task task left join fetch task.taskList",
         countQuery = "select count(distinct task) from Task task"

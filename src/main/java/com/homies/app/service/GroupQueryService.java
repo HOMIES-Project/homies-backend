@@ -4,9 +4,11 @@ import com.homies.app.domain.*; // for static metamodels
 import com.homies.app.domain.Group;
 import com.homies.app.repository.GroupRepository;
 import com.homies.app.service.criteria.GroupCriteria;
+
 import java.util.List;
 import java.util.Optional;
 import javax.persistence.criteria.JoinType;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -34,9 +36,14 @@ public class GroupQueryService extends QueryService<Group> {
         this.groupRepository = groupRepository;
     }
 
+    @Transactional
+    public void updateUserAdmin(UserData userAdmin, Long idGroup, UserData userData) {
+        groupRepository.updateUserAdmin(userAdmin, idGroup, userData);
+    }
+
     @Transactional(readOnly = true)
-    public List<Group> getAllGroupsUserId(Long userId, Long userDataId){
-        return groupRepository.getDistinctByUserAdmin_IdOrUserData_Id(userId,userDataId);
+    public List<Group> getAllGroupsUserId(Long userId, Long userDataId) {
+        return groupRepository.getDistinctByUserAdmin_IdOrUserData_Id(userId, userDataId);
     }
 
     @Transactional(readOnly = true)
@@ -50,7 +57,7 @@ public class GroupQueryService extends QueryService<Group> {
     }
 
     @Transactional(readOnly = true)
-    public Optional<Group> findGroupByIdAndUserDataUserLogin(Long id, String login){
+    public Optional<Group> findGroupByIdAndUserDataUserLogin(Long id, String login) {
         return groupRepository.findByIdAndUserData_User_Login(id, login);
     }
 
@@ -60,6 +67,7 @@ public class GroupQueryService extends QueryService<Group> {
 
     /**
      * find group by name
+     *
      * @param nameGroup
      * @return boolean
      */
@@ -70,6 +78,7 @@ public class GroupQueryService extends QueryService<Group> {
 
     /**
      * Return a {@link List} of {@link Group} which matches the criteria from the database.
+     *
      * @param criteria The object which holds all the filters, which the entities should match.
      * @return the matching entities.
      */
@@ -82,8 +91,9 @@ public class GroupQueryService extends QueryService<Group> {
 
     /**
      * Return a {@link Page} of {@link Group} which matches the criteria from the database.
+     *
      * @param criteria The object which holds all the filters, which the entities should match.
-     * @param page The page, which should be returned.
+     * @param page     The page, which should be returned.
      * @return the matching entities.
      */
     @Transactional(readOnly = true)
@@ -95,6 +105,7 @@ public class GroupQueryService extends QueryService<Group> {
 
     /**
      * Return the number of matching entities in the database.
+     *
      * @param criteria The object which holds all the filters, which the entities should match.
      * @return the number of matching entities.
      */
@@ -107,6 +118,7 @@ public class GroupQueryService extends QueryService<Group> {
 
     /**
      * Function to convert {@link GroupCriteria} to a {@link Specification}
+     *
      * @param criteria The object which holds all the filters, which the entities should match.
      * @return the matching {@link Specification} of the entity.
      */
