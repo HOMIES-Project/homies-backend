@@ -21,6 +21,7 @@ public final class ErrorConstants {
     public static final URI GROUP_IDGROUP_NOT_SPECIFY = URI.create(PROBLEM_BASE_URL + "/group-id-group-not-specify");
     public static final URI GROUP_LOGIN_NOT_SPECIFY = URI.create(PROBLEM_BASE_URL + "/group-loginnot-specify");
     public static final URI GROUP_NOT_EXIST = URI.create(PROBLEM_BASE_URL + "/group-not-exist");
+    public static final URI GROUP_USER_LOGIN_NOT_IS_ADMIN = URI.create(PROBLEM_BASE_URL + "/group-user-login-not-is-admin");
     //Task
     public static final URI TASK_USER_NOT_SPECIFY = URI.create(PROBLEM_BASE_URL + "/task-user-not-specify");
     public static final URI TASK_IDTASK_NOT_Exist = URI.create(PROBLEM_BASE_URL + "/task-idtask-not-exist");

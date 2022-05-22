@@ -60,7 +60,7 @@ public class Spending implements Serializable {
     @Column(name = "finished")
     private Boolean finished;
 
-    @ManyToMany(mappedBy = "spendings")
+    @ManyToMany(mappedBy = "spendings", fetch = FetchType.EAGER)
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @JsonIgnoreProperties(value = { "spendingList", "spendings", "settingsList" }, allowSetters = true)
     private Set<UserPending> userPendings = new HashSet<>();

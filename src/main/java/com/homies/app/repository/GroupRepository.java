@@ -1,13 +1,20 @@
 package com.homies.app.repository;
 
 import com.homies.app.domain.Group;
+
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+
+import com.homies.app.domain.UserData;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Spring Data SQL repository for the Group entity.
@@ -39,6 +46,22 @@ public interface GroupRepository extends JpaRepository<Group, Long>, JpaSpecific
     List<Group> getByUserAdmin_Id(Long id);
 
 
+    /** Change user admin */
+    @Transactional
+    @Modifying
+    @Query("update Group g set g.userAdmin = :userAdmin1 where g.id = :id and g.userAdmin = :userAdmin")
+    int updateUserAdmin(@Param("userAdmin") UserData userAdmin,
+                        @Param("id") Long id,
+                        @Param("userAdmin1") UserData userAdmin1);
+
+
+    /** Delete the Group by id. */
+    @Transactional
+    @Modifying
+    @Query("delete from Group g where g.id = :id and g.userAdmin = :userAdmin")
+    int deleteByIdAndUserAdmin(
+        @Param("id") Long id,
+        @Param("userAdmin") UserData userAdmin);
 
     Optional<Group> findByIdAndUserData_User_Login(Long id, String login);
 

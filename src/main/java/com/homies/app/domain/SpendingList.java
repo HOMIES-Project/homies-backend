@@ -32,7 +32,7 @@ public class SpendingList implements Serializable {
     @Column(name = "name_spend_list", length = 20, nullable = false)
     private String nameSpendList;
 
-    @OneToMany(mappedBy = "spendingList", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "spendingList", fetch = FetchType.EAGER, cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH })
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @JsonIgnoreProperties(value = { "spendingList", "spendings", "settingsList" }, allowSetters = true)
     private Set<UserPending> spendings = new HashSet<>();

@@ -3,7 +3,7 @@ package com.homies.app.web.rest;
 import com.homies.app.domain.UserData;
 import com.homies.app.repository.UserDataRepository;
 import com.homies.app.security.AuthoritiesConstants;
-import com.homies.app.service.AuxiliarServices.ManageUserOfGroupAuxService;
+import com.homies.app.service.AuxiliarServices.ManageUserAndGroupsAuxService;
 import com.homies.app.service.UserDataQueryService;
 import com.homies.app.service.UserDataService;
 import com.homies.app.service.criteria.UserDataCriteria;
@@ -56,20 +56,20 @@ public class UserDataResource {
 
     private final UserEditingAuxService userEditingAux;
 
-    private final ManageUserOfGroupAuxService manageUserOfGroupAuxService;
+    private final ManageUserAndGroupsAuxService manageUserAndGroupsAuxService;
 
     public UserDataResource(
         UserDataService userDataService,
         UserDataRepository userDataRepository,
         UserDataQueryService userDataQueryService,
         UserEditingAuxService userEditingAux,
-        ManageUserOfGroupAuxService manageUserOfGroupAuxService
+        ManageUserAndGroupsAuxService manageUserAndGroupsAuxService
     ) {
         this.userDataService = userDataService;
         this.userDataRepository = userDataRepository;
         this.userDataQueryService = userDataQueryService;
         this.userEditingAux = userEditingAux;
-        this.manageUserOfGroupAuxService = manageUserOfGroupAuxService;
+        this.manageUserAndGroupsAuxService = manageUserAndGroupsAuxService;
     }
 
     /**
@@ -223,7 +223,7 @@ public class UserDataResource {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
 
-        manageUserOfGroupAuxService.deleteUserAndRelationships(id);
+        manageUserAndGroupsAuxService.deleteUserAndRelationships(id);
         //userDataService.delete(id);
 
         return ResponseEntity
