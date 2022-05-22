@@ -6,6 +6,7 @@ public class AddProductVM {
     Long idUserData;
     String nameProduct;
     Float units;
+    String typeUnit;
 
     public Long getIdGroup() {
         return idGroup;
@@ -39,6 +40,14 @@ public class AddProductVM {
         this.units = units;
     }
 
+    public String getTypeUnit() {
+        return typeUnit;
+    }
+
+    public void setTypeUnit(String typeUnit) {
+        this.typeUnit = typeUnit;
+    }
+
     @Override
     public String toString() {
         return "AddProductVM{" +
@@ -46,6 +55,7 @@ public class AddProductVM {
             ", idUserData=" + idUserData +
             ", nameProduct='" + nameProduct + '\'' +
             ", units=" + units +
+            ", typeUnit='" + typeUnit + '\'' +
             '}';
     }
 }
