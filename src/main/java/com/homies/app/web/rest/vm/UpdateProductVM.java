@@ -12,6 +12,8 @@ public class UpdateProductVM {
 
     private Long idProduct;
 
+    private String typeUnit;
+
     @Size(min = 3, max = 20)
     private String name;
 
@@ -59,12 +61,21 @@ public class UpdateProductVM {
         this.units = units;
     }
 
+    public String getTypeUnit() {
+        return typeUnit;
+    }
+
+    public void setTypeUnit(String typeUnit) {
+        this.typeUnit = typeUnit;
+    }
+
     @Override
     public String toString() {
         return "UpdateProductVM{" +
             "login='" + login + '\'' +
             ", idGroup=" + idGroup +
             ", idProduct=" + idProduct +
+            ", typeUnit='" + typeUnit + '\'' +
             ", name='" + name + '\'' +
             ", units=" + units +
             '}';
