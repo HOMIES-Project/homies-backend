@@ -3,32 +3,25 @@ package com.homies.app.service.AuxiliarServices;
 import com.homies.app.domain.*;
 import com.homies.app.repository.*;
 import com.homies.app.security.SecurityUtils;
-import com.homies.app.service.*;
 import com.homies.app.web.rest.SpendingResource;
-import com.homies.app.web.rest.errors.Group.GroupNotExistException;
 import com.homies.app.web.rest.errors.Group.GroupUserLoginNotAdmin;
-import com.homies.app.web.rest.errors.GroupAlreadyUsedException;
-import com.homies.app.web.rest.errors.User.UserDoesNotExist;
 import com.homies.app.web.rest.vm.ManageGroupVM;
 import com.homies.app.web.rest.vm.UpdateGroupVM;
 import liquibase.exception.DatabaseException;
-import org.aspectj.weaver.patterns.ExactAnnotationFieldTypePattern;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.nio.file.attribute.UserPrincipalNotFoundException;
 import java.util.*;
 
 @Service
-public class ManageUserOfGroupServiceV2 {
+public class ManageGroupService {
 
-    private final Logger log = LoggerFactory.getLogger(ManageUserOfGroupServiceV2.class);
+    private final Logger log = LoggerFactory.getLogger(ManageGroupService.class);
     @Autowired
     private final UserDataRepository userDataRepository;
     @Autowired
@@ -48,7 +41,7 @@ public class ManageUserOfGroupServiceV2 {
     @Autowired
     private final UserPendingRepository userPendingRepository;
 
-    public ManageUserOfGroupServiceV2(
+    public ManageGroupService(
         UserDataRepository userDataRepository,
         GroupRepository groupRepository,
         TaskRepository taskRepository,
@@ -167,19 +160,50 @@ public class ManageUserOfGroupServiceV2 {
     public Optional<Group> deleteGroup(@NotNull ManageGroupVM manageGroupVM) {
         try {
             if (userIsAuthenticated(manageGroupVM, MethodName.DELETE_GROUP)) {
-
-                groupRepository.deleteByIdAndUserAdmin(
-                    group.get().getId(),
-                    userAdmin.get()
-                );
-
-                /** esto no puede ser*/
-                return returnGroup();
+                return deletingGroup();
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
         return Optional.empty();
+    }
+
+    @NotNull
+    @Transactional
+    private Optional<Group> deletingGroup() {
+        List<UserData> users = new ArrayList<>(group.get().getUserData());
+        users.forEach(user -> {
+            user.removeGroup(group.get());
+            userDataRepository.save(user);
+        });
+
+        userAdmin.get().removeAdminGroups(group.get());
+        userDataRepository.save(userAdmin.get());
+
+        Optional<TaskList> taskList = taskListRepository.findById(group.get().getId());
+        List<Task> tasks = new ArrayList<>(taskList.get().getTasks());
+
+        tasks.forEach(task -> {
+            if (task.getUserAssigneds().size() > 0){
+                userData = Optional.ofNullable(task.getUserAssigneds().iterator().next());
+                userData.get().getTaskAsigneds().remove(task);
+                userDataRepository.save(userData.get());
+            }
+
+            task.setTaskList(null);
+            taskRepository.save(task);
+        });
+
+        taskList.get().setTasks(new HashSet<>());
+        taskListRepository.save(taskList.get());
+
+        tasks.forEach(taskRepository::delete);
+
+        group.get().setUserAdmin(null);
+        groupRepository.save(group.get());
+        groupRepository.delete(group.get());
+
+        return returnGroup();
     }
 
 

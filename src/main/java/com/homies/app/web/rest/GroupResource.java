@@ -5,7 +5,7 @@ import com.homies.app.repository.GroupRepository;
 import com.homies.app.security.AuthoritiesConstants;
 import com.homies.app.security.SecurityUtils;
 import com.homies.app.service.AuxiliarServices.ManageUserOfGroupAuxService;
-import com.homies.app.service.AuxiliarServices.ManageUserOfGroupServiceV2;
+import com.homies.app.service.AuxiliarServices.ManageGroupService;
 import com.homies.app.service.GroupQueryService;
 import com.homies.app.service.GroupService;
 import com.homies.app.service.criteria.GroupCriteria;
@@ -16,7 +16,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.attribute.UserPrincipalNotFoundException;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import javax.validation.Valid;
 
@@ -68,20 +67,20 @@ public class GroupResource {
     @Autowired
     private final ManageUserOfGroupAuxService manageUserOfGroupAuxService;
     @Autowired
-    private final ManageUserOfGroupServiceV2 manageUserOfGroupServiceV2;
+    private final ManageGroupService manageGroupService;
 
     public GroupResource(GroupService groupService,
                          GroupRepository groupRepository,
                          GroupQueryService groupQueryService,
                          CreateGroupsAuxService createGroupsAux,
                          ManageUserOfGroupAuxService manageUserOfGroupAuxService,
-                         ManageUserOfGroupServiceV2 manageUserOfGroupServiceV2) {
+                         ManageGroupService manageGroupService) {
         this.groupService = groupService;
         this.groupRepository = groupRepository;
         this.groupQueryService = groupQueryService;
         this.createGroupsAux = createGroupsAux;
         this.manageUserOfGroupAuxService = manageUserOfGroupAuxService;
-        this.manageUserOfGroupServiceV2 = manageUserOfGroupServiceV2;
+        this.manageGroupService = manageGroupService;
     }
 
     /**
@@ -118,7 +117,7 @@ public class GroupResource {
 
         reviewData(manageGroupVM);
 
-        Optional<Group> result = manageUserOfGroupServiceV2.addUserToGroup(manageGroupVM);
+        Optional<Group> result = manageGroupService.addUserToGroup(manageGroupVM);
 
         /*Optional<Group> result = manageUserOfGroupAuxService.addUserToGroup(manageGroupVM);
          */
@@ -139,7 +138,7 @@ public class GroupResource {
         @Valid @RequestBody ManageGroupVM manageGroupVM) {
         reviewData(manageGroupVM);
 
-        Optional<Group> result = manageUserOfGroupServiceV2.removeUserFromGroup(manageGroupVM);
+        Optional<Group> result = manageGroupService.removeUserFromGroup(manageGroupVM);
 
         return ResponseUtil.wrapOrNotFound(
             result,
@@ -159,7 +158,7 @@ public class GroupResource {
     ) {
         reviewData(manageGroupVM);
 
-        Optional<Group> result = manageUserOfGroupServiceV2.changeAdminOfGroup(manageGroupVM);
+        Optional<Group> result = manageGroupService.changeAdminOfGroup(manageGroupVM);
 
         return ResponseUtil.wrapOrNotFound(
             result,
@@ -210,7 +209,7 @@ public class GroupResource {
         mg.setLogin(SecurityUtils.getCurrentUserLogin().get());
 
         //Group result = manageUserOfGroupAuxService.updateGroup(group);
-        Optional<Group> result = manageUserOfGroupServiceV2.updateGroup(mg, group);
+        Optional<Group> result = manageGroupService.updateGroup(mg, group);
 
         return ResponseUtil.wrapOrNotFound(
             result,
@@ -279,7 +278,7 @@ public class GroupResource {
         manageGroupVM.setLogin(SecurityUtils.getCurrentUserLogin().get());
         log.debug("REST request to delete Group : {}", manageGroupVM);
 
-        Optional<Group> result = manageUserOfGroupServiceV2.deleteGroup(manageGroupVM);
+        Optional<Group> result = manageGroupService.deleteGroup(manageGroupVM);
 
         if (result.isPresent()) {
             throw new BadRequestAlertException("Group cannot be deleted", ENTITY_NAME, "groupcannotbedeleted");
