@@ -357,9 +357,7 @@ public class ManageUserAndGroupsAuxService {
     }
 
     private boolean isNullAdmin() {
-        if (group.get().getUserAdmin() == null)
-            return true;
-        throw new GroupUserLoginNotAdmin();
+        return group.get().getUserAdmin() == null;
     }
 
     private boolean isUserInGroup() {
