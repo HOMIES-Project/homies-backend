@@ -7,6 +7,7 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
+import java.util.Arrays;
 
 public class UserEditingVM {
 
@@ -137,4 +138,20 @@ public class UserEditingVM {
         this.birthDate = birthDate;
     }
 
+    @Override
+    public String toString() {
+        return "UserEditingVM{" +
+            "id=" + id +
+            ", login='" + login + '\'' +
+            ", password='" + password + '\'' +
+            ", firstName='" + firstName + '\'' +
+            ", lastName='" + lastName + '\'' +
+            ", email='" + email + '\'' +
+            ", langKey='" + langKey + '\'' +
+            //", photo=" + Arrays.toString(photo) +
+            //", photoContentType='" + photoContentType + '\'' +
+            ", phone='" + phone + '\'' +
+            ", birthDate=" + birthDate +
+            '}';
+    }
 }

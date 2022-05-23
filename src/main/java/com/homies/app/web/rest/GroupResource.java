@@ -86,7 +86,7 @@ public class GroupResource {
     public ResponseEntity<Group> createGroup(@Valid @RequestBody CreateGroupVM createGroupVM) throws URISyntaxException {
         Group newGrop = createGroupsAux.createNewGroup(createGroupVM);
 
-        log.warn("@@@@ Homies::REST request to save Group : {}", createGroupVM);
+        log.warn("@@@@ Homies::REST request to save Group : {}", createGroupVM.toString());
         if (newGrop != null)
             return new ResponseEntity<>(newGrop, HttpStatus.CREATED);
 
@@ -108,7 +108,7 @@ public class GroupResource {
         throws URISyntaxException, UserPrincipalNotFoundException {
 
         reviewData(manageGroupVM);
-        log.warn("@@@@ Homies::REST request to add user to group : {}", manageGroupVM);
+        log.warn("@@@@ Homies::REST request to add user to group : {}", manageGroupVM.toString());
 
         Optional<Group> result = manageUserAndGroupsAuxService.addUserToGroup(manageGroupVM);
 
@@ -130,7 +130,7 @@ public class GroupResource {
 
         reviewData(manageGroupVM);
 
-        log.warn("@@@@ Homies::REST request to delete user to group : {}", manageGroupVM);
+        log.warn("@@@@ Homies::REST request to delete user to group : {}", manageGroupVM.toString());
         Optional<Group> result = manageUserAndGroupsAuxService.deleteUserToTheGroup(manageGroupVM);
 
         return ResponseUtil.wrapOrNotFound(
@@ -151,7 +151,7 @@ public class GroupResource {
     ){
         reviewData(manageGroupVM);
 
-        log.warn("@@@@ Homies::REST request to change userAdmin to group : {}", manageGroupVM);
+        log.warn("@@@@ Homies::REST request to change userAdmin to group : {}", manageGroupVM.toString());
         Optional<Group> result = manageUserAndGroupsAuxService.changeUserAdminOfTheGroup(manageGroupVM);
 
         return ResponseUtil.wrapOrNotFound(
@@ -166,7 +166,7 @@ public class GroupResource {
      * @param addUser request
      */
     private void reviewData(@Valid @NotNull ManageGroupVM addUser) {
-        log.warn("@@@@ Homies::REST request to add user to group : {}", addUser);
+        log.warn("@@@@ Homies::REST request to add user to group : {}", addUser.toString());
 
         if (addUser.getIdGroup() == null) {
             throw new GroupWasNotSpecifyIdGroup();
@@ -193,7 +193,7 @@ public class GroupResource {
     ) throws URISyntaxException {
         updateGroupVM.setIdGroup(id);
 
-        log.warn("@@@@ Homies::REST request to update Group : {}, {}", id, updateGroupVM);
+        log.warn("@@@@ Homies::REST request to update Group : {}, {}", id, updateGroupVM.toString());
         Optional<Group> result = manageUserAndGroupsAuxService.updateGroup(updateGroupVM);
 
         return ResponseUtil.wrapOrNotFound(
@@ -218,7 +218,7 @@ public class GroupResource {
         Page<Group> page = groupQueryService.findByCriteria(criteria, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
 
-        log.warn("@@@@ Homies::REST request to get Groups by criteria: {}", criteria);
+        log.warn("@@@@ Homies::REST request to get Groups by criteria: {}", criteria.toString());
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
@@ -232,7 +232,7 @@ public class GroupResource {
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<Long> countGroups(GroupCriteria criteria) {
 
-        log.warn("@@@@ Homies::REST request to count Groups by criteria: {}", criteria);
+        log.warn("@@@@ Homies::REST request to count Groups by criteria: {}", criteria.toString());
         return ResponseEntity.ok().body(groupQueryService.countByCriteria(criteria));
     }
 

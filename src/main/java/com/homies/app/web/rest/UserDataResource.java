@@ -117,7 +117,7 @@ public class UserDataResource {
         if (userDataService.findOne(user.getId()).isEmpty())
             return ResponseEntity.badRequest().body("Error. User not found.");
 
-        log.warn("@@@@ Homies::REST request to update UserData : {}", user);
+        log.warn("@@@@ Homies::REST request to update UserData : {}", user.toString());
         UserData updateUser = userEditingAux.updateUser(user);
         if (updateUser != null) {
             return ResponseEntity.ok().body(updateUser);
@@ -156,7 +156,7 @@ public class UserDataResource {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 
-        log.warn("@@@@ Homies::REST request to update UserData : {}", userData);
+        log.warn("@@@@ Homies::REST request to update UserData : {}", userData.toString());
         Optional<UserData> result = userDataService.partialUpdate(userData);
 
         return ResponseUtil.wrapOrNotFound(
@@ -180,7 +180,7 @@ public class UserDataResource {
     ) {
         Page<UserData> page = userDataQueryService.findByCriteria(criteria, pageable);
 
-        log.warn("@@@@ Homies::REST request to get UserData by criteria: {}", criteria);
+        log.warn("@@@@ Homies::REST request to get UserData by criteria: {}", criteria.toString());
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
@@ -194,7 +194,7 @@ public class UserDataResource {
     @GetMapping("/user-data/count")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<Long> countUserData(UserDataCriteria criteria) {
-        log.warn("@@@@ Homies::REST request to count UserData by criteria: {}", criteria);
+        log.warn("@@@@ Homies::REST request to count UserData by criteria: {}", criteria.toString());
 
         return ResponseEntity.ok().body(userDataQueryService.countByCriteria(criteria));
     }
