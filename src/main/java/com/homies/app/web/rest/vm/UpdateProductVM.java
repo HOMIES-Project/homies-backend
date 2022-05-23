@@ -20,6 +20,8 @@ public class UpdateProductVM {
     @DecimalMin(value = "1")
     private Float units;
 
+    private boolean purchased;
+
 
     public String getLogin() {
         return login;
@@ -69,6 +71,14 @@ public class UpdateProductVM {
         this.typeUnit = typeUnit;
     }
 
+    public boolean isPurchased() {
+        return purchased;
+    }
+
+    public void setPurchased(boolean purchased) {
+        this.purchased = purchased;
+    }
+
     @Override
     public String toString() {
         return "UpdateProductVM{" +
@@ -78,6 +88,7 @@ public class UpdateProductVM {
             ", typeUnit='" + typeUnit + '\'' +
             ", name='" + name + '\'' +
             ", units=" + units +
+            ", purchased=" + purchased +
             '}';
     }
 }

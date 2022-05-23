@@ -94,6 +94,32 @@ public class ManageProductAuxService {
         throw new IncorrectParameters();
     }
 
+    public Optional<Products> updateProductCancel(UpdateProductVM updateProductVM){
+        if(managerUpdateOfTheProduct(updateProductVM).isPresent()){
+            products = productsService.findOne(updateProductVM.getIdProduct());
+            group = groupService.findOne(updateProductVM.getIdGroup());
+            Optional<User> user = userService.getUser(updateProductVM.getLogin());
+            userData = userDataService.findOne(user.get().getId());
+
+            AtomicBoolean userExist = new AtomicBoolean(false);
+            if (group.get().getUserData() != null){
+                group.get().getUserData().forEach(userData1 -> {
+                    if(userData1.getId().equals(userData.get().getId())){
+                        userExist.set(true);
+                    }
+                });
+                if(userExist.get()){
+                    products.get().setPurchased(updateProductVM.isPurchased());
+                    productsService.save(products.get());
+                } else {
+                    throw new UserDoesNotExistInGroup();
+                }
+            }
+            return productsService.findOne(updateProductVM.getIdProduct());
+        }
+        throw new IncorrectParameters();
+    }
+
     private Optional<Products> managerUpdateOfTheProduct(UpdateProductVM updateProductVM){
 
         products = productsService.findOne(updateProductVM.getIdProduct());

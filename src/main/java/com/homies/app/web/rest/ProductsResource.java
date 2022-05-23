@@ -151,6 +151,26 @@ public class ProductsResource {
         );
     }
 
+    @PutMapping("/product/cancel")
+    public ResponseEntity<Products> updateProductCancel(@Valid @RequestBody UpdateProductVM updateProductVM)
+        throws URISyntaxException {
+        if (updateProductVM.getIdProduct() == null) {
+            throw new TaskWasNotSpecifyIdTask();
+        }
+        if (updateProductVM.getIdGroup() == null) {
+            throw new GroupWasNotSpecifyIdGroup();
+        }
+        if (updateProductVM.getLogin() == null) {
+            throw new UserWasNotSpecifyLogin();
+        }
+
+        Optional<Products> result = manageProductAuxService.updateProductCancel(updateProductVM);
+        return ResponseUtil.wrapOrNotFound(
+            result,
+            HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, result.get().getName())
+        );
+    }
+
     /**
      * {@code PATCH  /products/:id} : Partial updates given fields of an existing products, field will ignore if it is null
      *
