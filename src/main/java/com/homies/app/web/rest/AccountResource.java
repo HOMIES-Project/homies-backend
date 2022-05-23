@@ -20,6 +20,7 @@ import javax.validation.Valid;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -43,11 +44,11 @@ public class AccountResource {
     }
 
     private final Logger log = LoggerFactory.getLogger(AccountResource.class);
-
+    @Autowired
     private final UserRepository userRepository;
-
+    @Autowired
     private final UserService userService;
-
+    @Autowired
     private final MailService mailService;
 
     private final CreateUserDataForUserAuxService createUserDataForUserAux;
@@ -76,6 +77,7 @@ public class AccountResource {
         if (isPasswordLengthInvalid(managedUserVM.getPassword())) {
             throw new InvalidPasswordException();
         }
+        log.warn("@@@@ Homies::REST Registering user {}", managedUserVM.getLogin());
         User user = userService.registerUser(managedUserVM, managedUserVM.getPassword());
         createUserDataForUserAux.createUserData(user.getId());
         mailService.sendActivationEmail(user);
@@ -90,9 +92,9 @@ public class AccountResource {
     @PostMapping("/email")
     @ResponseStatus(HttpStatus.RESET_CONTENT)
     public void reSendEmailOfActivation(@Valid @RequestBody JSONEmailVM email) {
-        log.warn(email.getEmail());
 
         Optional<User> user = userService.getUserForEmail(email.getEmail());
+        log.warn("@@@@ Homies::REST resend mail for account activation: {}", email.getEmail());
         mailService.sendActivationEmail(user.get());
     }
 
@@ -105,6 +107,7 @@ public class AccountResource {
     @GetMapping("/activate")
     public void activateAccount(@RequestParam(value = "key") String key) {
         Optional<User> user = userService.activateRegistration(key);
+        log.warn("@@@@ Homies::REST activate account: {}", key);
         if (!user.isPresent()) {
             throw new AccountResourceException("No user was found for this activation key");
         }
@@ -118,7 +121,7 @@ public class AccountResource {
      */
     @GetMapping("/authenticate")
     public String isAuthenticated(HttpServletRequest request) {
-        log.debug("REST request to check if the current user is authenticated");
+        log.warn("@@@@ Homies::REST authenticate user: {}", request.getRemoteUser());
         return request.getRemoteUser();
     }
 
@@ -176,6 +179,7 @@ public class AccountResource {
         if (isPasswordLengthInvalid(passwordChangeDto.getNewPassword())) {
             throw new InvalidPasswordException();
         }
+        log.warn("@@@@ Homies::REST change password: {}", passwordChangeDto.getCurrentPassword());
         userService.changePassword(passwordChangeDto.getCurrentPassword(), passwordChangeDto.getNewPassword());
     }
 
@@ -186,11 +190,10 @@ public class AccountResource {
      */
     @PostMapping(path = "/account/reset-password/init")
     public ResponseEntity<String> requestPasswordReset(@Valid @RequestBody JSONEmailVM email) {
-        log.warn(email.getEmail());
-
         Optional<User> user = userService.requestPasswordReset(email.getEmail());
 
         if (user.isPresent()) {
+            log.warn("@@@@ Homies::REST request password reset: {}", email.getEmail());
             log.warn(email.getEmail());
             JSONResetPasswordAux key = new JSONResetPasswordAux(user.get().getResetKey());
             log.warn("key= " + key);
@@ -216,6 +219,7 @@ public class AccountResource {
         if (isPasswordLengthInvalid(keyAndPassword.getNewPassword())) {
             throw new InvalidPasswordException();
         }
+        log.warn("@@@@ Homies::REST finish password reset: {}", keyAndPassword.getKey());
         Optional<User> user = userService.completePasswordReset(keyAndPassword.getNewPassword(), keyAndPassword.getKey());
 
         if (user.isEmpty()) {

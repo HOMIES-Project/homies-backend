@@ -18,6 +18,7 @@ import com.homies.app.service.dto.UserUpdateDTO;
 import com.homies.app.service.errors.EmailAlreadyUsedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -36,15 +37,15 @@ import tech.jhipster.security.RandomUtil;
 public class UserService {
 
     private final Logger log = LoggerFactory.getLogger(UserService.class);
-
+    @Autowired
     private final UserRepository userRepository;
-
+    @Autowired
     private final PasswordEncoder passwordEncoder;
-
+    @Autowired
     private final AuthorityRepository authorityRepository;
-
+    @Autowired
     private final CacheManager cacheManager;
-
+    @Autowired
     private final MailService mailService;
 
     public UserService(

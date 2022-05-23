@@ -84,9 +84,9 @@ public class GroupResource {
      */
     @PostMapping("/groups")
     public ResponseEntity<Group> createGroup(@Valid @RequestBody CreateGroupVM createGroupVM) throws URISyntaxException {
-        log.info("@@@@ Homies::REST request to save Group : {}", createGroupVM);
         Group newGrop = createGroupsAux.createNewGroup(createGroupVM);
 
+        log.warn("@@@@ Homies::REST request to save Group : {}", createGroupVM);
         if (newGrop != null)
             return new ResponseEntity<>(newGrop, HttpStatus.CREATED);
 
@@ -106,9 +106,9 @@ public class GroupResource {
     @PostMapping("/groups/add-user")
     public ResponseEntity<Group> addUserToGroup(@Valid @RequestBody ManageGroupVM manageGroupVM)
         throws URISyntaxException, UserPrincipalNotFoundException {
-        log.info("@@@@ Homies::REST request to add user to group : {}", manageGroupVM);
 
         reviewData(manageGroupVM);
+        log.warn("@@@@ Homies::REST request to add user to group : {}", manageGroupVM);
 
         Optional<Group> result = manageUserAndGroupsAuxService.addUserToGroup(manageGroupVM);
 
@@ -127,10 +127,10 @@ public class GroupResource {
     @PostMapping("/groups/delete-user")
     public ResponseEntity<Group> deleteUserToGroup(
         @Valid @RequestBody ManageGroupVM manageGroupVM) {
-        log.info("@@@@ Homies::REST request to delete user to group : {}", manageGroupVM);
 
         reviewData(manageGroupVM);
 
+        log.warn("@@@@ Homies::REST request to delete user to group : {}", manageGroupVM);
         Optional<Group> result = manageUserAndGroupsAuxService.deleteUserToTheGroup(manageGroupVM);
 
         return ResponseUtil.wrapOrNotFound(
@@ -149,9 +149,9 @@ public class GroupResource {
     public ResponseEntity<Group> changeUserAdminToGroup(
         @Valid @RequestBody ManageGroupVM manageGroupVM
     ){
-        log.info("@@@@ Homies::REST request to change userAdmin to group : {}", manageGroupVM);
         reviewData(manageGroupVM);
 
+        log.warn("@@@@ Homies::REST request to change userAdmin to group : {}", manageGroupVM);
         Optional<Group> result = manageUserAndGroupsAuxService.changeUserAdminOfTheGroup(manageGroupVM);
 
         return ResponseUtil.wrapOrNotFound(
@@ -166,7 +166,7 @@ public class GroupResource {
      * @param addUser request
      */
     private void reviewData(@Valid @NotNull ManageGroupVM addUser) {
-        log.warn(addUser.toString());
+        log.warn("@@@@ Homies::REST request to add user to group : {}", addUser);
 
         if (addUser.getIdGroup() == null) {
             throw new GroupWasNotSpecifyIdGroup();
@@ -191,9 +191,9 @@ public class GroupResource {
         @PathVariable @NotNull Long id,
         @Valid @RequestBody UpdateGroupVM updateGroupVM
     ) throws URISyntaxException {
-        log.info("@@@@ Homies::REST request to update Group : {}, {}", id, updateGroupVM);
         updateGroupVM.setIdGroup(id);
 
+        log.warn("@@@@ Homies::REST request to update Group : {}, {}", id, updateGroupVM);
         Optional<Group> result = manageUserAndGroupsAuxService.updateGroup(updateGroupVM);
 
         return ResponseUtil.wrapOrNotFound(
@@ -215,10 +215,10 @@ public class GroupResource {
         GroupCriteria criteria,
         @org.springdoc.api.annotations.ParameterObject Pageable pageable
     ) {
-        log.info("@@@@ Homies::REST request to get Groups by criteria: {}", criteria);
         Page<Group> page = groupQueryService.findByCriteria(criteria, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
 
+        log.warn("@@@@ Homies::REST request to get Groups by criteria: {}", criteria);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
@@ -231,8 +231,8 @@ public class GroupResource {
     @GetMapping("/groups/count")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<Long> countGroups(GroupCriteria criteria) {
-        log.info("@@@@ Homies::REST request to count Groups by criteria: {}", criteria);
 
+        log.warn("@@@@ Homies::REST request to count Groups by criteria: {}", criteria);
         return ResponseEntity.ok().body(groupQueryService.countByCriteria(criteria));
     }
 
@@ -244,9 +244,9 @@ public class GroupResource {
      */
     @GetMapping("/groups/{id}")
     public ResponseEntity<Group> getGroup(@PathVariable Long id) {
-        log.info("@@@@ Homies::REST request to get Group : {}", id);
         Optional<Group> group = groupService.findOne(id);
 
+        log.warn("@@@@ Homies::REST request to get Group : {}", id);
         return ResponseUtil.wrapOrNotFound(group);
     }
 
@@ -262,8 +262,8 @@ public class GroupResource {
         manageGroupVM.setIdGroup(id);
         manageGroupVM.setLogin(SecurityUtils.getCurrentUserLogin().get());
 
-        log.info("@@@@ Homies::REST request to delete Group : {}", id);
 
+        log.warn("@@@@ Homies::REST request to delete Group : {}", id);
         Optional<Group> result = manageUserAndGroupsAuxService.deleteGroup(manageGroupVM);
 
         if (result.isPresent()) {

@@ -54,15 +54,6 @@ public interface GroupRepository extends JpaRepository<Group, Long>, JpaSpecific
                         @Param("id") Long id,
                         @Param("userAdmin1") UserData userAdmin1);
 
-
-    /** Delete the Group by id. */
-    @Transactional
-    @Modifying
-    @Query("delete from Group g where g.id = :id and g.userAdmin = :userAdmin")
-    int deleteByIdAndUserAdmin(
-        @Param("id") Long id,
-        @Param("userAdmin") UserData userAdmin);
-
     Optional<Group> findByIdAndUserData_User_Login(Long id, String login);
 
     @Query(

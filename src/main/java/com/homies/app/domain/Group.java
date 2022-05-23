@@ -23,9 +23,6 @@ import org.junit.Ignore;
  */
 @Entity
 @Table(name = "jhi_group")
-/*@NamedQueries({
-    @NamedQuery(name = "Group.deleteByUserAdmin", query = "delete from Group g where g.userAdmin = :userAdmin")
-})*/
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Group implements Serializable {
 
@@ -52,7 +49,7 @@ public class Group implements Serializable {
     @Column(name = "add_group_date")
     private LocalDate addGroupDate;
 
-    @ManyToOne//(cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.DETACH})
+    @ManyToOne
     @JsonIgnoreProperties(value = { "adminGroups", "taskAsigneds", "productCreateds", "groups" }, allowSetters = true)
     @NotFound(action = NotFoundAction.IGNORE)
     private UserData userAdmin;

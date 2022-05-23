@@ -11,6 +11,7 @@ import javax.persistence.criteria.JoinType;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -30,6 +31,7 @@ public class GroupQueryService extends QueryService<Group> {
 
     private final Logger log = LoggerFactory.getLogger(GroupQueryService.class);
 
+    @Autowired
     private final GroupRepository groupRepository;
 
     public GroupQueryService(GroupRepository groupRepository) {

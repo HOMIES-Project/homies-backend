@@ -9,6 +9,7 @@ import java.util.Optional;
 import javax.persistence.criteria.JoinType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -27,21 +28,11 @@ import tech.jhipster.service.QueryService;
 public class UserDataQueryService extends QueryService<UserData> {
 
     private final Logger log = LoggerFactory.getLogger(UserDataQueryService.class);
-
+    @Autowired
     private final UserDataRepository userDataRepository;
 
     public UserDataQueryService(UserDataRepository userDataRepository) {
         this.userDataRepository = userDataRepository;
-    }
-
-    /**
-     * List of user task
-     * @param id
-     * @return List
-     */
-    @Transactional(readOnly = true)
-    public List<UserData> getByTaskAsignedsId(Long id){
-        return userDataRepository.getByTaskAsigneds_Id(id);
     }
 
     /**

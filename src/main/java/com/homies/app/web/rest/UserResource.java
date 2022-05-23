@@ -10,14 +10,18 @@ import com.homies.app.service.dto.AdminUserDTO;
 import com.homies.app.web.rest.errors.BadRequestAlertException;
 import com.homies.app.web.rest.errors.EmailAlreadyUsedException;
 import com.homies.app.web.rest.errors.User.LoginAlreadyUsedException;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
 import java.util.Collections;
 import javax.validation.Valid;
 import javax.validation.constraints.Pattern;
+
+import liquibase.pro.packaged.A;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -83,11 +87,11 @@ public class UserResource {
 
     @Value("${jhipster.clientApp.name}")
     private String applicationName;
-
+    @Autowired
     private final UserService userService;
-
+    @Autowired
     private final UserRepository userRepository;
-
+    @Autowired
     private final MailService mailService;
 
     public UserResource(UserService userService, UserRepository userRepository, MailService mailService) {
@@ -105,7 +109,7 @@ public class UserResource {
      *
      * @param userDTO the user to create.
      * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new user, or with status {@code 400 (Bad Request)} if the login or email is already in use.
-     * @throws URISyntaxException if the Location URI syntax is incorrect.
+     * @throws URISyntaxException       if the Location URI syntax is incorrect.
      * @throws BadRequestAlertException {@code 400 (Bad Request)} if the login or email is already in use.
      */
     @PostMapping("/users")
