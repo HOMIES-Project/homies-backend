@@ -278,10 +278,10 @@ public class UserService {
             .getCurrentUserLogin()
             .flatMap((String id) -> userOldData)
             .ifPresent(newUser -> {
-                newUser.setLogin(user.getLogin());
-                newUser.setFirstName(user.getFirstName());
-                newUser.setLastName(user.getLastName());
-                newUser.setLangKey(user.getLangKey());
+                if (user.getLogin() != null) newUser.setLogin(user.getLogin());
+                if (user.getFirstName() != null) newUser.setFirstName(user.getFirstName());
+                if (user.getLastName() != null) newUser.setLastName(user.getLastName());
+                if (user.getLangKey() != null) newUser.setLangKey(user.getLangKey());
                 if (user.getEmail() != null) {
                     if (!Objects.equals(user.getEmail(), userOldData.get().getEmail())){
                         newUser.setEmail(user.getEmail().toLowerCase());
@@ -293,7 +293,7 @@ public class UserService {
                     }
                 }
                 this.clearUserCaches(newUser);
-                log.debug("Changed Information for User: {}", newUser);
+                log.debug("@@@ Homies::Changed Information for User: {}", newUser);
                 complete.set(true);
             });
 

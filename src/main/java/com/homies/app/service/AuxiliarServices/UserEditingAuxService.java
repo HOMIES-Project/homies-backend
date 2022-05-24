@@ -33,18 +33,18 @@ public class UserEditingAuxService {
         Long id = userEditingVM.getId();
 
         user.setId(id);
-        user.setLogin(userEditingVM.getLogin());
-        user.setPassword(userEditingVM.getPassword());
-        user.setFirstName(userEditingVM.getFirstName());
-        user.setLastName(userEditingVM.getLastName());
-        user.setEmail(userEditingVM.getEmail());
-        user.setLangKey(userEditingVM.getLangKey());
+        if ( userEditingVM.getLogin() != null ) user.setLogin(userEditingVM.getLogin());
+        //if ( userEditingVM.getPassword() != null ) user.setPassword(userEditingVM.getPassword());
+        if ( userEditingVM.getFirstName() != null ) user.setFirstName(userEditingVM.getFirstName());
+        if ( userEditingVM.getLastName() != null ) user.setLastName(userEditingVM.getLastName());
+        if ( userEditingVM.getEmail() != null ) user.setEmail(userEditingVM.getEmail());
+        if ( userEditingVM.getLangKey() != null ) user.setLangKey(userEditingVM.getLangKey());
 
         userData.setId(id);
-        userData.setPhoto(userEditingVM.getPhoto());
-        userData.setPhotoContentType(userEditingVM.getPhotoContentType());
-        userData.setPhone(userEditingVM.getPhone());
-        userData.setBirthDate(userEditingVM.getBirthDate());
+        if (userEditingVM.getPhoto() != null) userData.setPhoto(userEditingVM.getPhoto());
+        if (userEditingVM.getPhotoContentType() != null) userData.setPhotoContentType(userEditingVM.getPhotoContentType());
+        if (userEditingVM.getPhone() != null) userData.setPhone(userEditingVM.getPhone());
+        if (userEditingVM.getBirthDate() != null) userData.setBirthDate(userEditingVM.getBirthDate());
 
         if (editUser(user) & editUserData(userData))
             return userDataService.findOne(userEditingVM.getId()).get();
@@ -58,10 +58,10 @@ public class UserEditingAuxService {
     private Boolean editUserData(UserDataUpdateDTO userData) {
         Optional<UserData> newUserData = userDataService.findOne(userData.getId());
         if (newUserData.isPresent()) {
-            newUserData.get().setPhoto(userData.getPhoto());
-            newUserData.get().setPhotoContentType(userData.getPhotoContentType());
-            newUserData.get().setPhone(userData.getPhone());
-            newUserData.get().setBirthDate(userData.getBirthDate());
+            if (userData.getPhoto() != null) newUserData.get().setPhoto(userData.getPhoto());
+            if (userData.getPhotoContentType() != null) newUserData.get().setPhotoContentType(userData.getPhotoContentType());
+            if (userData.getPhone() != null) newUserData.get().setPhone(userData.getPhone());
+            if (userData.getBirthDate() != null) newUserData.get().setBirthDate(userData.getBirthDate());
             userDataService.save(newUserData.get());
             log.debug("Changed Information for UserData: {}", newUserData);
             return true;
