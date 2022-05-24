@@ -293,7 +293,7 @@ public class UserService {
                     }
                 }
                 this.clearUserCaches(newUser);
-                log.debug("@@@ Homies::Changed Information for User: {}", newUser);
+                log.debug("@@@ Homies::Changed Information for User: {}", newUser.toString());
                 complete.set(true);
             });
 
@@ -313,7 +313,7 @@ public class UserService {
                 String encryptedPassword = passwordEncoder.encode(newPassword);
                 user.setPassword(encryptedPassword);
                 this.clearUserCaches(user);
-                log.debug("Changed password for User: {}", user);
+                log.warn("@@@ Homies::Changed password for User: {}", user.toString());
             });
     }
 

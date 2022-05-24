@@ -21,6 +21,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.CacheManager;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -50,17 +51,21 @@ public class AccountResource {
     private final UserService userService;
     @Autowired
     private final MailService mailService;
-
+    @Autowired
     private final CreateUserDataForUserAuxService createUserDataForUserAux;
+    @Autowired
+    private final CacheManager cacheManager;
 
     public AccountResource(UserRepository userRepository,
                            UserService userService,
                            MailService mailService,
-                           CreateUserDataForUserAuxService createUserDataForUserAux) {
+                           CreateUserDataForUserAuxService createUserDataForUserAux,
+                           CacheManager cacheManager) {
         this.userRepository = userRepository;
         this.userService = userService;
         this.mailService = mailService;
         this.createUserDataForUserAux = createUserDataForUserAux;
+        this.cacheManager = cacheManager;
     }
 
     /**
@@ -73,6 +78,7 @@ public class AccountResource {
      */
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
+    @RequestMapping(value = "/register", method = RequestMethod.POST)
     public void registerAccount(@Valid @RequestBody ManagedUserVM managedUserVM) {
         if (isPasswordLengthInvalid(managedUserVM.getPassword())) {
             throw new InvalidPasswordException();
@@ -81,6 +87,11 @@ public class AccountResource {
         User user = userService.registerUser(managedUserVM, managedUserVM.getPassword());
         createUserDataForUserAux.createUserData(user.getId());
         mailService.sendActivationEmail(user);
+
+        for(String name:cacheManager.getCacheNames()){
+            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
+        }
+
     }
 
     /**
@@ -91,11 +102,16 @@ public class AccountResource {
      */
     @PostMapping("/email")
     @ResponseStatus(HttpStatus.RESET_CONTENT)
+    @RequestMapping(value = "/email", method = RequestMethod.POST)
     public void reSendEmailOfActivation(@Valid @RequestBody JSONEmailVM email) {
 
         Optional<User> user = userService.getUserForEmail(email.getEmail());
         log.warn("@@@@ Homies::REST resend mail for account activation: {}", email.getEmail());
         mailService.sendActivationEmail(user.get());
+
+        for(String name:cacheManager.getCacheNames()){
+            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
+        }
     }
 
     /**
@@ -105,11 +121,16 @@ public class AccountResource {
      * @throws RuntimeException {@code 500 (Internal Server Error)} if the user couldn't be activated.
      */
     @GetMapping("/activate")
+    @RequestMapping(value = "/activate", method = RequestMethod.GET)
     public void activateAccount(@RequestParam(value = "key") String key) {
         Optional<User> user = userService.activateRegistration(key);
         log.warn("@@@@ Homies::REST activate account: {}", key);
         if (!user.isPresent()) {
             throw new AccountResourceException("No user was found for this activation key");
+        }
+
+        for(String name:cacheManager.getCacheNames()){
+            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
         }
     }
 
@@ -120,8 +141,14 @@ public class AccountResource {
      * @return the login if the user is authenticated.
      */
     @GetMapping("/authenticate")
+    @RequestMapping(value = "/authenticate", method = RequestMethod.GET)
     public String isAuthenticated(HttpServletRequest request) {
         log.warn("@@@@ Homies::REST authenticate user: {}", request.getRemoteUser());
+
+        for(String name:cacheManager.getCacheNames()){
+            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
+        }
+
         return request.getRemoteUser();
     }
 
@@ -132,7 +159,13 @@ public class AccountResource {
      * @throws RuntimeException {@code 500 (Internal Server Error)} if the user couldn't be returned.
      */
     @GetMapping("/account")
+    @RequestMapping(value = "/account", method = RequestMethod.GET)
     public AdminUserDTO getAccount() {
+
+        for(String name:cacheManager.getCacheNames()){
+            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
+        }
+
         return userService
             .getUserWithAuthorities()
             .map(AdminUserDTO::new)
@@ -147,6 +180,7 @@ public class AccountResource {
      * @throws RuntimeException {@code 500 (Internal Server Error)} if the user login wasn't found.
      */
     @PostMapping("/account")
+    @RequestMapping(value = "/account", method = RequestMethod.POST)
     public void saveAccount(@Valid @RequestBody AdminUserDTO userDTO) {
         String userLogin = SecurityUtils
             .getCurrentUserLogin()
@@ -166,6 +200,10 @@ public class AccountResource {
             userDTO.getLangKey(),
             userDTO.getImageUrl()
         );
+
+        for(String name:cacheManager.getCacheNames()){
+            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
+        }
     }
 
     /**
@@ -175,12 +213,17 @@ public class AccountResource {
      * @throws InvalidPasswordException {@code 400 (Bad Request)} if the new password is incorrect.
      */
     @PostMapping(path = "/account/change-password")
+    @RequestMapping(value = "/account/change-password", method = RequestMethod.POST)
     public void changePassword(@RequestBody PasswordChangeDTO passwordChangeDto) {
         if (isPasswordLengthInvalid(passwordChangeDto.getNewPassword())) {
             throw new InvalidPasswordException();
         }
         log.warn("@@@@ Homies::REST change password: {}", passwordChangeDto.getCurrentPassword());
         userService.changePassword(passwordChangeDto.getCurrentPassword(), passwordChangeDto.getNewPassword());
+
+        for(String name:cacheManager.getCacheNames()){
+            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
+        }
     }
 
     /**
@@ -189,6 +232,7 @@ public class AccountResource {
      * @param email the mail of the user.
      */
     @PostMapping(path = "/account/reset-password/init")
+    @RequestMapping(value = "/account/reset-password/init", method = RequestMethod.POST)
     public ResponseEntity<String> requestPasswordReset(@Valid @RequestBody JSONEmailVM email) {
         Optional<User> user = userService.requestPasswordReset(email.getEmail());
 
@@ -199,8 +243,16 @@ public class AccountResource {
             log.warn("key= " + key);
             mailService.sendPasswordResetMail(user.get());
 
+            for(String name:cacheManager.getCacheNames()){
+                Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
+            }
+
             return new ResponseEntity(HttpStatus.ACCEPTED, HttpStatus.OK);
         } else {
+
+            for(String name:cacheManager.getCacheNames()){
+                Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
+            }
 
             log.warn(EMAIL_NOT_EXIST_TYPE.toString());
             throw new EmailNotExistException();
@@ -215,6 +267,7 @@ public class AccountResource {
      * @throws RuntimeException {@code 500 (Internal Server Error)} if the password could not be reset.
      */
     @PostMapping(path = "/account/reset-password/finish")
+    @RequestMapping(value = "/account/reset-password/finish", method = RequestMethod.POST)
     public void finishPasswordReset(@RequestBody KeyAndPasswordVM keyAndPassword) {
         if (isPasswordLengthInvalid(keyAndPassword.getNewPassword())) {
             throw new InvalidPasswordException();
@@ -224,6 +277,10 @@ public class AccountResource {
 
         if (user.isEmpty()) {
             throw new AccountResourceException("No user was found for this reset key");
+        }
+
+        for(String name:cacheManager.getCacheNames()){
+            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
         }
     }
 

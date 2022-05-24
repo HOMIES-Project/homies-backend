@@ -14,6 +14,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.attribute.UserPrincipalNotFoundException;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import javax.validation.Valid;
 
@@ -28,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.CacheManager;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
@@ -62,17 +64,20 @@ public class GroupResource {
     private final CreateGroupsAuxService createGroupsAux;
     @Autowired
     private final ManageUserAndGroupsAuxService manageUserAndGroupsAuxService;
-
+    @Autowired
+    private final CacheManager cacheManager;
 
     public GroupResource(GroupService groupService,
                          GroupQueryService groupQueryService,
                          CreateGroupsAuxService createGroupsAux,
-                         ManageUserAndGroupsAuxService manageUserAndGroupsAuxService
+                         ManageUserAndGroupsAuxService manageUserAndGroupsAuxService,
+                         CacheManager cacheManager
     ) {
         this.groupService = groupService;
         this.groupQueryService = groupQueryService;
         this.createGroupsAux = createGroupsAux;
         this.manageUserAndGroupsAuxService = manageUserAndGroupsAuxService;
+        this.cacheManager = cacheManager;
     }
 
     /**
@@ -83,12 +88,17 @@ public class GroupResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/groups")
+    @RequestMapping("/groups")
     public ResponseEntity<Group> createGroup(@Valid @RequestBody CreateGroupVM createGroupVM) throws URISyntaxException {
         Group newGrop = createGroupsAux.createNewGroup(createGroupVM);
 
         log.warn("@@@@ Homies::REST request to save Group : {}", createGroupVM.toString());
         if (newGrop != null)
             return new ResponseEntity<>(newGrop, HttpStatus.CREATED);
+
+        for(String name:cacheManager.getCacheNames()){
+            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
+        }
 
         assert false;
         return ResponseEntity
@@ -104,6 +114,7 @@ public class GroupResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated group,
      */
     @PostMapping("/groups/add-user")
+    @RequestMapping("/groups/add-user")
     public ResponseEntity<Group> addUserToGroup(@Valid @RequestBody ManageGroupVM manageGroupVM)
         throws URISyntaxException, UserPrincipalNotFoundException {
 
@@ -111,6 +122,10 @@ public class GroupResource {
         log.warn("@@@@ Homies::REST request to add user to group : {}", manageGroupVM.toString());
 
         Optional<Group> result = manageUserAndGroupsAuxService.addUserToGroup(manageGroupVM);
+
+        for(String name:cacheManager.getCacheNames()){
+            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
+        }
 
         return ResponseUtil.wrapOrNotFound(
             result,
@@ -125,6 +140,7 @@ public class GroupResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated group,
      */
     @PostMapping("/groups/delete-user")
+    @RequestMapping("/groups/delete-user")
     public ResponseEntity<Group> deleteUserToGroup(
         @Valid @RequestBody ManageGroupVM manageGroupVM) {
 
@@ -132,6 +148,10 @@ public class GroupResource {
 
         log.warn("@@@@ Homies::REST request to delete user to group : {}", manageGroupVM.toString());
         Optional<Group> result = manageUserAndGroupsAuxService.deleteUserToTheGroup(manageGroupVM);
+
+        for(String name:cacheManager.getCacheNames()){
+            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
+        }
 
         return ResponseUtil.wrapOrNotFound(
             result,
@@ -146,6 +166,7 @@ public class GroupResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated group,
      */
     @PostMapping("/groups/change-admin")
+    @RequestMapping("/groups/change-admin")
     public ResponseEntity<Group> changeUserAdminToGroup(
         @Valid @RequestBody ManageGroupVM manageGroupVM
     ){
@@ -153,6 +174,10 @@ public class GroupResource {
 
         log.warn("@@@@ Homies::REST request to change userAdmin to group : {}", manageGroupVM.toString());
         Optional<Group> result = manageUserAndGroupsAuxService.changeUserAdminOfTheGroup(manageGroupVM);
+
+        for(String name:cacheManager.getCacheNames()){
+            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
+        }
 
         return ResponseUtil.wrapOrNotFound(
             result,
@@ -187,6 +212,7 @@ public class GroupResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/groups/{id}")
+    @RequestMapping("/groups/{id}")
     public ResponseEntity<Group> updateGroup(
         @PathVariable @NotNull Long id,
         @Valid @RequestBody UpdateGroupVM updateGroupVM
@@ -195,6 +221,10 @@ public class GroupResource {
 
         log.warn("@@@@ Homies::REST request to update Group : {}, {}", id, updateGroupVM.toString());
         Optional<Group> result = manageUserAndGroupsAuxService.updateGroup(updateGroupVM);
+
+        for(String name:cacheManager.getCacheNames()){
+            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
+        }
 
         return ResponseUtil.wrapOrNotFound(
             result,
@@ -210,6 +240,7 @@ public class GroupResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of groups in body.
      */
     @GetMapping("/groups")
+    @RequestMapping("/groups")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<List<Group>> getAllGroups(
         GroupCriteria criteria,
@@ -219,6 +250,11 @@ public class GroupResource {
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
 
         log.warn("@@@@ Homies::REST request to get Groups by criteria: {}", criteria.toString());
+
+        for(String name:cacheManager.getCacheNames()){
+            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
+        }
+
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
@@ -229,10 +265,15 @@ public class GroupResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the count in body.
      */
     @GetMapping("/groups/count")
+    @RequestMapping("/groups/count")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<Long> countGroups(GroupCriteria criteria) {
-
         log.warn("@@@@ Homies::REST request to count Groups by criteria: {}", criteria.toString());
+
+        for(String name:cacheManager.getCacheNames()){
+            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
+        }
+
         return ResponseEntity.ok().body(groupQueryService.countByCriteria(criteria));
     }
 
@@ -243,10 +284,16 @@ public class GroupResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the group, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/groups/{id}")
+    @RequestMapping("/groups/{id}")
     public ResponseEntity<Group> getGroup(@PathVariable Long id) {
         Optional<Group> group = groupService.findOne(id);
 
         log.warn("@@@@ Homies::REST request to get Group : {}", id);
+
+        for(String name:cacheManager.getCacheNames()){
+            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
+        }
+
         return ResponseUtil.wrapOrNotFound(group);
     }
 
@@ -257,14 +304,18 @@ public class GroupResource {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/groups/{id}")
+    @RequestMapping("/groups/{id}")
     public ResponseEntity<Group> deleteGroup(@PathVariable @NotNull Long id) {
         ManageGroupVM manageGroupVM = new ManageGroupVM();
         manageGroupVM.setIdGroup(id);
         manageGroupVM.setLogin(SecurityUtils.getCurrentUserLogin().get());
 
-
         log.warn("@@@@ Homies::REST request to delete Group : {}", id);
         Optional<Group> result = manageUserAndGroupsAuxService.deleteGroup(manageGroupVM);
+
+        for(String name:cacheManager.getCacheNames()){
+            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
+        }
 
         if (result.isPresent()) {
             throw new BadRequestAlertException("Group cannot be deleted", ENTITY_NAME, "groupcannotbedeleted");

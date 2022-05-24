@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.CacheManager;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
@@ -58,19 +59,23 @@ public class UserDataResource {
     private final UserEditingAuxService userEditingAux;
     @Autowired
     private final ManageUserAndGroupsAuxService manageUserAndGroupsAuxService;
+    @Autowired
+    private final CacheManager cacheManager;
 
     public UserDataResource(
         UserDataService userDataService,
         UserDataRepository userDataRepository,
         UserDataQueryService userDataQueryService,
         UserEditingAuxService userEditingAux,
-        ManageUserAndGroupsAuxService manageUserAndGroupsAuxService
+        ManageUserAndGroupsAuxService manageUserAndGroupsAuxService,
+        CacheManager cacheManager
     ) {
         this.userDataService = userDataService;
         this.userDataRepository = userDataRepository;
         this.userDataQueryService = userDataQueryService;
         this.userEditingAux = userEditingAux;
         this.manageUserAndGroupsAuxService = manageUserAndGroupsAuxService;
+        this.cacheManager = cacheManager;
     }
 
     /**
@@ -81,6 +86,7 @@ public class UserDataResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/user-data")
+    @RequestMapping("/user-data")
     public ResponseEntity<UserData> createUserData(@Valid @RequestBody UserData userData) throws URISyntaxException {
         if (userData.getId() != null) {
             throw new BadRequestAlertException("A new userData cannot already have an ID", ENTITY_NAME, "idexists");
@@ -90,6 +96,11 @@ public class UserDataResource {
         }
         log.warn("@@@@ Homies::REST request to save UserData : {}", userData);
         UserData result = userDataService.save(userData);
+
+        for(String name:cacheManager.getCacheNames()){
+            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
+        }
+
         return ResponseEntity
             .created(new URI("/api/user-data/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, false, ENTITY_NAME, result.getId().toString()))
@@ -104,6 +115,7 @@ public class UserDataResource {
      * @return 200 if the update was ok or 400 if update was not possible.
      */
     @PutMapping("/user-data/{id}")
+    @RequestMapping("/user-data/{id}")
     public ResponseEntity<?> editFieldCompleteUser(
         @PathVariable Long id,
         @Valid @RequestBody UserEditingVM user)
@@ -119,6 +131,11 @@ public class UserDataResource {
 
         log.warn("@@@@ Homies::REST request to update UserData : {}", user.toString());
         UserData updateUser = userEditingAux.updateUser(user);
+
+        for(String name:cacheManager.getCacheNames()){
+            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
+        }
+
         if (updateUser != null) {
             return ResponseEntity.ok().body(updateUser);
         } else {
@@ -141,6 +158,7 @@ public class UserDataResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PatchMapping(value = "/user-data/{id}", consumes = { "application/json", "application/merge-patch+json" })
+    @RequestMapping(value = "/user-data/{id}", consumes = { "application/json", "application/merge-patch+json" })
     public ResponseEntity<UserData> partialUpdateUserData(
         @PathVariable(value = "id", required = false) final Long id,
         @NotNull @RequestBody UserData userData
@@ -159,6 +177,10 @@ public class UserDataResource {
         log.warn("@@@@ Homies::REST request to update UserData : {}", userData.toString());
         Optional<UserData> result = userDataService.partialUpdate(userData);
 
+        for(String name:cacheManager.getCacheNames()){
+            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
+        }
+
         return ResponseUtil.wrapOrNotFound(
             result,
             HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, userData.getId().toString())
@@ -173,6 +195,7 @@ public class UserDataResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of userData in body.
      */
     @GetMapping("/user-data")
+    @RequestMapping("/user-data")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<List<UserData>> getAllUserData(
         UserDataCriteria criteria,
@@ -182,6 +205,11 @@ public class UserDataResource {
 
         log.warn("@@@@ Homies::REST request to get UserData by criteria: {}", criteria.toString());
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+
+        for(String name:cacheManager.getCacheNames()){
+            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
+        }
+
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
@@ -192,9 +220,14 @@ public class UserDataResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the count in body.
      */
     @GetMapping("/user-data/count")
+    @RequestMapping("/user-data/count")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<Long> countUserData(UserDataCriteria criteria) {
         log.warn("@@@@ Homies::REST request to count UserData by criteria: {}", criteria.toString());
+
+        for(String name:cacheManager.getCacheNames()){
+            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
+        }
 
         return ResponseEntity.ok().body(userDataQueryService.countByCriteria(criteria));
     }
@@ -206,10 +239,16 @@ public class UserDataResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the userData, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/user-data/{id}")
+    @RequestMapping("/user-data/{id}")
     public ResponseEntity<UserData> getUserData(@PathVariable Long id) {
         Optional<UserData> userData = userDataService.findOne(id);
 
         log.warn("@@@@ Homies::REST request to get UserData : {}", id);
+
+        for(String name:cacheManager.getCacheNames()){
+            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
+        }
+
         return ResponseUtil.wrapOrNotFound(userData);
     }
 
@@ -220,6 +259,7 @@ public class UserDataResource {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/user-data/{id}")
+    @RequestMapping("/user-data/{id}")
     public ResponseEntity<Void> deleteUserData(
         @PathVariable Long id
     ) throws Exception {
@@ -229,6 +269,10 @@ public class UserDataResource {
 
         log.debug("REST request to delete UserData : {}", id);
         manageUserAndGroupsAuxService.deleteUserAndRelationships(id);
+
+        for(String name:cacheManager.getCacheNames()){
+            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
+        }
 
         return ResponseEntity
             .noContent()

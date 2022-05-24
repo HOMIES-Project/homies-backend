@@ -63,7 +63,7 @@ public class UserEditingAuxService {
             if (userData.getPhone() != null) newUserData.get().setPhone(userData.getPhone());
             if (userData.getBirthDate() != null) newUserData.get().setBirthDate(userData.getBirthDate());
             userDataService.save(newUserData.get());
-            log.debug("Changed Information for UserData: {}", newUserData);
+            log.warn("@@@ Homies::Changed Information for UserData: {}", newUserData.toString());
             return true;
         }
         return false;
