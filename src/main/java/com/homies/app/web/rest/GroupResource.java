@@ -88,7 +88,6 @@ public class GroupResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/groups")
-    @RequestMapping("/groups")
     public ResponseEntity<Group> createGroup(@Valid @RequestBody CreateGroupVM createGroupVM) throws URISyntaxException {
         Group newGrop = createGroupsAux.createNewGroup(createGroupVM);
 
@@ -114,7 +113,6 @@ public class GroupResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated group,
      */
     @PostMapping("/groups/add-user")
-    @RequestMapping("/groups/add-user")
     public ResponseEntity<Group> addUserToGroup(@Valid @RequestBody ManageGroupVM manageGroupVM)
         throws URISyntaxException, UserPrincipalNotFoundException {
 
@@ -140,7 +138,6 @@ public class GroupResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated group,
      */
     @PostMapping("/groups/delete-user")
-    @RequestMapping("/groups/delete-user")
     public ResponseEntity<Group> deleteUserToGroup(
         @Valid @RequestBody ManageGroupVM manageGroupVM) {
 
@@ -166,7 +163,6 @@ public class GroupResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated group,
      */
     @PostMapping("/groups/change-admin")
-    @RequestMapping("/groups/change-admin")
     public ResponseEntity<Group> changeUserAdminToGroup(
         @Valid @RequestBody ManageGroupVM manageGroupVM
     ){
@@ -212,7 +208,6 @@ public class GroupResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/groups/{id}")
-    @RequestMapping("/groups/{id}")
     public ResponseEntity<Group> updateGroup(
         @PathVariable @NotNull Long id,
         @Valid @RequestBody UpdateGroupVM updateGroupVM
@@ -240,7 +235,6 @@ public class GroupResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of groups in body.
      */
     @GetMapping("/groups")
-    @RequestMapping("/groups")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<List<Group>> getAllGroups(
         GroupCriteria criteria,
@@ -265,7 +259,6 @@ public class GroupResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the count in body.
      */
     @GetMapping("/groups/count")
-    @RequestMapping("/groups/count")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<Long> countGroups(GroupCriteria criteria) {
         log.warn("@@@@ Homies::REST request to count Groups by criteria: {}", criteria.toString());
@@ -284,7 +277,6 @@ public class GroupResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the group, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/groups/{id}")
-    @RequestMapping("/groups/{id}")
     public ResponseEntity<Group> getGroup(@PathVariable Long id) {
         Optional<Group> group = groupService.findOne(id);
 
@@ -304,7 +296,6 @@ public class GroupResource {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/groups/{id}")
-    @RequestMapping("/groups/{id}")
     public ResponseEntity<Group> deleteGroup(@PathVariable @NotNull Long id) {
         ManageGroupVM manageGroupVM = new ManageGroupVM();
         manageGroupVM.setIdGroup(id);

@@ -78,7 +78,6 @@ public class AccountResource {
      */
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
-    @RequestMapping(value = "/register", method = RequestMethod.POST)
     public void registerAccount(@Valid @RequestBody ManagedUserVM managedUserVM) {
         if (isPasswordLengthInvalid(managedUserVM.getPassword())) {
             throw new InvalidPasswordException();
@@ -102,7 +101,6 @@ public class AccountResource {
      */
     @PostMapping("/email")
     @ResponseStatus(HttpStatus.RESET_CONTENT)
-    @RequestMapping(value = "/email", method = RequestMethod.POST)
     public void reSendEmailOfActivation(@Valid @RequestBody JSONEmailVM email) {
 
         Optional<User> user = userService.getUserForEmail(email.getEmail());
@@ -121,7 +119,6 @@ public class AccountResource {
      * @throws RuntimeException {@code 500 (Internal Server Error)} if the user couldn't be activated.
      */
     @GetMapping("/activate")
-    @RequestMapping(value = "/activate", method = RequestMethod.GET)
     public void activateAccount(@RequestParam(value = "key") String key) {
         Optional<User> user = userService.activateRegistration(key);
         log.warn("@@@@ Homies::REST activate account: {}", key);
@@ -141,7 +138,6 @@ public class AccountResource {
      * @return the login if the user is authenticated.
      */
     @GetMapping("/authenticate")
-    @RequestMapping(value = "/authenticate", method = RequestMethod.GET)
     public String isAuthenticated(HttpServletRequest request) {
         log.warn("@@@@ Homies::REST authenticate user: {}", request.getRemoteUser());
 
@@ -159,7 +155,6 @@ public class AccountResource {
      * @throws RuntimeException {@code 500 (Internal Server Error)} if the user couldn't be returned.
      */
     @GetMapping("/account")
-    @RequestMapping(value = "/account", method = RequestMethod.GET)
     public AdminUserDTO getAccount() {
 
         for(String name:cacheManager.getCacheNames()){
@@ -180,7 +175,6 @@ public class AccountResource {
      * @throws RuntimeException {@code 500 (Internal Server Error)} if the user login wasn't found.
      */
     @PostMapping("/account")
-    @RequestMapping(value = "/account", method = RequestMethod.POST)
     public void saveAccount(@Valid @RequestBody AdminUserDTO userDTO) {
         String userLogin = SecurityUtils
             .getCurrentUserLogin()
@@ -213,7 +207,6 @@ public class AccountResource {
      * @throws InvalidPasswordException {@code 400 (Bad Request)} if the new password is incorrect.
      */
     @PostMapping(path = "/account/change-password")
-    @RequestMapping(value = "/account/change-password", method = RequestMethod.POST)
     public void changePassword(@RequestBody PasswordChangeDTO passwordChangeDto) {
         if (isPasswordLengthInvalid(passwordChangeDto.getNewPassword())) {
             throw new InvalidPasswordException();
@@ -232,7 +225,6 @@ public class AccountResource {
      * @param email the mail of the user.
      */
     @PostMapping(path = "/account/reset-password/init")
-    @RequestMapping(value = "/account/reset-password/init", method = RequestMethod.POST)
     public ResponseEntity<String> requestPasswordReset(@Valid @RequestBody JSONEmailVM email) {
         Optional<User> user = userService.requestPasswordReset(email.getEmail());
 
@@ -267,7 +259,6 @@ public class AccountResource {
      * @throws RuntimeException {@code 500 (Internal Server Error)} if the password could not be reset.
      */
     @PostMapping(path = "/account/reset-password/finish")
-    @RequestMapping(value = "/account/reset-password/finish", method = RequestMethod.POST)
     public void finishPasswordReset(@RequestBody KeyAndPasswordVM keyAndPassword) {
         if (isPasswordLengthInvalid(keyAndPassword.getNewPassword())) {
             throw new InvalidPasswordException();
