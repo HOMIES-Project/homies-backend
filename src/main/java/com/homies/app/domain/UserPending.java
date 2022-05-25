@@ -32,7 +32,7 @@ public class UserPending implements Serializable {
     private Boolean paid;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JsonIgnoreProperties(value = { "spendings", "settingsLists", "group" }, allowSetters = true)
+    @JsonIgnoreProperties(value = {  }, allowSetters = true)
     private SpendingList spendingList;
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH })
@@ -42,7 +42,7 @@ public class UserPending implements Serializable {
         inverseJoinColumns = @JoinColumn(name = "spending_id")
     )
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-    @JsonIgnoreProperties(value = { "userPendings" }, allowSetters = true)
+    @JsonIgnoreProperties(value = {  }, allowSetters = true)
     private Set<Spending> spendings = new HashSet<>();
 
     // jhipster-needle-entity-add-field - JHipster will add fields here

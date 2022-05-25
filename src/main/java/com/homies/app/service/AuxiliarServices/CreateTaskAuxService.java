@@ -38,7 +38,6 @@ public class CreateTaskAuxService {
     @Autowired
     private final TaskQueryService taskQueryService;
 
-
     private final Logger log = LoggerFactory.getLogger(GroupResource.class);
 
     public CreateTaskAuxService(TaskService taskService,
@@ -83,11 +82,6 @@ public class CreateTaskAuxService {
         log.warn("Created Task: " + newTask);
         taskService.save(newTask);
 
-/*        //User add task
-        UserData userData = userExist(createTaskVM.getUser());
-        newTask.setUserData(userData); //add user (task creator user)
-        userDataService.save(userData);*/
-
         //User Assigned
         UserData userData = userDataQueryService.getByUser_Login(createTaskVM.getLogin()).get();
         userData.addTaskAsigned(newTask);
@@ -95,7 +89,7 @@ public class CreateTaskAuxService {
         userDataService.save(userData);
 
         //Task add taskList
-        TaskList taskList = taskListExist(createTaskVM.getIdGroup());
+        TaskList taskList = taskListExist(createTaskVM.getIdGroup()); //Este método lo llamas dos veces para lo mismo
         taskList.addTask(newTask);
         newTask.setTaskList(taskList);
         taskListService.save(taskList);

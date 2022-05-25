@@ -13,7 +13,5 @@ public final class Constants {
 
     public static final String CROSS_ORIGIN = "/localhost:4200";
 
-    public static final String CODE_DELETE = ".d3l373d.";
-
     private Constants() {}
 }

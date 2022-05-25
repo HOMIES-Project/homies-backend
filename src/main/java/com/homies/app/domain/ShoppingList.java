@@ -1,11 +1,13 @@
 package com.homies.app.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.*;
 import javax.validation.constraints.*;
+
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
@@ -31,13 +33,13 @@ public class ShoppingList implements Serializable {
     @Column(name = "name_shop_list", length = 20, nullable = false)
     private String nameShopList;
 
-    @OneToMany(mappedBy = "shoppingList", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "shoppingList", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-    @JsonIgnoreProperties(value = { "userCreator", "shoppingList" }, allowSetters = true)
+    @JsonIgnoreProperties(value = {"userCreator", "shoppingList"}, allowSetters = true)
     private Set<Products> products = new HashSet<>();
 
     @JsonIgnoreProperties(
-        value = { "userAdmin", "taskList", "spendingList", "shoppingList", "settingsList", "userData" },
+        value = {"userAdmin", "taskList", "spendingList", "shoppingList", "settingsList", "userData"},
         allowSetters = true
     )
 

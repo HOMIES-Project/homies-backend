@@ -18,6 +18,7 @@ import com.homies.app.service.dto.UserUpdateDTO;
 import com.homies.app.service.errors.EmailAlreadyUsedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -36,15 +37,15 @@ import tech.jhipster.security.RandomUtil;
 public class UserService {
 
     private final Logger log = LoggerFactory.getLogger(UserService.class);
-
+    @Autowired
     private final UserRepository userRepository;
-
+    @Autowired
     private final PasswordEncoder passwordEncoder;
-
+    @Autowired
     private final AuthorityRepository authorityRepository;
-
+    @Autowired
     private final CacheManager cacheManager;
-
+    @Autowired
     private final MailService mailService;
 
     public UserService(
@@ -277,10 +278,10 @@ public class UserService {
             .getCurrentUserLogin()
             .flatMap((String id) -> userOldData)
             .ifPresent(newUser -> {
-                newUser.setLogin(user.getLogin());
-                newUser.setFirstName(user.getFirstName());
-                newUser.setLastName(user.getLastName());
-                newUser.setLangKey(user.getLangKey());
+                if (user.getLogin() != null) newUser.setLogin(user.getLogin());
+                if (user.getFirstName() != null) newUser.setFirstName(user.getFirstName());
+                if (user.getLastName() != null) newUser.setLastName(user.getLastName());
+                if (user.getLangKey() != null) newUser.setLangKey(user.getLangKey());
                 if (user.getEmail() != null) {
                     if (!Objects.equals(user.getEmail(), userOldData.get().getEmail())){
                         newUser.setEmail(user.getEmail().toLowerCase());
@@ -292,7 +293,7 @@ public class UserService {
                     }
                 }
                 this.clearUserCaches(newUser);
-                log.debug("Changed Information for User: {}", newUser);
+                log.debug("@@@ Homies::Changed Information for User: {}", newUser.toString());
                 complete.set(true);
             });
 
@@ -312,7 +313,7 @@ public class UserService {
                 String encryptedPassword = passwordEncoder.encode(newPassword);
                 user.setPassword(encryptedPassword);
                 this.clearUserCaches(user);
-                log.debug("Changed password for User: {}", user);
+                log.warn("@@@ Homies::Changed password for User: {}", user.toString());
             });
     }
 

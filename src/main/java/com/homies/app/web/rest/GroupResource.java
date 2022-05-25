@@ -14,6 +14,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.attribute.UserPrincipalNotFoundException;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import javax.validation.Valid;
 
@@ -28,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.CacheManager;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
@@ -62,17 +64,20 @@ public class GroupResource {
     private final CreateGroupsAuxService createGroupsAux;
     @Autowired
     private final ManageUserAndGroupsAuxService manageUserAndGroupsAuxService;
-
+    @Autowired
+    private final CacheManager cacheManager;
 
     public GroupResource(GroupService groupService,
                          GroupQueryService groupQueryService,
                          CreateGroupsAuxService createGroupsAux,
-                         ManageUserAndGroupsAuxService manageUserAndGroupsAuxService
+                         ManageUserAndGroupsAuxService manageUserAndGroupsAuxService,
+                         CacheManager cacheManager
     ) {
         this.groupService = groupService;
         this.groupQueryService = groupQueryService;
         this.createGroupsAux = createGroupsAux;
         this.manageUserAndGroupsAuxService = manageUserAndGroupsAuxService;
+        this.cacheManager = cacheManager;
     }
 
     /**
@@ -84,11 +89,15 @@ public class GroupResource {
      */
     @PostMapping("/groups")
     public ResponseEntity<Group> createGroup(@Valid @RequestBody CreateGroupVM createGroupVM) throws URISyntaxException {
-        log.info("@@@@ Homies::REST request to save Group : {}", createGroupVM);
         Group newGrop = createGroupsAux.createNewGroup(createGroupVM);
 
+        log.warn("@@@@ Homies::REST request to save Group : {}", createGroupVM.toString());
         if (newGrop != null)
             return new ResponseEntity<>(newGrop, HttpStatus.CREATED);
+
+        for(String name:cacheManager.getCacheNames()){
+            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
+        }
 
         assert false;
         return ResponseEntity
@@ -106,11 +115,15 @@ public class GroupResource {
     @PostMapping("/groups/add-user")
     public ResponseEntity<Group> addUserToGroup(@Valid @RequestBody ManageGroupVM manageGroupVM)
         throws URISyntaxException, UserPrincipalNotFoundException {
-        log.info("@@@@ Homies::REST request to add user to group : {}", manageGroupVM);
 
         reviewData(manageGroupVM);
+        log.warn("@@@@ Homies::REST request to add user to group : {}", manageGroupVM.toString());
 
         Optional<Group> result = manageUserAndGroupsAuxService.addUserToGroup(manageGroupVM);
+
+        for(String name:cacheManager.getCacheNames()){
+            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
+        }
 
         return ResponseUtil.wrapOrNotFound(
             result,
@@ -127,11 +140,15 @@ public class GroupResource {
     @PostMapping("/groups/delete-user")
     public ResponseEntity<Group> deleteUserToGroup(
         @Valid @RequestBody ManageGroupVM manageGroupVM) {
-        log.info("@@@@ Homies::REST request to delete user to group : {}", manageGroupVM);
 
         reviewData(manageGroupVM);
 
+        log.warn("@@@@ Homies::REST request to delete user to group : {}", manageGroupVM.toString());
         Optional<Group> result = manageUserAndGroupsAuxService.deleteUserToTheGroup(manageGroupVM);
+
+        for(String name:cacheManager.getCacheNames()){
+            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
+        }
 
         return ResponseUtil.wrapOrNotFound(
             result,
@@ -149,10 +166,14 @@ public class GroupResource {
     public ResponseEntity<Group> changeUserAdminToGroup(
         @Valid @RequestBody ManageGroupVM manageGroupVM
     ){
-        log.info("@@@@ Homies::REST request to change userAdmin to group : {}", manageGroupVM);
         reviewData(manageGroupVM);
 
+        log.warn("@@@@ Homies::REST request to change userAdmin to group : {}", manageGroupVM.toString());
         Optional<Group> result = manageUserAndGroupsAuxService.changeUserAdminOfTheGroup(manageGroupVM);
+
+        for(String name:cacheManager.getCacheNames()){
+            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
+        }
 
         return ResponseUtil.wrapOrNotFound(
             result,
@@ -166,7 +187,7 @@ public class GroupResource {
      * @param addUser request
      */
     private void reviewData(@Valid @NotNull ManageGroupVM addUser) {
-        log.warn(addUser.toString());
+        log.warn("@@@@ Homies::REST request to add user to group : {}", addUser.toString());
 
         if (addUser.getIdGroup() == null) {
             throw new GroupWasNotSpecifyIdGroup();
@@ -191,10 +212,14 @@ public class GroupResource {
         @PathVariable @NotNull Long id,
         @Valid @RequestBody UpdateGroupVM updateGroupVM
     ) throws URISyntaxException {
-        log.info("@@@@ Homies::REST request to update Group : {}, {}", id, updateGroupVM);
         updateGroupVM.setIdGroup(id);
 
+        log.warn("@@@@ Homies::REST request to update Group : {}, {}", id, updateGroupVM.toString());
         Optional<Group> result = manageUserAndGroupsAuxService.updateGroup(updateGroupVM);
+
+        for(String name:cacheManager.getCacheNames()){
+            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
+        }
 
         return ResponseUtil.wrapOrNotFound(
             result,
@@ -215,9 +240,14 @@ public class GroupResource {
         GroupCriteria criteria,
         @org.springdoc.api.annotations.ParameterObject Pageable pageable
     ) {
-        log.info("@@@@ Homies::REST request to get Groups by criteria: {}", criteria);
         Page<Group> page = groupQueryService.findByCriteria(criteria, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+
+        log.warn("@@@@ Homies::REST request to get Groups by criteria: {}", criteria.toString());
+
+        for(String name:cacheManager.getCacheNames()){
+            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
+        }
 
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
@@ -231,7 +261,11 @@ public class GroupResource {
     @GetMapping("/groups/count")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<Long> countGroups(GroupCriteria criteria) {
-        log.info("@@@@ Homies::REST request to count Groups by criteria: {}", criteria);
+        log.warn("@@@@ Homies::REST request to count Groups by criteria: {}", criteria.toString());
+
+        for(String name:cacheManager.getCacheNames()){
+            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
+        }
 
         return ResponseEntity.ok().body(groupQueryService.countByCriteria(criteria));
     }
@@ -244,8 +278,13 @@ public class GroupResource {
      */
     @GetMapping("/groups/{id}")
     public ResponseEntity<Group> getGroup(@PathVariable Long id) {
-        log.info("@@@@ Homies::REST request to get Group : {}", id);
         Optional<Group> group = groupService.findOne(id);
+
+        log.warn("@@@@ Homies::REST request to get Group : {}", id);
+
+        for(String name:cacheManager.getCacheNames()){
+            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
+        }
 
         return ResponseUtil.wrapOrNotFound(group);
     }
@@ -262,9 +301,12 @@ public class GroupResource {
         manageGroupVM.setIdGroup(id);
         manageGroupVM.setLogin(SecurityUtils.getCurrentUserLogin().get());
 
-        log.info("@@@@ Homies::REST request to delete Group : {}", id);
-
+        log.warn("@@@@ Homies::REST request to delete Group : {}", id);
         Optional<Group> result = manageUserAndGroupsAuxService.deleteGroup(manageGroupVM);
+
+        for(String name:cacheManager.getCacheNames()){
+            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
+        }
 
         if (result.isPresent()) {
             throw new BadRequestAlertException("Group cannot be deleted", ENTITY_NAME, "groupcannotbedeleted");

@@ -47,20 +47,17 @@ public class CreateProductAuxService {
         if (shoppingListExist(addProductVM.getIdGroup()) == null)
             throw new ShoppingListDoesNotExist();
 
-
-        log.warn("creating product");
-        Products newproducts = new Products();
+        Products newproducts = new Products(); //@@Refactoriza este nombre de variable
         newproducts.setName(addProductVM.getNameProduct());
         newproducts.setUnits(addProductVM.getUnits());
         newproducts.setTypeUnit(addProductVM.getTypeUnit());
 
         //Product add ShoppingList
-        ShoppingList shoppingList = shoppingListExist(addProductVM.getIdGroup());
+        ShoppingList shoppingList = shoppingListExist(addProductVM.getIdGroup()); //Esta sentencia la llamas dos veces para lo mismo
         newproducts.setShoppingList(shoppingList);
         shoppingListService.save(shoppingList);
 
         //New task created
-        log.warn("Created Product: " + newproducts);
         productsService.save(newproducts);
 
         return newproducts;
