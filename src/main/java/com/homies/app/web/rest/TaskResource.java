@@ -28,7 +28,9 @@ import com.homies.app.web.rest.vm.CreateTaskVM;
 import com.homies.app.web.rest.vm.UpdateTaskVM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.CacheManager;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
@@ -48,32 +50,33 @@ import tech.jhipster.web.util.ResponseUtil;
 public class TaskResource {
 
     private final Logger log = LoggerFactory.getLogger(TaskResource.class);
-
     private static final String ENTITY_NAME = "task";
-
     @Value("${jhipster.clientApp.name}")
     private String applicationName;
-
+    @Autowired
     private final TaskService taskService;
-
+    @Autowired
     private final TaskRepository taskRepository;
-
+    @Autowired
     private final TaskQueryService taskQueryService;
-
+    @Autowired
     private final CreateTaskAuxService createTaskAuxService;
-
+    @Autowired
     private final ManageTaskAuxService manageTaskAuxService;
-
+    @Autowired
+    private final CacheManager cacheManager;
     public TaskResource(TaskService taskService,
                         TaskRepository taskRepository,
                         TaskQueryService taskQueryService,
                         CreateTaskAuxService createTaskAuxService,
-                        ManageTaskAuxService manageTaskAuxService) {
+                        ManageTaskAuxService manageTaskAuxService,
+                        CacheManager cacheManager) {
         this.taskService = taskService;
         this.taskRepository = taskRepository;
         this.taskQueryService = taskQueryService;
         this.createTaskAuxService = createTaskAuxService;
         this.manageTaskAuxService = manageTaskAuxService;
+        this.cacheManager = cacheManager;
     }
 
     /**
@@ -85,12 +88,16 @@ public class TaskResource {
      */
     @PostMapping("/tasks")
     public ResponseEntity<Task> createTask(@Valid @RequestBody CreateTaskVM task) throws URISyntaxException {
-        log.debug("REST request to save Task : {}", task);
+        log.warn("REST request to save Task : {}", task.toString());
 
         Task newTask = createTaskAuxService.createNewTask(task);
 
         if (newTask != null)
             return new ResponseEntity<>(newTask, HttpStatus.CREATED);
+
+        for(String name:cacheManager.getCacheNames()){
+            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
+        }
 
         return ResponseEntity
             .created(new URI("/api/tasks/" + newTask.getId()))
@@ -107,7 +114,7 @@ public class TaskResource {
     @PostMapping("/tasks/add-user")
     public ResponseEntity<Task> addUserToTask(@Valid @RequestBody AddUserToTaskVM addUserToTaskVM)
     throws URISyntaxException{
-        log.warn("REST request to add user to task : {}", addUserToTaskVM);
+        log.warn("REST request to add user to task : {}", addUserToTaskVM.toString());
         if(addUserToTaskVM.getIdTask() == null){
             throw new TaskWasNotSpecifyIdTask();
         }
@@ -120,6 +127,10 @@ public class TaskResource {
 
         Optional<Task> result = manageTaskAuxService.addUserToTask(addUserToTaskVM);
 
+        for(String name:cacheManager.getCacheNames()){
+            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
+        }
+
         return ResponseUtil.wrapOrNotFound(
             result,
             HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, result.get().getUserAssigneds().toString())
@@ -129,7 +140,7 @@ public class TaskResource {
     @PostMapping("/task/delete-user")
     public ResponseEntity<Task> deleteUserToTask(@Valid @RequestBody AddUserToTaskVM addUserToTaskVM)
         throws URISyntaxException{
-        log.warn("REST request to delete user to task : {}", addUserToTaskVM);
+        log.warn("REST request to delete user to task : {}", addUserToTaskVM.toString());
         if(addUserToTaskVM.getIdTask() == null){
             throw new TaskWasNotSpecifyIdTask();
         }
@@ -142,6 +153,10 @@ public class TaskResource {
 
         Optional<Task> result = manageTaskAuxService.deleteUserToTask(addUserToTaskVM);
 
+        for(String name:cacheManager.getCacheNames()){
+            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
+        }
+
         return ResponseUtil.wrapOrNotFound(
             result,
             HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, result.get().getUserAssigneds().toString())
@@ -150,7 +165,7 @@ public class TaskResource {
     @PutMapping("/tasks/update-tasks")
     public ResponseEntity<Task> updateTask(@Valid @RequestBody UpdateTaskVM updateTaskVM)
         throws URISyntaxException {
-        log.warn("REST request to update task : {}", updateTaskVM);
+        log.warn("REST request to update task : {}", updateTaskVM.toString());
         if (updateTaskVM.getIdTask() == null) {
             throw new TaskWasNotSpecifyIdTask();
         }
@@ -162,6 +177,11 @@ public class TaskResource {
         }
 
         Optional<Task> result = manageTaskAuxService.updateTask(updateTaskVM);
+
+        for(String name:cacheManager.getCacheNames()){
+            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
+        }
+
         return ResponseUtil.wrapOrNotFound(
             result,
             HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, result.get().getTaskName())
@@ -171,6 +191,7 @@ public class TaskResource {
     @PutMapping("/tasks/cancel")
     public ResponseEntity<Task> updateTaskCancel(@Valid @RequestBody UpdateTaskVM updateTaskVM)
         throws URISyntaxException {
+        log.warn("REST request to update task : {}", updateTaskVM.toString());
         if (updateTaskVM.getIdTask() == null) {
             throw new TaskWasNotSpecifyIdTask();
         }
@@ -182,6 +203,11 @@ public class TaskResource {
         }
 
         Optional<Task> result = manageTaskAuxService.updateTaskCancel(updateTaskVM);
+
+        for(String name:cacheManager.getCacheNames()){
+            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
+        }
+
         return ResponseUtil.wrapOrNotFound(
             result,
             HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, result.get().getTaskName())
@@ -204,7 +230,8 @@ public class TaskResource {
         @PathVariable(value = "id", required = false) final Long id,
         @NotNull @RequestBody Task task
     ) throws URISyntaxException {
-        log.debug("REST request to partial update Task partially : {}, {}", id, task);
+        log.warn("REST request to update task : {} with data : {}", id, task.toString());
+
         if (task.getId() == null) {
             throw new TaskWasNotSpecifyIdTask();
         }
@@ -217,6 +244,10 @@ public class TaskResource {
         }
 
         Optional<Task> result = taskService.partialUpdate(task);
+
+        for(String name:cacheManager.getCacheNames()){
+            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
+        }
 
         return ResponseUtil.wrapOrNotFound(
             result,
@@ -233,9 +264,14 @@ public class TaskResource {
      */
     @GetMapping("/tasks")
     public ResponseEntity<List<Task>> getAllTasks(TaskCriteria criteria, @org.springdoc.api.annotations.ParameterObject Pageable pageable) {
-        log.debug("REST request to get Tasks by criteria: {}", criteria);
+        log.warn("REST request to get all tasks : {}", criteria.toString());
         Page<Task> page = taskQueryService.findByCriteria(criteria, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+
+        for(String name:cacheManager.getCacheNames()){
+            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
+        }
+
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
@@ -247,7 +283,12 @@ public class TaskResource {
      */
     @GetMapping("/tasks/count")
     public ResponseEntity<Long> countTasks(TaskCriteria criteria) {
-        log.debug("REST request to count Tasks by criteria: {}", criteria);
+        log.warn("REST request to count tasks : {}", criteria.toString());
+
+        for(String name:cacheManager.getCacheNames()){
+            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
+        }
+
         return ResponseEntity.ok().body(taskQueryService.countByCriteria(criteria));
     }
 
@@ -259,8 +300,13 @@ public class TaskResource {
      */
     @GetMapping("/tasks/{id}")
     public ResponseEntity<Task> getTask(@PathVariable Long id) {
-        log.debug("REST request to get Task : {}", id);
+        log.warn("REST request to get task : {}", id);
         Optional<Task> task = taskService.findOne(id);
+
+        for(String name:cacheManager.getCacheNames()){
+            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
+        }
+
         return ResponseUtil.wrapOrNotFound(task);
     }
 
@@ -278,9 +324,13 @@ public class TaskResource {
         if (id == null){
             throw new TaskWasNotSpecifyIdTask();
         }
-        log.debug("REST request to delete Task : {}", id);
+        log.warn("REST request to delete task : {}", id);
 
         manageTaskAuxService.deleteTask(id);
+
+        for(String name:cacheManager.getCacheNames()){
+            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
+        }
 
         return ResponseEntity
             .noContent()

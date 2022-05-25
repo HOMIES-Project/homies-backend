@@ -150,10 +150,14 @@ public class GroupResource {
             Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
         }
 
-        return ResponseUtil.wrapOrNotFound(
-            result,
-            HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, result.get().getUserData().toString())
-        );
+        if(manageGroupVM.getLogin().equals(groupService.findOne(manageGroupVM.getIdGroup()).get().getUserAdmin().getUser().getLogin())){
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseUtil.wrapOrNotFound(
+                result,
+                HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, result.get().getUserData().toString())
+            );
+        }
     }
 
     /**

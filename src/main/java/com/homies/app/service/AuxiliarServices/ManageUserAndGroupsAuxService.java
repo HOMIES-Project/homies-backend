@@ -9,6 +9,7 @@ import com.homies.app.security.SecurityUtils;
 
 import com.homies.app.service.*;
 
+import com.homies.app.web.rest.errors.Group.GroupNotExistException;
 import com.homies.app.web.rest.errors.Group.GroupUserLoginNotAdmin;
 import com.homies.app.web.rest.errors.User.UserDoesNotExist;
 import com.homies.app.web.rest.vm.ManageGroupVM;
@@ -346,7 +347,9 @@ public class ManageUserAndGroupsAuxService {
             group = groupService.findOne(manageGroupVM.getIdGroup());
             userAdmin = userDataQueryService.getByUser_Login(SecurityUtils.getCurrentUserLogin().get());
         } catch (UsernameNotFoundException e) {
-            throw new DatabaseException("Invalid or non-existent data provided");
+            throw new UserDoesNotExist();
+        } catch (GroupNotExistException e) {
+            throw new GroupNotExistException();
         }
     }
 
