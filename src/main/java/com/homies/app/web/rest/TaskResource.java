@@ -95,14 +95,18 @@ public class TaskResource {
         if (newTask != null)
             return new ResponseEntity<>(newTask, HttpStatus.CREATED);
 
-        for(String name:cacheManager.getCacheNames()){
-            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
-        }
+        clearCache();
 
         return ResponseEntity
             .created(new URI("/api/tasks/" + newTask.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, false, ENTITY_NAME, newTask.getId().toString()))
             .body(newTask);
+    }
+
+    private void clearCache() {
+        for(String name:cacheManager.getCacheNames()){
+            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
+        }
     }
 
     /** make it posibble to add user to task
@@ -127,9 +131,7 @@ public class TaskResource {
 
         Optional<Task> result = manageTaskAuxService.addUserToTask(addUserToTaskVM);
 
-        for(String name:cacheManager.getCacheNames()){
-            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
-        }
+        clearCache();
 
         return ResponseUtil.wrapOrNotFound(
             result,
@@ -153,9 +155,7 @@ public class TaskResource {
 
         Optional<Task> result = manageTaskAuxService.deleteUserToTask(addUserToTaskVM);
 
-        for(String name:cacheManager.getCacheNames()){
-            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
-        }
+        clearCache();
 
         return ResponseUtil.wrapOrNotFound(
             result,
@@ -178,9 +178,7 @@ public class TaskResource {
 
         Optional<Task> result = manageTaskAuxService.updateTask(updateTaskVM);
 
-        for(String name:cacheManager.getCacheNames()){
-            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
-        }
+        clearCache();
 
         return ResponseUtil.wrapOrNotFound(
             result,
@@ -204,9 +202,7 @@ public class TaskResource {
 
         Optional<Task> result = manageTaskAuxService.updateTaskCancel(updateTaskVM);
 
-        for(String name:cacheManager.getCacheNames()){
-            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
-        }
+        clearCache();
 
         return ResponseUtil.wrapOrNotFound(
             result,
@@ -245,9 +241,7 @@ public class TaskResource {
 
         Optional<Task> result = taskService.partialUpdate(task);
 
-        for(String name:cacheManager.getCacheNames()){
-            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
-        }
+        clearCache();
 
         return ResponseUtil.wrapOrNotFound(
             result,
@@ -268,9 +262,7 @@ public class TaskResource {
         Page<Task> page = taskQueryService.findByCriteria(criteria, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
 
-        for(String name:cacheManager.getCacheNames()){
-            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
-        }
+        clearCache();
 
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
@@ -285,9 +277,7 @@ public class TaskResource {
     public ResponseEntity<Long> countTasks(TaskCriteria criteria) {
         log.warn("REST request to count tasks : {}", criteria.toString());
 
-        for(String name:cacheManager.getCacheNames()){
-            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
-        }
+        clearCache();
 
         return ResponseEntity.ok().body(taskQueryService.countByCriteria(criteria));
     }
@@ -303,9 +293,7 @@ public class TaskResource {
         log.warn("REST request to get task : {}", id);
         Optional<Task> task = taskService.findOne(id);
 
-        for(String name:cacheManager.getCacheNames()){
-            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
-        }
+        clearCache();
 
         return ResponseUtil.wrapOrNotFound(task);
     }
@@ -328,9 +316,7 @@ public class TaskResource {
 
         manageTaskAuxService.deleteTask(id);
 
-        for(String name:cacheManager.getCacheNames()){
-            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
-        }
+        clearCache();
 
         return ResponseEntity
             .noContent()

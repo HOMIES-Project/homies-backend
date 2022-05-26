@@ -86,14 +86,18 @@ public class TaskListResource {
         }
         TaskList result = taskListService.save(taskList);
 
-        for(String name:cacheManager.getCacheNames()){
-            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
-        }
+        clearCache();
 
         return ResponseEntity
             .created(new URI("/api/task-lists/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, false, ENTITY_NAME, result.getId().toString()))
             .body(result);
+    }
+
+    private void clearCache() {
+        for(String name:cacheManager.getCacheNames()){
+            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
+        }
     }
 
     /**
@@ -125,9 +129,7 @@ public class TaskListResource {
 
         TaskList result = taskListService.save(taskList);
 
-        for(String name:cacheManager.getCacheNames()){
-            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
-        }
+        clearCache();
 
         return ResponseEntity
             .ok()
@@ -165,9 +167,7 @@ public class TaskListResource {
 
         Optional<TaskList> result = taskListService.partialUpdate(taskList);
 
-        for(String name:cacheManager.getCacheNames()){
-            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
-        }
+        clearCache();
 
         return ResponseUtil.wrapOrNotFound(
             result,
@@ -191,9 +191,7 @@ public class TaskListResource {
         Page<TaskList> page = taskListQueryService.findByCriteria(criteria, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
 
-        for(String name:cacheManager.getCacheNames()){
-            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
-        }
+        clearCache();
 
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
@@ -208,9 +206,7 @@ public class TaskListResource {
     public ResponseEntity<Long> countTaskLists(TaskListCriteria criteria) {
         log.warn("REST request to count TaskLists by criteria: {}", criteria.toString());
 
-        for(String name:cacheManager.getCacheNames()){
-            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
-        }
+        clearCache();
 
         return ResponseEntity.ok().body(taskListQueryService.countByCriteria(criteria));
     }
@@ -229,9 +225,7 @@ public class TaskListResource {
         log.warn("REST request to get TaskList : {}", id);
         Optional<TaskList> result = taskListService.findOne(id);
 
-        for(String name:cacheManager.getCacheNames()){
-            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
-        }
+        clearCache();
 
         return ResponseUtil.wrapOrNotFound(
             result,
@@ -245,9 +239,7 @@ public class TaskListResource {
 
         List<Task> result = manageListTaskAuxService.getTaskUserTaskList(id, login);
 
-        for(String name:cacheManager.getCacheNames()){
-            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
-        }
+        clearCache();
 
         return ResponseEntity.ok().body(result);
     }
@@ -263,9 +255,7 @@ public class TaskListResource {
         log.warn("REST request to delete TaskList : {}", id);
         taskListService.delete(id);
 
-        for(String name:cacheManager.getCacheNames()){
-            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
-        }
+        clearCache();
 
         return ResponseEntity
             .noContent()

@@ -96,9 +96,7 @@ public class ProductsResource {
         if (newProduct != null)
             return new ResponseEntity<>(newProduct, HttpStatus.CREATED);
 
-        for(String name:cacheManager.getCacheNames()){
-            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
-        }
+        clearCache();
 
         return ResponseEntity
             .created(new URI("/api/products/" + newProduct.getId()))
@@ -122,9 +120,7 @@ public class ProductsResource {
 
         Optional<Products> result = manageProductAuxService.updateProduct(updateProductVM);
 
-        for(String name:cacheManager.getCacheNames()){
-            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
-        }
+        clearCache();
 
         return ResponseUtil.wrapOrNotFound(
             result,
@@ -148,9 +144,7 @@ public class ProductsResource {
 
         Optional<Products> result = manageProductAuxService.updateProductCancel(updateProductVM);
 
-        for(String name:cacheManager.getCacheNames()){
-            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
-        }
+        clearCache();
 
         return ResponseUtil.wrapOrNotFound(
             result,
@@ -188,9 +182,7 @@ public class ProductsResource {
 
         Optional<Products> result = productsService.partialUpdate(products);
 
-        for(String name:cacheManager.getCacheNames()){
-            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
-        }
+        clearCache();
 
         return ResponseUtil.wrapOrNotFound(
             result,
@@ -214,9 +206,7 @@ public class ProductsResource {
         Page<Products> page = productsQueryService.findByCriteria(criteria, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
 
-        for(String name:cacheManager.getCacheNames()){
-            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
-        }
+        clearCache();
 
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
@@ -231,9 +221,7 @@ public class ProductsResource {
     public ResponseEntity<Long> countProducts(ProductsCriteria criteria) {
         log.warn("REST request to count Products by criteria: {}", criteria.toString());
 
-        for(String name:cacheManager.getCacheNames()){
-            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
-        }
+        clearCache();
 
         return ResponseEntity.ok().body(productsQueryService.countByCriteria(criteria));
     }
@@ -249,9 +237,7 @@ public class ProductsResource {
         log.warn("REST request to get Products : {}", id);
         Optional<Products> products = productsService.findOne(id);
 
-        for(String name:cacheManager.getCacheNames()){
-            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
-        }
+        clearCache();
 
         return ResponseUtil.wrapOrNotFound(products);
     }
@@ -269,9 +255,7 @@ public class ProductsResource {
 
         boolean result = manageProductAuxService.deleteProducts(id);
 
-        for(String name:cacheManager.getCacheNames()){
-            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
-        }
+        clearCache();
 
         if (!result) {
             throw new BadRequestAlertException("The product could not be removed", ENTITY_NAME, "TheProductCouldNotBeRemoved");
@@ -280,5 +264,11 @@ public class ProductsResource {
             .noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, false, ENTITY_NAME, id.toString()))
             .build();
+    }
+
+    private void clearCache() {
+        for(String name:cacheManager.getCacheNames()){
+            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
+        }
     }
 }
