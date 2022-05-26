@@ -124,7 +124,18 @@ public class ManageUserAndGroupsAuxService {
         ManageGroupVM manageGroupVM
     ) {
         try {
-            if (userIsAuthenticated(manageGroupVM, MethodName.REMOVE_USER_FROM_GROUP)) {
+
+            MethodName method;
+            boolean userIsAdmin = groupService.findOne(manageGroupVM.getIdGroup()).get()
+                .getUserAdmin().getUser().getLogin().equals(manageGroupVM.getLogin());
+
+            if (userIsAdmin) {
+                method = MethodName.REMOVE_USER_FROM_GROUP;
+            } else {
+                method = MethodName.EXIT_USER_TO_GROUP;
+            }
+
+            if (userIsAuthenticated(manageGroupVM, method)) {
                 if (groupQueryService.findGroupByIdAndUserDataUserLogin(
                         manageGroupVM.getIdGroup(),
                         manageGroupVM.getLogin())
@@ -318,6 +329,10 @@ public class ManageUserAndGroupsAuxService {
                     if (!isUserInGroup())
                         return true;
                 break;
+            case EXIT_USER_TO_GROUP: //Terminar
+                if (isUserInGroup())
+                    return true;
+                break;
             case REMOVE_USER_FROM_GROUP:
             case CHANGE_ADMIN_OF_GROUP:
                 if (isAdmin())
@@ -371,6 +386,7 @@ public class ManageUserAndGroupsAuxService {
 
 enum MethodName {
     ADD_USER_TO_GROUP,
+    EXIT_USER_TO_GROUP,
     REMOVE_USER_FROM_GROUP,
     CHANGE_ADMIN_OF_GROUP,
     UPDATE_GROUP,

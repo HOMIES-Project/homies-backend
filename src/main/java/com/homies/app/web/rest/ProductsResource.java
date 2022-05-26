@@ -265,12 +265,17 @@ public class ProductsResource {
     @DeleteMapping("/products/{id}")
     public ResponseEntity<Void> deleteProducts(@PathVariable Long id) {
         log.warn("REST request to delete Products : {}", id);
-        productsService.delete(id);
+        //productsService.delete(id);
+
+        boolean result = manageProductAuxService.deleteProducts(id);
 
         for(String name:cacheManager.getCacheNames()){
             Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
         }
 
+        if (!result) {
+            throw new BadRequestAlertException("The product could not be removed", ENTITY_NAME, "TheProductCouldNotBeRemoved");
+        }
         return ResponseEntity
             .noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, false, ENTITY_NAME, id.toString()))
