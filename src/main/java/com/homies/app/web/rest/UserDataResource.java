@@ -96,9 +96,7 @@ public class UserDataResource {
         log.warn("@@@@ Homies::REST request to save UserData : {}", userData);
         UserData result = userDataService.save(userData);
 
-        for(String name:cacheManager.getCacheNames()){
-            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
-        }
+        clearCache();
 
         return ResponseEntity
             .created(new URI("/api/user-data/" + result.getId()))
@@ -130,9 +128,7 @@ public class UserDataResource {
         log.warn("@@@@ Homies::REST request to update UserData : {}", user.toString());
         UserData updateUser = userEditingAux.updateUser(user);
 
-        for(String name:cacheManager.getCacheNames()){
-            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
-        }
+        clearCache();
 
         if (updateUser != null) {
             return ResponseEntity.ok().body(updateUser);
@@ -174,9 +170,7 @@ public class UserDataResource {
         log.warn("@@@@ Homies::REST request to update UserData : {}", userData.toString());
         Optional<UserData> result = userDataService.partialUpdate(userData);
 
-        for(String name:cacheManager.getCacheNames()){
-            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
-        }
+        clearCache();
 
         return ResponseUtil.wrapOrNotFound(
             result,
@@ -202,9 +196,7 @@ public class UserDataResource {
         log.warn("@@@@ Homies::REST request to get UserData by criteria: {}", criteria.toString());
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
 
-        for(String name:cacheManager.getCacheNames()){
-            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
-        }
+        clearCache();
 
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
@@ -220,9 +212,7 @@ public class UserDataResource {
     public ResponseEntity<Long> countUserData(UserDataCriteria criteria) {
         log.warn("@@@@ Homies::REST request to count UserData by criteria: {}", criteria.toString());
 
-        for(String name:cacheManager.getCacheNames()){
-            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
-        }
+        clearCache();
 
         return ResponseEntity.ok().body(userDataQueryService.countByCriteria(criteria));
     }
@@ -239,9 +229,7 @@ public class UserDataResource {
 
         log.warn("@@@@ Homies::REST request to get UserData : {}", id);
 
-        for(String name:cacheManager.getCacheNames()){
-            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
-        }
+        clearCache();
 
         return ResponseUtil.wrapOrNotFound(userData);
     }
@@ -263,13 +251,17 @@ public class UserDataResource {
         log.debug("REST request to delete UserData : {}", id);
         manageUserAndGroupsAuxService.deleteUserAndRelationships(id);
 
-        for(String name:cacheManager.getCacheNames()){
-            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
-        }
+        clearCache();
 
         return ResponseEntity
             .noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, false, ENTITY_NAME, id.toString()))
             .build();
+    }
+
+    private void clearCache() {
+        for(String name:cacheManager.getCacheNames()){
+            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
+        }
     }
 }

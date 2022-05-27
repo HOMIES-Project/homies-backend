@@ -25,7 +25,9 @@ import com.homies.app.web.rest.vm.UpdateProductVM;
 import com.homies.app.web.rest.vm.UpdateTaskVM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.CacheManager;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
@@ -50,29 +52,32 @@ public class ProductsResource {
 
     @Value("${jhipster.clientApp.name}")
     private String applicationName;
-
+    @Autowired
     private final ProductsService productsService;
-
+    @Autowired
     private final ProductsRepository productsRepository;
-
+    @Autowired
     private final ProductsQueryService productsQueryService;
-
+    @Autowired
     private final CreateProductAuxService createProductAuxService;
-
+    @Autowired
     private final ManageProductAuxService manageProductAuxService;
-
+    @Autowired
+    private final CacheManager cacheManager;
     public ProductsResource(
         ProductsService productsService,
         ProductsRepository productsRepository,
         ProductsQueryService productsQueryService,
         CreateProductAuxService createProductAuxService,
-        ManageProductAuxService manageProductAuxService
+        ManageProductAuxService manageProductAuxService,
+        CacheManager cacheManager
     ) {
         this.productsService = productsService;
         this.productsRepository = productsRepository;
         this.productsQueryService = productsQueryService;
         this.createProductAuxService = createProductAuxService;
         this.manageProductAuxService = manageProductAuxService;
+        this.cacheManager = cacheManager;
     }
 
     /**
@@ -84,12 +89,14 @@ public class ProductsResource {
      */
     @PostMapping("/products")
     public ResponseEntity<Products> createProducts(@Valid @RequestBody AddProductVM product) throws URISyntaxException {
-        log.debug("REST request to save Products : {}", product);
+        log.warn("REST request to save Products : {}", product.toString());
 
         Products newProduct = createProductAuxService.createNewProduct(product);
 
         if (newProduct != null)
             return new ResponseEntity<>(newProduct, HttpStatus.CREATED);
+
+        clearCache();
 
         return ResponseEntity
             .created(new URI("/api/products/" + newProduct.getId()))
@@ -97,43 +104,10 @@ public class ProductsResource {
             .body(newProduct);
     }
 
-    /*
-     * {@code PUT  /products/:id} : Updates an existing products.
-     *
-     * @param id the id of the products to save.
-     * @param products the products to update.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated products,
-     * or with status {@code 400 (Bad Request)} if the products is not valid,
-     * or with status {@code 500 (Internal Server Error)} if the products couldn't be updated.
-     * @throws URISyntaxException if the Location URI syntax is incorrect.
-
-    @PutMapping("/products/{id}")
-    public ResponseEntity<Products> updateProducts(
-        @PathVariable(value = "id", required = false) final Long id,
-        @Valid @RequestBody Products products
-    ) throws URISyntaxException {
-        log.debug("REST request to update Products : {}, {}", id, products);
-        if (products.getId() == null) {
-            throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
-        }
-        if (!Objects.equals(id, products.getId())) {
-            throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
-        }
-
-        if (!productsRepository.existsById(id)) {
-            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
-        }
-
-        Products result = productsService.save(products);
-        return ResponseEntity
-            .ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, products.getId().toString()))
-            .body(result);
-    }*/
-
     @PutMapping("/products/update-products")
     public ResponseEntity<Products> updateProduct(@Valid @RequestBody UpdateProductVM updateProductVM)
         throws URISyntaxException {
+        log.warn("REST request to update Products : {}", updateProductVM.toString());
         if (updateProductVM.getIdProduct() == null) {
             throw new TaskWasNotSpecifyIdTask();
         }
@@ -145,6 +119,9 @@ public class ProductsResource {
         }
 
         Optional<Products> result = manageProductAuxService.updateProduct(updateProductVM);
+
+        clearCache();
+
         return ResponseUtil.wrapOrNotFound(
             result,
             HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, result.get().getName())
@@ -154,6 +131,7 @@ public class ProductsResource {
     @PutMapping("/product/cancel")
     public ResponseEntity<Products> updateProductCancel(@Valid @RequestBody UpdateProductVM updateProductVM)
         throws URISyntaxException {
+        log.warn("REST request to update Products : {}", updateProductVM.toString());
         if (updateProductVM.getIdProduct() == null) {
             throw new TaskWasNotSpecifyIdTask();
         }
@@ -165,6 +143,9 @@ public class ProductsResource {
         }
 
         Optional<Products> result = manageProductAuxService.updateProductCancel(updateProductVM);
+
+        clearCache();
+
         return ResponseUtil.wrapOrNotFound(
             result,
             HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, result.get().getName())
@@ -187,7 +168,7 @@ public class ProductsResource {
         @PathVariable(value = "id", required = false) final Long id,
         @NotNull @RequestBody Products products
     ) throws URISyntaxException {
-        log.debug("REST request to partial update Products partially : {}, {}", id, products);
+        log.warn("REST request to partial update Products partially : {}, {}", id, products.toString());
         if (products.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
@@ -200,6 +181,8 @@ public class ProductsResource {
         }
 
         Optional<Products> result = productsService.partialUpdate(products);
+
+        clearCache();
 
         return ResponseUtil.wrapOrNotFound(
             result,
@@ -219,9 +202,12 @@ public class ProductsResource {
         ProductsCriteria criteria,
         @org.springdoc.api.annotations.ParameterObject Pageable pageable
     ) {
-        log.debug("REST request to get Products by criteria: {}", criteria);
+        log.warn("REST request to get Products by criteria: {}", criteria.toString());
         Page<Products> page = productsQueryService.findByCriteria(criteria, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+
+        clearCache();
+
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
@@ -233,7 +219,10 @@ public class ProductsResource {
      */
     @GetMapping("/products/count")
     public ResponseEntity<Long> countProducts(ProductsCriteria criteria) {
-        log.debug("REST request to count Products by criteria: {}", criteria);
+        log.warn("REST request to count Products by criteria: {}", criteria.toString());
+
+        clearCache();
+
         return ResponseEntity.ok().body(productsQueryService.countByCriteria(criteria));
     }
 
@@ -245,8 +234,11 @@ public class ProductsResource {
      */
     @GetMapping("/products/{id}")
     public ResponseEntity<Products> getProducts(@PathVariable Long id) {
-        log.debug("REST request to get Products : {}", id);
+        log.warn("REST request to get Products : {}", id);
         Optional<Products> products = productsService.findOne(id);
+
+        clearCache();
+
         return ResponseUtil.wrapOrNotFound(products);
     }
 
@@ -258,11 +250,25 @@ public class ProductsResource {
      */
     @DeleteMapping("/products/{id}")
     public ResponseEntity<Void> deleteProducts(@PathVariable Long id) {
-        log.debug("REST request to delete Products : {}", id);
-        productsService.delete(id);
+        log.warn("REST request to delete Products : {}", id);
+        //productsService.delete(id);
+
+        boolean result = manageProductAuxService.deleteProducts(id);
+
+        clearCache();
+
+        if (!result) {
+            throw new BadRequestAlertException("The product could not be removed", ENTITY_NAME, "TheProductCouldNotBeRemoved");
+        }
         return ResponseEntity
             .noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, false, ENTITY_NAME, id.toString()))
             .build();
+    }
+
+    private void clearCache() {
+        for(String name:cacheManager.getCacheNames()){
+            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
+        }
     }
 }

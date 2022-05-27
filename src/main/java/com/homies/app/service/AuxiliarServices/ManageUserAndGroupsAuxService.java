@@ -9,6 +9,7 @@ import com.homies.app.security.SecurityUtils;
 
 import com.homies.app.service.*;
 
+import com.homies.app.web.rest.errors.Group.GroupNotExistException;
 import com.homies.app.web.rest.errors.Group.GroupUserLoginNotAdmin;
 import com.homies.app.web.rest.errors.User.UserDoesNotExist;
 import com.homies.app.web.rest.vm.ManageGroupVM;
@@ -123,7 +124,18 @@ public class ManageUserAndGroupsAuxService {
         ManageGroupVM manageGroupVM
     ) {
         try {
-            if (userIsAuthenticated(manageGroupVM, MethodName.REMOVE_USER_FROM_GROUP)) {
+
+            MethodName method;
+            boolean userIsAdmin = groupService.findOne(manageGroupVM.getIdGroup()).get()
+                .getUserAdmin().getUser().getLogin().equals(manageGroupVM.getLogin());
+
+            if (userIsAdmin) {
+                method = MethodName.REMOVE_USER_FROM_GROUP;
+            } else {
+                method = MethodName.EXIT_USER_TO_GROUP;
+            }
+
+            if (userIsAuthenticated(manageGroupVM, method)) {
                 if (groupQueryService.findGroupByIdAndUserDataUserLogin(
                         manageGroupVM.getIdGroup(),
                         manageGroupVM.getLogin())
@@ -317,6 +329,10 @@ public class ManageUserAndGroupsAuxService {
                     if (!isUserInGroup())
                         return true;
                 break;
+            case EXIT_USER_TO_GROUP: //Terminar
+                if (isUserInGroup())
+                    return true;
+                break;
             case REMOVE_USER_FROM_GROUP:
             case CHANGE_ADMIN_OF_GROUP:
                 if (isAdmin())
@@ -346,7 +362,9 @@ public class ManageUserAndGroupsAuxService {
             group = groupService.findOne(manageGroupVM.getIdGroup());
             userAdmin = userDataQueryService.getByUser_Login(SecurityUtils.getCurrentUserLogin().get());
         } catch (UsernameNotFoundException e) {
-            throw new DatabaseException("Invalid or non-existent data provided");
+            throw new UserDoesNotExist();
+        } catch (GroupNotExistException e) {
+            throw new GroupNotExistException();
         }
     }
 
@@ -368,6 +386,7 @@ public class ManageUserAndGroupsAuxService {
 
 enum MethodName {
     ADD_USER_TO_GROUP,
+    EXIT_USER_TO_GROUP,
     REMOVE_USER_FROM_GROUP,
     CHANGE_ADMIN_OF_GROUP,
     UPDATE_GROUP,

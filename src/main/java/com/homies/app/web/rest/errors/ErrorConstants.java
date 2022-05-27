@@ -38,6 +38,8 @@ public final class ErrorConstants {
     public static final URI USER_DOES_NOT_GROUP = URI.create(PROBLEM_BASE_URL + "/user-doesnot-group");
     //ShoppingList
     public static final URI SHOPPINGlIST_DOES_NOT_GROUP = URI.create(PROBLEM_BASE_URL + "/shoppingList-doesnot-exist");
+    //Product
+    public static final URI PRODUCT_DOES_NOT_EXIST = URI.create(PROBLEM_BASE_URL + "/product-doesnot-exist");
     //General
     public static final URI INCORRECT_PARAMETERS = URI.create(PROBLEM_BASE_URL + "/incorrect-parameters");
 

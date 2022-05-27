@@ -136,9 +136,7 @@ public class UserResource {
             User newUser = userService.createUser(userDTO);
             mailService.sendCreationEmail(newUser);
 
-            for(String name:cacheManager.getCacheNames()){
-                Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
-            }
+            clearCache();
 
             return ResponseEntity
                 .created(new URI("/api/admin/users/" + newUser.getLogin()))
@@ -171,9 +169,7 @@ public class UserResource {
         }
         Optional<AdminUserDTO> updatedUser = userService.getUser(userDTO);
 
-        for(String name:cacheManager.getCacheNames()){
-            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
-        }
+        clearCache();
 
         return ResponseUtil.wrapOrNotFound(
             updatedUser,
@@ -198,9 +194,7 @@ public class UserResource {
         final Page<AdminUserDTO> page = userService.getAllManagedUsers(pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
 
-        for(String name:cacheManager.getCacheNames()){
-            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
-        }
+        clearCache();
 
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
@@ -220,9 +214,7 @@ public class UserResource {
     public ResponseEntity<AdminUserDTO> getUser(@PathVariable @Pattern(regexp = Constants.LOGIN_REGEX) String login) {
         log.debug("REST request to get User : {}", login);
 
-        for(String name:cacheManager.getCacheNames()){
-            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
-        }
+        clearCache();
 
         return ResponseUtil.wrapOrNotFound(userService.getUserWithAuthoritiesByLogin(login).map(AdminUserDTO::new));
     }
@@ -239,13 +231,17 @@ public class UserResource {
         log.debug("REST request to delete User: {}", login);
         userService.deleteUser(login);
 
-        for(String name:cacheManager.getCacheNames()){
-            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
-        }
+        clearCache();
 
         return ResponseEntity
             .noContent()
             .headers(HeaderUtil.createAlert(applicationName, "A user is deleted with identifier " + login, login))
             .build();
+    }
+
+    private void clearCache() {
+        for(String name:cacheManager.getCacheNames()){
+            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
+        }
     }
 }

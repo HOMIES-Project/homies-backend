@@ -21,7 +21,9 @@ import com.homies.app.web.rest.vm.CreateTaskVM;
 import com.homies.app.web.rest.vm.GetGroupTaskListVM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.CacheManager;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
@@ -45,25 +47,28 @@ public class TaskListResource {
 
     @Value("${jhipster.clientApp.name}")
     private String applicationName;
-
+    @Autowired
     private final TaskListService taskListService;
-
+    @Autowired
     private final TaskListRepository taskListRepository;
-
+    @Autowired
     private final TaskListQueryService taskListQueryService;
-
+    @Autowired
     private final ManageListTaskAuxService manageListTaskAuxService;
-
+    @Autowired
+    private final CacheManager cacheManager;
     public TaskListResource(
         TaskListService taskListService,
         TaskListRepository taskListRepository,
         TaskListQueryService taskListQueryService,
-        ManageListTaskAuxService manageListTaskAuxService
+        ManageListTaskAuxService manageListTaskAuxService,
+        CacheManager cacheManager
     ) {
         this.taskListService = taskListService;
         this.taskListRepository = taskListRepository;
         this.taskListQueryService = taskListQueryService;
         this.manageListTaskAuxService = manageListTaskAuxService;
+        this.cacheManager = cacheManager;
     }
 
     /**
@@ -75,15 +80,24 @@ public class TaskListResource {
      */
     @PostMapping("/task-lists")
     public ResponseEntity<TaskList> createTaskList(@Valid @RequestBody TaskList taskList) throws URISyntaxException {
-        log.debug("REST request to save TaskList : {}", taskList);
+        log.warn("REST request to save TaskList : {}", taskList.toString());
         if (taskList.getId() != null) {
             throw new BadRequestAlertException("A new taskList cannot already have an ID", ENTITY_NAME, "idexists");
         }
         TaskList result = taskListService.save(taskList);
+
+        clearCache();
+
         return ResponseEntity
             .created(new URI("/api/task-lists/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, false, ENTITY_NAME, result.getId().toString()))
             .body(result);
+    }
+
+    private void clearCache() {
+        for(String name:cacheManager.getCacheNames()){
+            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
+        }
     }
 
     /**
@@ -101,7 +115,7 @@ public class TaskListResource {
         @PathVariable(value = "id", required = false) final Long id,
         @Valid @RequestBody TaskList taskList
     ) throws URISyntaxException {
-        log.debug("REST request to update TaskList : {}, {}", id, taskList);
+        log.warn("REST request to update TaskList : {}, {}", id, taskList.toString());
         if (taskList.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
@@ -114,6 +128,9 @@ public class TaskListResource {
         }
 
         TaskList result = taskListService.save(taskList);
+
+        clearCache();
+
         return ResponseEntity
             .ok()
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, taskList.getId().toString()))
@@ -136,7 +153,7 @@ public class TaskListResource {
         @PathVariable(value = "id", required = false) final Long id,
         @NotNull @RequestBody TaskList taskList
     ) throws URISyntaxException {
-        log.debug("REST request to partial update TaskList partially : {}, {}", id, taskList);
+        log.warn("REST request to partial update TaskList partially : {}, {}", id, taskList.toString());
         if (taskList.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
@@ -149,6 +166,8 @@ public class TaskListResource {
         }
 
         Optional<TaskList> result = taskListService.partialUpdate(taskList);
+
+        clearCache();
 
         return ResponseUtil.wrapOrNotFound(
             result,
@@ -168,9 +187,12 @@ public class TaskListResource {
         TaskListCriteria criteria,
         @org.springdoc.api.annotations.ParameterObject Pageable pageable
     ) {
-        log.debug("REST request to get TaskLists by criteria: {}", criteria);
+        log.warn("REST request to get TaskLists by criteria: {}", criteria.toString());
         Page<TaskList> page = taskListQueryService.findByCriteria(criteria, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+
+        clearCache();
+
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
@@ -182,7 +204,10 @@ public class TaskListResource {
      */
     @GetMapping("/task-lists/count")
     public ResponseEntity<Long> countTaskLists(TaskListCriteria criteria) {
-        log.debug("REST request to count TaskLists by criteria: {}", criteria);
+        log.warn("REST request to count TaskLists by criteria: {}", criteria.toString());
+
+        clearCache();
+
         return ResponseEntity.ok().body(taskListQueryService.countByCriteria(criteria));
     }
 
@@ -197,29 +222,25 @@ public class TaskListResource {
         if (id == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
-        log.debug("REST request to get TaskList : {}", id);
+        log.warn("REST request to get TaskList : {}", id);
         Optional<TaskList> result = taskListService.findOne(id);
+
+        clearCache();
+
         return ResponseUtil.wrapOrNotFound(
             result,
             HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, result.get().getNameList())
         );
     }
 
-    /*
-     * {@code GET  /task-lists-user}
-     *
-     * @param getGroupTaskListVM the id of the taskList to retrieve.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the taskList, or with status {@code 404 (Not Found)}.
-
-    @GetMapping("/task-lists-user")
-    public ResponseEntity<List<Task>> getTaskListUser(@Valid @RequestBody GetGroupTaskListVM getGroupTaskListVM) {
-        List<Task> result = manageListTaskAuxService.getTaskUserTaskList(getGroupTaskListVM);
-        return ResponseEntity.ok().body(result);
-    }*/
-
     @GetMapping("/task-lists-user/{id}/{login}")
     public ResponseEntity<List<Task>> getTaskListUser(@PathVariable Long id, @PathVariable String login) {
+        log.warn("REST request to get TaskList : {}", id);
+
         List<Task> result = manageListTaskAuxService.getTaskUserTaskList(id, login);
+
+        clearCache();
+
         return ResponseEntity.ok().body(result);
     }
 
@@ -231,8 +252,11 @@ public class TaskListResource {
      */
     @DeleteMapping("/task-lists/{id}")
     public ResponseEntity<Void> deleteTaskList(@PathVariable Long id) {
-        log.debug("REST request to delete TaskList : {}", id);
+        log.warn("REST request to delete TaskList : {}", id);
         taskListService.delete(id);
+
+        clearCache();
+
         return ResponseEntity
             .noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, false, ENTITY_NAME, id.toString()))

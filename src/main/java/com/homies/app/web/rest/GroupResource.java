@@ -95,9 +95,7 @@ public class GroupResource {
         if (newGrop != null)
             return new ResponseEntity<>(newGrop, HttpStatus.CREATED);
 
-        for(String name:cacheManager.getCacheNames()){
-            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
-        }
+        clearCache();
 
         assert false;
         return ResponseEntity
@@ -121,9 +119,7 @@ public class GroupResource {
 
         Optional<Group> result = manageUserAndGroupsAuxService.addUserToGroup(manageGroupVM);
 
-        for(String name:cacheManager.getCacheNames()){
-            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
-        }
+        clearCache();
 
         return ResponseUtil.wrapOrNotFound(
             result,
@@ -146,14 +142,16 @@ public class GroupResource {
         log.warn("@@@@ Homies::REST request to delete user to group : {}", manageGroupVM.toString());
         Optional<Group> result = manageUserAndGroupsAuxService.deleteUserToTheGroup(manageGroupVM);
 
-        for(String name:cacheManager.getCacheNames()){
-            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
-        }
+        clearCache();
 
-        return ResponseUtil.wrapOrNotFound(
-            result,
-            HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, result.get().getUserData().toString())
-        );
+        if(manageGroupVM.getLogin().equals(groupService.findOne(manageGroupVM.getIdGroup()).get().getUserAdmin().getUser().getLogin())){
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseUtil.wrapOrNotFound(
+                result,
+                HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, result.get().getUserData().toString())
+            );
+        }
     }
 
     /**
@@ -171,9 +169,7 @@ public class GroupResource {
         log.warn("@@@@ Homies::REST request to change userAdmin to group : {}", manageGroupVM.toString());
         Optional<Group> result = manageUserAndGroupsAuxService.changeUserAdminOfTheGroup(manageGroupVM);
 
-        for(String name:cacheManager.getCacheNames()){
-            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
-        }
+        clearCache();
 
         return ResponseUtil.wrapOrNotFound(
             result,
@@ -217,9 +213,7 @@ public class GroupResource {
         log.warn("@@@@ Homies::REST request to update Group : {}, {}", id, updateGroupVM.toString());
         Optional<Group> result = manageUserAndGroupsAuxService.updateGroup(updateGroupVM);
 
-        for(String name:cacheManager.getCacheNames()){
-            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
-        }
+        clearCache();
 
         return ResponseUtil.wrapOrNotFound(
             result,
@@ -245,9 +239,7 @@ public class GroupResource {
 
         log.warn("@@@@ Homies::REST request to get Groups by criteria: {}", criteria.toString());
 
-        for(String name:cacheManager.getCacheNames()){
-            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
-        }
+        clearCache();
 
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
@@ -263,9 +255,7 @@ public class GroupResource {
     public ResponseEntity<Long> countGroups(GroupCriteria criteria) {
         log.warn("@@@@ Homies::REST request to count Groups by criteria: {}", criteria.toString());
 
-        for(String name:cacheManager.getCacheNames()){
-            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
-        }
+        clearCache();
 
         return ResponseEntity.ok().body(groupQueryService.countByCriteria(criteria));
     }
@@ -282,9 +272,7 @@ public class GroupResource {
 
         log.warn("@@@@ Homies::REST request to get Group : {}", id);
 
-        for(String name:cacheManager.getCacheNames()){
-            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
-        }
+        clearCache();
 
         return ResponseUtil.wrapOrNotFound(group);
     }
@@ -304,14 +292,18 @@ public class GroupResource {
         log.warn("@@@@ Homies::REST request to delete Group : {}", id);
         Optional<Group> result = manageUserAndGroupsAuxService.deleteGroup(manageGroupVM);
 
-        for(String name:cacheManager.getCacheNames()){
-            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
-        }
+        clearCache();
 
         if (result.isPresent()) {
             throw new BadRequestAlertException("Group cannot be deleted", ENTITY_NAME, "groupcannotbedeleted");
         } else {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+    }
+
+    private void clearCache() {
+        for(String name:cacheManager.getCacheNames()){
+            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
         }
     }
 }

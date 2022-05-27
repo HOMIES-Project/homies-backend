@@ -87,9 +87,7 @@ public class AccountResource {
         createUserDataForUserAux.createUserData(user.getId());
         mailService.sendActivationEmail(user);
 
-        for(String name:cacheManager.getCacheNames()){
-            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
-        }
+        clearCache();
 
     }
 
@@ -107,9 +105,7 @@ public class AccountResource {
         log.warn("@@@@ Homies::REST resend mail for account activation: {}", email.getEmail());
         mailService.sendActivationEmail(user.get());
 
-        for(String name:cacheManager.getCacheNames()){
-            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
-        }
+        clearCache();
     }
 
     /**
@@ -126,9 +122,7 @@ public class AccountResource {
             throw new AccountResourceException("No user was found for this activation key");
         }
 
-        for(String name:cacheManager.getCacheNames()){
-            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
-        }
+        clearCache();
     }
 
     /**
@@ -141,9 +135,7 @@ public class AccountResource {
     public String isAuthenticated(HttpServletRequest request) {
         log.warn("@@@@ Homies::REST authenticate user: {}", request.getRemoteUser());
 
-        for(String name:cacheManager.getCacheNames()){
-            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
-        }
+        clearCache();
 
         return request.getRemoteUser();
     }
@@ -157,9 +149,7 @@ public class AccountResource {
     @GetMapping("/account")
     public AdminUserDTO getAccount() {
 
-        for(String name:cacheManager.getCacheNames()){
-            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
-        }
+        clearCache();
 
         return userService
             .getUserWithAuthorities()
@@ -195,9 +185,7 @@ public class AccountResource {
             userDTO.getImageUrl()
         );
 
-        for(String name:cacheManager.getCacheNames()){
-            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
-        }
+        clearCache();
     }
 
     /**
@@ -214,9 +202,7 @@ public class AccountResource {
         log.warn("@@@@ Homies::REST change password: {}", passwordChangeDto.getCurrentPassword());
         userService.changePassword(passwordChangeDto.getCurrentPassword(), passwordChangeDto.getNewPassword());
 
-        for(String name:cacheManager.getCacheNames()){
-            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
-        }
+        clearCache();
     }
 
     /**
@@ -235,16 +221,12 @@ public class AccountResource {
             log.warn("key= " + key);
             mailService.sendPasswordResetMail(user.get());
 
-            for(String name:cacheManager.getCacheNames()){
-                Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
-            }
+            clearCache();
 
             return new ResponseEntity(HttpStatus.ACCEPTED, HttpStatus.OK);
         } else {
 
-            for(String name:cacheManager.getCacheNames()){
-                Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
-            }
+            clearCache();
 
             log.warn(EMAIL_NOT_EXIST_TYPE.toString());
             throw new EmailNotExistException();
@@ -270,9 +252,7 @@ public class AccountResource {
             throw new AccountResourceException("No user was found for this reset key");
         }
 
-        for(String name:cacheManager.getCacheNames()){
-            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
-        }
+        clearCache();
     }
 
     private static boolean isPasswordLengthInvalid(String password) {
@@ -281,5 +261,11 @@ public class AccountResource {
             password.length() < ManagedUserVM.PASSWORD_MIN_LENGTH ||
             password.length() > ManagedUserVM.PASSWORD_MAX_LENGTH
         );
+    }
+
+    private void clearCache() {
+        for(String name:cacheManager.getCacheNames()){
+            Objects.requireNonNull(cacheManager.getCache(name)).clear();            // clear cache by name
+        }
     }
 }
