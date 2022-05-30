@@ -8,15 +8,11 @@ import java.util.Set;
 import javax.persistence.*;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
 import javax.persistence.Table;
-import javax.swing.*;
 import javax.validation.constraints.*;
 
 import org.hibernate.annotations.*;
 import org.hibernate.annotations.Cache;
-import org.junit.Ignore;
 
 /**
  * A Group.
