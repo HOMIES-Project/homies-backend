@@ -1,7 +1,6 @@
 package com.homies.app.web.rest;
 
 import com.homies.app.domain.Products;
-import com.homies.app.domain.Task;
 import com.homies.app.repository.ProductsRepository;
 import com.homies.app.service.AuxiliarServices.CreateProductAuxService;
 import com.homies.app.service.AuxiliarServices.ManageProductAuxService;
@@ -22,7 +21,6 @@ import com.homies.app.web.rest.errors.Task.TaskWasNotSpecifyIdTask;
 import com.homies.app.web.rest.errors.User.UserWasNotSpecifyLogin;
 import com.homies.app.web.rest.vm.AddProductVM;
 import com.homies.app.web.rest.vm.UpdateProductVM;
-import com.homies.app.web.rest.vm.UpdateTaskVM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

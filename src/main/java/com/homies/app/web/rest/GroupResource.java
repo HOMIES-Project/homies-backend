@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 
 import com.homies.app.web.rest.errors.Group.GroupWasNotSpecifyIdGroup;
 import com.homies.app.web.rest.errors.Group.GroupWasNotSpecifyLogin;
@@ -24,7 +25,7 @@ import com.homies.app.web.rest.vm.ManageGroupVM;
 import com.homies.app.web.rest.vm.CreateGroupVM;
 import com.homies.app.web.rest.vm.UpdateGroupVM;
 
-import org.jetbrains.annotations.NotNull;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
