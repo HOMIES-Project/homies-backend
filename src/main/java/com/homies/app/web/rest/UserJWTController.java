@@ -5,8 +5,6 @@ import com.homies.app.domain.UserData;
 import com.homies.app.security.jwt.JWTFilter;
 import com.homies.app.security.jwt.TokenProvider;
 import com.homies.app.service.UserDataQueryService;
-import com.homies.app.service.UserDataService;
-import com.homies.app.service.UserService;
 import com.homies.app.web.rest.vm.LoginVM;
 import javax.validation.Valid;
 import org.springframework.http.HttpHeaders;

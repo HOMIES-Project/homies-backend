@@ -17,9 +17,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 import com.homies.app.web.rest.errors.Group.GroupWasNotSpecifyIdGroup;
-import com.homies.app.web.rest.errors.Task.TaskDoesNotExist;
 import com.homies.app.web.rest.errors.Task.TaskWasNotSpecifyIdTask;
-import com.homies.app.web.rest.errors.Task.TaskWasNotSpecifyUser;
 import com.homies.app.web.rest.errors.TaskList.TaskListWasNotSpecifyTaskListId;
 import com.homies.app.web.rest.errors.User.UserWasNotSpecifyLogin;
 import com.homies.app.web.rest.vm.AddUserToTaskVM;
