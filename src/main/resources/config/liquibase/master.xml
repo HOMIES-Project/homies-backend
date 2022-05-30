@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.6.xsd">
+
+    <property name="now" value="now()" dbms="h2"/>
+    <property name="now" value="now()" dbms="mysql, mariadb"/>
+    <property name="floatType" value="float4" dbms="postgresql, h2"/>
+    <property name="floatType" value="float" dbms="mysql, oracle, mssql, mariadb"/>
+    <property name="clobType" value="clob" dbms="h2"/>
+    <property name="clobType" value="clob" dbms="mysql, oracle, mssql, mariadb, postgresql"/>
+    <property name="uuidType" value="varchar(36)" dbms="h2, mysql, mariadb"/>
+    <property name="datetimeType" value="datetime(6)" dbms="mysql, mariadb"/>
+    <property name="datetimeType" value="datetime" dbms="oracle, mssql, postgresql, h2"/>
+
+    <include file="config/liquibase/changelog/00000000000000_initial_schema.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20220317084902_added_entity_Task.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20220317085432_added_entity_TaskList.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20220317090134_added_entity_ShoppingList.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20220317091312_added_entity_Products.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20220317093250_added_entity_Spending.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20220317095408_added_entity_UserPending.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20220317101435_added_entity_SpendingList.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20220121133436_added_entity_UserData.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20220308114221_added_entity_Group.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20220319084319_added_entity_SettingsList.xml" relativeToChangelogFile="false"/>
+    <!-- jhipster-needle-liquibase-add-changelog - JHipster will add liquibase changelogs here -->
+    <include file="config/liquibase/changelog/20220308114221_added_entity_constraints_Group.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20220121133436_added_entity_constraints_UserData.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20220317084902_added_entity_constraints_Task.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20220317091312_added_entity_constraints_Products.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20220317095408_added_entity_constraints_UserPending.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20220319084319_added_entity_constraints_SettingsList.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20220317101435_added_entity_constraints_SpendingList.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20220317090134_added_entity_constraints_ShoppingList.xml" relativeToChangelogFile="false"/>
+    <!-- jhipster-needle-liquibase-add-constraints-changelog - JHipster will add liquibase constraints changelogs here -->
+    <!-- jhipster-needle-liquibase-add-incremental-changelog - JHipster will add incremental liquibase changelogs here -->
+</databaseChangeLog>

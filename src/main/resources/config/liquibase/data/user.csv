@@ -1,0 +1,4 @@
+id;login;password_hash;first_name;last_name;email;image_url;activated;lang_key;created_by;last_modified_by
+1;admin;$2a$10$j61rgOHYcKCkU0S96zyV9O8ElxVFIEX70bZlBbtkC2x.1RMIKESGu;Administrator;Administrator;homies_app@outlook.com;;true;en;system;system
+2;user;$2a$10$CuCzGHe15K35YOxmt7pEme58PGtmgQxNtbPQEoHJl.kkNqvxN3Zo.;User;User;agullojorge@gmail.com;;true;en;system;system
+

@@ -1,0 +1,104 @@
+<div>
+  <h2 id="page-heading" data-cy="GroupHeading">
+    <span>Groups</span>
+
+    <div class="d-flex justify-content-end">
+      <button class="btn btn-info me-2" (click)="loadPage()" [disabled]="isLoading">
+        <fa-icon icon="sync" [spin]="isLoading"></fa-icon>
+        <span>Refresh List</span>
+      </button>
+
+      <button
+        id="jh-create-entity"
+        data-cy="entityCreateButton"
+        class="btn btn-primary jh-create-entity create-group"
+        [routerLink]="['/group/new']"
+      >
+        <fa-icon icon="plus"></fa-icon>
+        <span> Create a new Group </span>
+      </button>
+    </div>
+  </h2>
+
+  <jhi-alert-error></jhi-alert-error>
+
+  <jhi-alert></jhi-alert>
+
+  <div class="alert alert-warning" id="no-result" *ngIf="groups?.length === 0">
+    <span>No groups found</span>
+  </div>
+
+  <div class="table-responsive" id="entities" *ngIf="groups && groups.length > 0">
+    <table class="table table-striped" aria-describedby="page-heading">
+      <thead>
+        <tr jhiSort [(predicate)]="predicate" [(ascending)]="ascending" (sortChange)="loadPage()">
+          <th scope="col" jhiSortBy="id"><span>ID</span> <fa-icon icon="sort"></fa-icon></th>
+          <th scope="col" jhiSortBy="groupKey"><span>Group Key</span> <fa-icon icon="sort"></fa-icon></th>
+          <th scope="col" jhiSortBy="groupName"><span>Group Name</span> <fa-icon icon="sort"></fa-icon></th>
+          <th scope="col" jhiSortBy="groupRelationName"><span>Group Relation Name</span> <fa-icon icon="sort"></fa-icon></th>
+          <th scope="col" jhiSortBy="addGroupDate"><span>Add Group Date</span> <fa-icon icon="sort"></fa-icon></th>
+          <th scope="col" jhiSortBy="userAdmin.id"><span>User Admin</span> <fa-icon icon="sort"></fa-icon></th>
+          <th scope="col" jhiSortBy="taskList.nameList"><span>Task List</span> <fa-icon icon="sort"></fa-icon></th>
+          <th scope="col"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let group of groups; trackBy: trackId" data-cy="entityTable">
+          <td>
+            <a [routerLink]="['/group', group.id, 'view']">{{ group.id }}</a>
+          </td>
+          <td>{{ group.groupKey }}</td>
+          <td>{{ group.groupName }}</td>
+          <td>{{ group.groupRelationName }}</td>
+          <td>{{ group.addGroupDate | formatMediumDate }}</td>
+          <td>
+            <div *ngIf="group.userAdmin">
+              <a [routerLink]="['/user-data', group.userAdmin?.id, 'view']">{{ group.userAdmin?.id }}</a>
+            </div>
+          </td>
+          <td>
+            <div *ngIf="group.taskList">
+              <a [routerLink]="['/task-list', group.taskList?.id, 'view']">{{ group.taskList?.nameList }}</a>
+            </div>
+          </td>
+          <td class="text-end">
+            <div class="btn-group">
+              <button type="submit" [routerLink]="['/group', group.id, 'view']" class="btn btn-info btn-sm" data-cy="entityDetailsButton">
+                <fa-icon icon="eye"></fa-icon>
+                <span class="d-none d-md-inline">View</span>
+              </button>
+
+              <button type="submit" [routerLink]="['/group', group.id, 'edit']" class="btn btn-primary btn-sm" data-cy="entityEditButton">
+                <fa-icon icon="pencil-alt"></fa-icon>
+                <span class="d-none d-md-inline">Edit</span>
+              </button>
+
+              <button type="submit" (click)="delete(group)" class="btn btn-danger btn-sm" data-cy="entityDeleteButton">
+                <fa-icon icon="times"></fa-icon>
+                <span class="d-none d-md-inline">Delete</span>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div *ngIf="groups && groups.length > 0">
+    <div class="d-flex justify-content-center">
+      <jhi-item-count [params]="{ page: page, totalItems: totalItems, itemsPerPage: itemsPerPage }"></jhi-item-count>
+    </div>
+
+    <div class="d-flex justify-content-center">
+      <ngb-pagination
+        [collectionSize]="totalItems"
+        [(page)]="ngbPaginationPage"
+        [pageSize]="itemsPerPage"
+        [maxSize]="5"
+        [rotate]="true"
+        [boundaryLinks]="true"
+        (pageChange)="loadPage($event)"
+      ></ngb-pagination>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,144 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    <form name="editForm" role="form" novalidate (ngSubmit)="save()" [formGroup]="editForm">
+      <h2 id="jhi-settings-list-heading" data-cy="SettingsListCreateUpdateHeading">Create or edit a Settings List</h2>
+
+      <div>
+        <jhi-alert-error></jhi-alert-error>
+
+        <div class="row mb-3" [hidden]="editForm.get('id')!.value == null">
+          <label class="form-label" for="field_id">ID</label>
+          <input type="number" class="form-control" name="id" id="field_id" data-cy="id" formControlName="id" [readonly]="true" />
+        </div>
+
+        <div class="row mb-3">
+          <label class="form-label" for="field_settingOne">Setting One</label>
+          <input
+            type="checkbox"
+            class="form-check"
+            name="settingOne"
+            id="field_settingOne"
+            data-cy="settingOne"
+            formControlName="settingOne"
+          />
+        </div>
+
+        <div class="row mb-3">
+          <label class="form-label" for="field_settingTwo">Setting Two</label>
+          <input
+            type="checkbox"
+            class="form-check"
+            name="settingTwo"
+            id="field_settingTwo"
+            data-cy="settingTwo"
+            formControlName="settingTwo"
+          />
+        </div>
+
+        <div class="row mb-3">
+          <label class="form-label" for="field_settingThree">Setting Three</label>
+          <input
+            type="checkbox"
+            class="form-check"
+            name="settingThree"
+            id="field_settingThree"
+            data-cy="settingThree"
+            formControlName="settingThree"
+          />
+        </div>
+
+        <div class="row mb-3">
+          <label class="form-label" for="field_settingFour">Setting Four</label>
+          <input
+            type="checkbox"
+            class="form-check"
+            name="settingFour"
+            id="field_settingFour"
+            data-cy="settingFour"
+            formControlName="settingFour"
+          />
+        </div>
+
+        <div class="row mb-3">
+          <label class="form-label" for="field_settingFive">Setting Five</label>
+          <input
+            type="checkbox"
+            class="form-check"
+            name="settingFive"
+            id="field_settingFive"
+            data-cy="settingFive"
+            formControlName="settingFive"
+          />
+        </div>
+
+        <div class="row mb-3">
+          <label class="form-label" for="field_settingSix">Setting Six</label>
+          <input
+            type="checkbox"
+            class="form-check"
+            name="settingSix"
+            id="field_settingSix"
+            data-cy="settingSix"
+            formControlName="settingSix"
+          />
+        </div>
+
+        <div class="row mb-3">
+          <label class="form-label" for="field_settingSeven">Setting Seven</label>
+          <input
+            type="checkbox"
+            class="form-check"
+            name="settingSeven"
+            id="field_settingSeven"
+            data-cy="settingSeven"
+            formControlName="settingSeven"
+          />
+        </div>
+
+        <div class="row mb-3">
+          <label class="form-label" for="field_spendingList">Spending List</label>
+          <select class="form-control" id="field_spendingList" data-cy="spendingList" name="spendingList" formControlName="spendingList">
+            <option [ngValue]="null"></option>
+            <option
+              [ngValue]="
+                spendingListOption.id === editForm.get('spendingList')!.value?.id ? editForm.get('spendingList')!.value : spendingListOption
+              "
+              *ngFor="let spendingListOption of spendingListsSharedCollection; trackBy: trackSpendingListById"
+            >
+              {{ spendingListOption.id }}
+            </option>
+          </select>
+        </div>
+
+        <div class="row mb-3">
+          <label class="form-label" for="field_group">Group</label>
+          <select class="form-control" id="field_group" data-cy="group" name="group" formControlName="group">
+            <option [ngValue]="null"></option>
+            <option
+              [ngValue]="groupOption.id === editForm.get('group')!.value?.id ? editForm.get('group')!.value : groupOption"
+              *ngFor="let groupOption of groupsCollection; trackBy: trackGroupById"
+            >
+              {{ groupOption.id }}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <button type="button" id="cancel-save" data-cy="entityCreateCancelButton" class="btn btn-secondary" (click)="previousState()">
+          <fa-icon icon="ban"></fa-icon>&nbsp;<span>Cancel</span>
+        </button>
+
+        <button
+          type="submit"
+          id="save-entity"
+          data-cy="entityCreateSaveButton"
+          [disabled]="editForm.invalid || isSaving"
+          class="btn btn-primary"
+        >
+          <fa-icon icon="save"></fa-icon>&nbsp;<span>Save</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

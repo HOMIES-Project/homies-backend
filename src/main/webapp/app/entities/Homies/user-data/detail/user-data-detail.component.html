@@ -1,0 +1,71 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    <div *ngIf="userData">
+      <h2 data-cy="userDataDetailsHeading"><span>User Data</span></h2>
+
+      <hr />
+
+      <jhi-alert-error></jhi-alert-error>
+
+      <jhi-alert></jhi-alert>
+
+      <dl class="row-md jh-entity-details">
+        <dt><span>ID</span></dt>
+        <dd>
+          <span>{{ userData.id }}</span>
+        </dd>
+        <dt><span>Photo</span></dt>
+        <dd>
+          <div *ngIf="userData.photo">
+            <a (click)="openFile(userData.photo, userData.photoContentType)">
+              <img [src]="'data:' + userData.photoContentType + ';base64,' + userData.photo" style="max-width: 100%" alt="userData image" />
+            </a>
+            {{ userData.photoContentType }}, {{ byteSize(userData.photo) }}
+          </div>
+        </dd>
+        <dt><span>Phone</span></dt>
+        <dd>
+          <span>{{ userData.phone }}</span>
+        </dd>
+        <dt><span>Premium</span></dt>
+        <dd>
+          <span>{{ userData.premium }}</span>
+        </dd>
+        <dt><span>Birth Date</span></dt>
+        <dd>
+          <span>{{ userData.birthDate | formatMediumDate }}</span>
+        </dd>
+        <dt><span>Add Date</span></dt>
+        <dd>
+          <span>{{ userData.addDate | formatMediumDate }}</span>
+        </dd>
+        <dt><span>User</span></dt>
+        <dd>
+          <span>{{ userData.user?.login }}</span>
+        </dd>
+        <dt><span>Task Asigned</span></dt>
+        <dd>
+          <span *ngFor="let taskAsigned of userData.taskAsigneds; let last = last">
+            <a [routerLink]="['/task', taskAsigned?.id, 'view']">{{ taskAsigned.id }}</a
+            >{{ last ? '' : ', ' }}
+          </span>
+        </dd>
+        <dt><span>Group</span></dt>
+        <dd>
+          <span *ngFor="let group of userData.groups; let last = last">
+            <a [routerLink]="['/group', group?.id, 'view']">{{ group.id }}</a
+            >{{ last ? '' : ', ' }}
+          </span>
+        </dd>
+      </dl>
+
+      <button type="submit" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">
+        <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span>Back</span>
+      </button>
+
+      <button type="button" [routerLink]="['/user-data', userData.id, 'edit']" class="btn btn-primary">
+        <fa-icon icon="pencil-alt"></fa-icon>&nbsp;<span>Edit</span>
+      </button>
+    </div>
+  </div>
+</div>

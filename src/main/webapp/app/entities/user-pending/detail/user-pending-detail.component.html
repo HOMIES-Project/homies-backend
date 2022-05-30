@@ -1,0 +1,55 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    <div *ngIf="userPending">
+      <h2 data-cy="userPendingDetailsHeading"><span>User Pending</span></h2>
+
+      <hr />
+
+      <jhi-alert-error></jhi-alert-error>
+
+      <jhi-alert></jhi-alert>
+
+      <dl class="row-md jh-entity-details">
+        <dt><span>ID</span></dt>
+        <dd>
+          <span>{{ userPending.id }}</span>
+        </dd>
+        <dt><span>Pending</span></dt>
+        <dd>
+          <span>{{ userPending.pending }}</span>
+        </dd>
+        <dt><span>Paid</span></dt>
+        <dd>
+          <span>{{ userPending.paid }}</span>
+        </dd>
+        <dt><span>Spending List</span></dt>
+        <dd>
+          <div *ngIf="userPending.spendingList">
+            <a [routerLink]="['/spending-list', userPending.spendingList?.id, 'view']">{{ userPending.spendingList?.nameSpendList }}</a>
+          </div>
+        </dd>
+        <dt><span>Spending</span></dt>
+        <dd>
+          <span *ngFor="let spending of userPending.spendings; let last = last">
+            <a [routerLink]="['/spending', spending?.id, 'view']">{{ spending.id }}</a
+            >{{ last ? '' : ', ' }}
+          </span>
+        </dd>
+        <dt><span>Settings List</span></dt>
+        <dd>
+          <div *ngIf="userPending.settingsList">
+            <a [routerLink]="['/settings-list', userPending.settingsList?.id, 'view']">{{ userPending.settingsList?.id }}</a>
+          </div>
+        </dd>
+      </dl>
+
+      <button type="submit" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">
+        <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span>Back</span>
+      </button>
+
+      <button type="button" [routerLink]="['/user-pending', userPending.id, 'edit']" class="btn btn-primary">
+        <fa-icon icon="pencil-alt"></fa-icon>&nbsp;<span>Edit</span>
+      </button>
+    </div>
+  </div>
+</div>

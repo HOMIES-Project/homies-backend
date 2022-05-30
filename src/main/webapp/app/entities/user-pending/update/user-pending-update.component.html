@@ -1,0 +1,90 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    <form name="editForm" role="form" novalidate (ngSubmit)="save()" [formGroup]="editForm">
+      <h2 id="jhi-user-pending-heading" data-cy="UserPendingCreateUpdateHeading">Create or edit a User Pending</h2>
+
+      <div>
+        <jhi-alert-error></jhi-alert-error>
+
+        <div class="row mb-3" [hidden]="editForm.get('id')!.value == null">
+          <label class="form-label" for="field_id">ID</label>
+          <input type="number" class="form-control" name="id" id="field_id" data-cy="id" formControlName="id" [readonly]="true" />
+        </div>
+
+        <div class="row mb-3">
+          <label class="form-label" for="field_pending">Pending</label>
+          <input type="number" class="form-control" name="pending" id="field_pending" data-cy="pending" formControlName="pending" />
+          <div *ngIf="editForm.get('pending')!.invalid && (editForm.get('pending')!.dirty || editForm.get('pending')!.touched)">
+            <small class="form-text text-danger" *ngIf="editForm.get('pending')?.errors?.min"> This field should be at least 0. </small>
+            <small class="form-text text-danger" [hidden]="!editForm.get('pending')?.errors?.number">
+              This field should be a number.
+            </small>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <label class="form-label" for="field_paid">Paid</label>
+          <input type="checkbox" class="form-check" name="paid" id="field_paid" data-cy="paid" formControlName="paid" />
+        </div>
+
+        <div class="row mb-3">
+          <label class="form-label" for="field_spendingList">Spending List</label>
+          <select class="form-control" id="field_spendingList" data-cy="spendingList" name="spendingList" formControlName="spendingList">
+            <option [ngValue]="null"></option>
+            <option
+              [ngValue]="
+                spendingListOption.id === editForm.get('spendingList')!.value?.id ? editForm.get('spendingList')!.value : spendingListOption
+              "
+              *ngFor="let spendingListOption of spendingListsSharedCollection; trackBy: trackSpendingListById"
+            >
+              {{ spendingListOption.nameSpendList }}
+            </option>
+          </select>
+        </div>
+
+        <div class="row mb-3">
+          <label for="field_spendings">Spending</label>
+          <select class="form-control" id="field_spendings" data-cy="spending" multiple name="spendings" formControlName="spendings">
+            <option
+              [ngValue]="getSelectedSpending(spendingOption, editForm.get('spendings')!.value)"
+              *ngFor="let spendingOption of spendingsSharedCollection; trackBy: trackSpendingById"
+            >
+              {{ spendingOption.id }}
+            </option>
+          </select>
+        </div>
+
+        <div class="row mb-3">
+          <label class="form-label" for="field_settingsList">Settings List</label>
+          <select class="form-control" id="field_settingsList" data-cy="settingsList" name="settingsList" formControlName="settingsList">
+            <option [ngValue]="null"></option>
+            <option
+              [ngValue]="
+                settingsListOption.id === editForm.get('settingsList')!.value?.id ? editForm.get('settingsList')!.value : settingsListOption
+              "
+              *ngFor="let settingsListOption of settingsListsSharedCollection; trackBy: trackSettingsListById"
+            >
+              {{ settingsListOption.id }}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <button type="button" id="cancel-save" data-cy="entityCreateCancelButton" class="btn btn-secondary" (click)="previousState()">
+          <fa-icon icon="ban"></fa-icon>&nbsp;<span>Cancel</span>
+        </button>
+
+        <button
+          type="submit"
+          id="save-entity"
+          data-cy="entityCreateSaveButton"
+          [disabled]="editForm.invalid || isSaving"
+          class="btn btn-primary"
+        >
+          <fa-icon icon="save"></fa-icon>&nbsp;<span>Save</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,119 @@
+<div>
+  <h2 id="page-heading" data-cy="SpendingHeading">
+    <span>Spendings</span>
+
+    <div class="d-flex justify-content-end">
+      <button class="btn btn-info me-2" (click)="loadPage()" [disabled]="isLoading">
+        <fa-icon icon="sync" [spin]="isLoading"></fa-icon>
+        <span>Refresh List</span>
+      </button>
+
+      <button
+        id="jh-create-entity"
+        data-cy="entityCreateButton"
+        class="btn btn-primary jh-create-entity create-spending"
+        [routerLink]="['/spending/new']"
+      >
+        <fa-icon icon="plus"></fa-icon>
+        <span> Create a new Spending </span>
+      </button>
+    </div>
+  </h2>
+
+  <jhi-alert-error></jhi-alert-error>
+
+  <jhi-alert></jhi-alert>
+
+  <div class="alert alert-warning" id="no-result" *ngIf="spendings?.length === 0">
+    <span>No spendings found</span>
+  </div>
+
+  <div class="table-responsive" id="entities" *ngIf="spendings && spendings.length > 0">
+    <table class="table table-striped" aria-describedby="page-heading">
+      <thead>
+        <tr jhiSort [(predicate)]="predicate" [(ascending)]="ascending" (sortChange)="loadPage()">
+          <th scope="col" jhiSortBy="id"><span>ID</span> <fa-icon icon="sort"></fa-icon></th>
+          <th scope="col" jhiSortBy="payer"><span>Payer</span> <fa-icon icon="sort"></fa-icon></th>
+          <th scope="col" jhiSortBy="nameCost"><span>Name Cost</span> <fa-icon icon="sort"></fa-icon></th>
+          <th scope="col" jhiSortBy="cost"><span>Cost</span> <fa-icon icon="sort"></fa-icon></th>
+          <th scope="col" jhiSortBy="photo"><span>Photo</span> <fa-icon icon="sort"></fa-icon></th>
+          <th scope="col" jhiSortBy="descripcion"><span>Descripcion</span> <fa-icon icon="sort"></fa-icon></th>
+          <th scope="col" jhiSortBy="paid"><span>Paid</span> <fa-icon icon="sort"></fa-icon></th>
+          <th scope="col" jhiSortBy="pending"><span>Pending</span> <fa-icon icon="sort"></fa-icon></th>
+          <th scope="col" jhiSortBy="finished"><span>Finished</span> <fa-icon icon="sort"></fa-icon></th>
+          <th scope="col"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let spending of spendings; trackBy: trackId" data-cy="entityTable">
+          <td>
+            <a [routerLink]="['/spending', spending.id, 'view']">{{ spending.id }}</a>
+          </td>
+          <td>{{ spending.payer }}</td>
+          <td>{{ spending.nameCost }}</td>
+          <td>{{ spending.cost }}</td>
+          <td>
+            <a *ngIf="spending.photo" (click)="openFile(spending.photo, spending.photoContentType)">
+              <img
+                [src]="'data:' + spending.photoContentType + ';base64,' + spending.photo"
+                style="max-height: 30px"
+                alt="spending image"
+              />
+            </a>
+            <span *ngIf="spending.photo">{{ spending.photoContentType }}, {{ byteSize(spending.photo) }}</span>
+          </td>
+          <td>{{ spending.descripcion }}</td>
+          <td>{{ spending.paid }}</td>
+          <td>{{ spending.pending }}</td>
+          <td>{{ spending.finished }}</td>
+          <td class="text-end">
+            <div class="btn-group">
+              <button
+                type="submit"
+                [routerLink]="['/spending', spending.id, 'view']"
+                class="btn btn-info btn-sm"
+                data-cy="entityDetailsButton"
+              >
+                <fa-icon icon="eye"></fa-icon>
+                <span class="d-none d-md-inline">View</span>
+              </button>
+
+              <button
+                type="submit"
+                [routerLink]="['/spending', spending.id, 'edit']"
+                class="btn btn-primary btn-sm"
+                data-cy="entityEditButton"
+              >
+                <fa-icon icon="pencil-alt"></fa-icon>
+                <span class="d-none d-md-inline">Edit</span>
+              </button>
+
+              <button type="submit" (click)="delete(spending)" class="btn btn-danger btn-sm" data-cy="entityDeleteButton">
+                <fa-icon icon="times"></fa-icon>
+                <span class="d-none d-md-inline">Delete</span>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div *ngIf="spendings && spendings.length > 0">
+    <div class="d-flex justify-content-center">
+      <jhi-item-count [params]="{ page: page, totalItems: totalItems, itemsPerPage: itemsPerPage }"></jhi-item-count>
+    </div>
+
+    <div class="d-flex justify-content-center">
+      <ngb-pagination
+        [collectionSize]="totalItems"
+        [(page)]="ngbPaginationPage"
+        [pageSize]="itemsPerPage"
+        [maxSize]="5"
+        [rotate]="true"
+        [boundaryLinks]="true"
+        (pageChange)="loadPage($event)"
+      ></ngb-pagination>
+    </div>
+  </div>
+</div>

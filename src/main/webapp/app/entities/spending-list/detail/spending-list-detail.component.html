@@ -1,0 +1,42 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    <div *ngIf="spendingList">
+      <h2 data-cy="spendingListDetailsHeading"><span>Spending List</span></h2>
+
+      <hr />
+
+      <jhi-alert-error></jhi-alert-error>
+
+      <jhi-alert></jhi-alert>
+
+      <dl class="row-md jh-entity-details">
+        <dt><span>ID</span></dt>
+        <dd>
+          <span>{{ spendingList.id }}</span>
+        </dd>
+        <dt><span>Total</span></dt>
+        <dd>
+          <span>{{ spendingList.total }}</span>
+        </dd>
+        <dt><span>Name Spend List</span></dt>
+        <dd>
+          <span>{{ spendingList.nameSpendList }}</span>
+        </dd>
+        <dt><span>Group</span></dt>
+        <dd>
+          <div *ngIf="spendingList.group">
+            <a [routerLink]="['/group', spendingList.group?.id, 'view']">{{ spendingList.group?.id }}</a>
+          </div>
+        </dd>
+      </dl>
+
+      <button type="submit" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">
+        <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span>Back</span>
+      </button>
+
+      <button type="button" [routerLink]="['/spending-list', spendingList.id, 'edit']" class="btn btn-primary">
+        <fa-icon icon="pencil-alt"></fa-icon>&nbsp;<span>Edit</span>
+      </button>
+    </div>
+  </div>
+</div>
